@@ -50,3 +50,12 @@ MonoBehaviour:
     minute: 0
   timeScale: 1
   sunTransform: {fileID: 0}
+  dayFogStart: 0
+  dayFogEnd: 100
+  nightFogStart: 0
+  nightFogEnd: 50
+  dayFogColor: {r: 0.09019608, g: 0.10980392, b: 0.32941177, a: 1}
+  nightFogColor: {r: 0, g: 0, b: 0, a: 1}
+  dayBackgroundColor: {r: 0.09019608, g: 0.16078432, b: 0.27450982, a: 0}
+  nightBackgroundColor: {r: 0, g: 0, b: 0.066037714, a: 0}
+  mainCamera: {fileID: 0}

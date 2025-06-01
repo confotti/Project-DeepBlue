@@ -14,7 +14,19 @@ public class TimeManager : MonoBehaviour
     [Header("Day and Night Cycle")]
     //transform the directional light
     public Transform sunTransform;
-    Vector3 sunAngle; 
+    Vector3 sunAngle;
+    [Header("Fog Settings")]
+    public float dayFogStart = 0f;
+    public float dayFogEnd = 150f;
+    public float nightFogStart = 0f;
+    public float nightFogEnd = 50f;
+    public Color dayFogColor = Color.gray;
+    public Color nightFogColor = Color.black;
+
+    [Header("Background Color Settings")]
+    public Color dayBackgroundColor = new Color(0.5f, 0.8f, 1f);  // Light blue
+    public Color nightBackgroundColor = new Color(0f, 0f, 0.1f);  // Dark blue/black 
+    public Camera mainCamera; 
 
     private void Awake()
     {
@@ -75,7 +87,21 @@ public class TimeManager : MonoBehaviour
 
         //Apply angle to the dir light
         //sunTransform.eulerAngles = new Vector3(sunAngle, 0, 0); 
-        this.sunAngle = new Vector3(sunAngle, 0, 0); 
+        this.sunAngle = new Vector3(sunAngle, 0, 0);
+
+        // ---- FOG CONTROL ----
+        float dayProgress = timeInMinutes / (24f * 60f); // 0 to 1
+        float dayFactor = Mathf.Clamp01(Mathf.Cos(dayProgress * 2f * Mathf.PI) * 0.5f + 0.5f);
+
+        RenderSettings.fogStartDistance = Mathf.Lerp(nightFogStart, dayFogStart, dayFactor);
+        RenderSettings.fogEndDistance = Mathf.Lerp(nightFogEnd, dayFogEnd, dayFactor);
+        RenderSettings.fogColor = Color.Lerp(nightFogColor, dayFogColor, dayFactor);
+
+        // ---- CAMERA BACKGROUND COLOR CONTROL ----
+        if (mainCamera != null && mainCamera.clearFlags == CameraClearFlags.SolidColor)
+        {
+            mainCamera.backgroundColor = Color.Lerp(nightBackgroundColor, dayBackgroundColor, dayFactor);
+        } 
     }
 
     private void Update()
