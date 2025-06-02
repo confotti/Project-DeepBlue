@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -23,6 +23,19 @@ public class TimeManager : MonoBehaviour
     public Color dayFogColor = Color.gray;
     public Color nightFogColor = Color.black;
 
+    // Fog interpolation speed
+    public float fogTransitionSpeed = 1.0f;
+
+    // Current interpolated fog values
+    private float currentFogStart;
+    private float currentFogEnd;
+    private Color currentFogColor;
+    private Color currentBackgroundColor;
+    private float targetFogStart;
+    private float targetFogEnd;
+    private Color targetFogColor;
+    private Color targetBackgroundColor; 
+
     [Header("Background Color Settings")]
     public Color dayBackgroundColor = new Color(0.5f, 0.8f, 1f);  // Light blue
     public Color nightBackgroundColor = new Color(0f, 0f, 0.1f);  // Dark blue/black 
@@ -44,8 +57,16 @@ public class TimeManager : MonoBehaviour
 
     private void Start()
     {
-        //initilise the time stamp 
         timestamp = new GameTimeStamp(1, 6, 0);
+        currentFogStart = RenderSettings.fogStartDistance;
+        currentFogEnd = RenderSettings.fogEndDistance;
+        currentFogColor = RenderSettings.fogColor;
+
+        if (mainCamera != null)
+        {
+            currentBackgroundColor = mainCamera.backgroundColor;
+        }
+
         StartCoroutine(TimeUpdate()); 
     }
 
@@ -89,13 +110,38 @@ public class TimeManager : MonoBehaviour
         //sunTransform.eulerAngles = new Vector3(sunAngle, 0, 0); 
         this.sunAngle = new Vector3(sunAngle, 0, 0);
 
-        // ---- FOG CONTROL ----
-        float dayProgress = timeInMinutes / (24f * 60f); // 0 to 1
-        float dayFactor = Mathf.Clamp01(Mathf.Cos(dayProgress * 2f * Mathf.PI) * 0.5f + 0.5f);
+        int totalDayMinutes = 20 * 60; 
+        int currentMinutes = timeInMinutes;
 
-        RenderSettings.fogStartDistance = Mathf.Lerp(nightFogStart, dayFogStart, dayFactor);
-        RenderSettings.fogEndDistance = Mathf.Lerp(nightFogEnd, dayFogEnd, dayFactor);
-        RenderSettings.fogColor = Color.Lerp(nightFogColor, dayFogColor, dayFactor);
+        // Convert to game hour
+        float gameHour = currentMinutes / 60f;
+        float dayFactor = 1f; 
+
+        if (gameHour >= 15f && gameHour <= 20f)
+        {
+            if (gameHour <= 16f)
+            {
+                // From 15 to 16 → dayFactor: 1 → 0 (fade out)
+                float t = Mathf.InverseLerp(15f, 16f, gameHour);
+                dayFactor = 1f - Mathf.SmoothStep(0f, 1f, t);
+            }
+            else
+            {
+                // From 19 to 20 → dayFactor: 0 → 1 (fade in)
+                float t = Mathf.InverseLerp(19f, 20f, gameHour);
+                dayFactor = Mathf.SmoothStep(0f, 1f, t);
+            }
+        }
+        else
+        {
+            // Full day outside 15–20
+            dayFactor = 1f;
+        }
+
+        targetFogStart = Mathf.Lerp(nightFogStart, dayFogStart, dayFactor);
+        targetFogEnd = Mathf.Lerp(nightFogEnd, dayFogEnd, dayFactor);
+        targetFogColor = Color.Lerp(nightFogColor, dayFogColor, dayFactor);
+        targetBackgroundColor = Color.Lerp(nightBackgroundColor, dayBackgroundColor, dayFactor); 
 
         // ---- CAMERA BACKGROUND COLOR CONTROL ----
         if (mainCamera != null && mainCamera.clearFlags == CameraClearFlags.SolidColor)
@@ -106,7 +152,23 @@ public class TimeManager : MonoBehaviour
 
     private void Update()
     {
-        sunTransform.rotation = Quaternion.Slerp(sunTransform.rotation, Quaternion.Euler(sunAngle), 1f * Time.deltaTime); 
+        sunTransform.rotation = Quaternion.Slerp(sunTransform.rotation, Quaternion.Euler(sunAngle), 1f * Time.deltaTime);
+
+        // Smooth fog transition
+        currentFogStart = Mathf.Lerp(currentFogStart, targetFogStart, fogTransitionSpeed * Time.deltaTime);
+        currentFogEnd = Mathf.Lerp(currentFogEnd, targetFogEnd, fogTransitionSpeed * Time.deltaTime);
+        currentFogColor = Color.Lerp(currentFogColor, targetFogColor, fogTransitionSpeed * Time.deltaTime);
+
+        RenderSettings.fogStartDistance = currentFogStart;
+        RenderSettings.fogEndDistance = currentFogEnd;
+        RenderSettings.fogColor = currentFogColor;
+
+        // Smooth camera background transition
+        if (mainCamera != null && mainCamera.clearFlags == CameraClearFlags.SolidColor)
+        {
+            currentBackgroundColor = Color.Lerp(currentBackgroundColor, targetBackgroundColor, fogTransitionSpeed * Time.deltaTime);
+            mainCamera.backgroundColor = currentBackgroundColor;
+        } 
     }
 
     //function to skip time
