@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal; 
 
 public class TimeManager : MonoBehaviour
 {
@@ -10,6 +12,25 @@ public class TimeManager : MonoBehaviour
     [SerializeField]
     GameTimeStamp timestamp;
     public float timeScale = 1.0f;
+
+    [Header("Color Grading Settings")]
+    public Volume postProcessingVolume;
+    private ColorAdjustments colorAdjustments;
+    private ShadowsMidtonesHighlights smh; 
+
+    [Header("Shadow/Midtone/Highlight Settings")]
+    public Color dayShadows = new Color(0.0f, 0.45f, 1f, 0.2f); 
+    public Color nightShadows = new Color(0.0f, 0.45f, 1f, 0.2f);
+
+    public Color dayMidtones = new Color(0.0f, 0.45f, 1f, 0.2f);
+    public Color nightMidtones = new Color(0.0f, 0.42f, 1f, 0.2f);
+
+    public Color dayHighlights = new Color(0.0f, 0.45f, 1f, 0.2f); 
+    public Color nightHighlights = new Color(0.12f, 0.3f, 1f, 0.2f);
+
+    [Range(0f, 1f)] public float shadowIntensity = 0.2f; 
+    [Range(0f, 1f)] public float midtoneIntensity = 0.2f;
+    [Range(0f, 1f)] public float highlightIntensity = 0.2f; 
 
     [Header("Day and Night Cycle")]
     //transform the directional light
@@ -67,7 +88,13 @@ public class TimeManager : MonoBehaviour
             currentBackgroundColor = mainCamera.backgroundColor;
         }
 
-        StartCoroutine(TimeUpdate()); 
+        StartCoroutine(TimeUpdate());
+
+        if (postProcessingVolume != null && postProcessingVolume.profile != null)
+        {
+            postProcessingVolume.profile.TryGet(out colorAdjustments);
+            postProcessingVolume.profile.TryGet(out smh); 
+        } 
     }
 
     IEnumerator TimeUpdate()
@@ -115,7 +142,7 @@ public class TimeManager : MonoBehaviour
 
         // Convert to game hour
         float gameHour = currentMinutes / 60f;
-        float dayFactor = 1f; 
+        float dayFactor = 1f;
 
         if (gameHour >= 15f && gameHour <= 20f)
         {
@@ -138,6 +165,26 @@ public class TimeManager : MonoBehaviour
             dayFactor = 1f;
         }
 
+        if (smh != null)
+        {
+            smh.shadows.overrideState = true;
+            smh.midtones.overrideState = true;
+            smh.highlights.overrideState = true;
+
+            Color shadowColor = Color.Lerp(nightShadows, dayShadows, dayFactor);
+            Color midtoneColor = Color.Lerp(nightMidtones, dayMidtones, dayFactor);
+            Color highlightColor = Color.Lerp(nightHighlights, dayHighlights, dayFactor);
+
+            // Override alpha with your intensity sliders
+            shadowColor.a = shadowIntensity;
+            midtoneColor.a = midtoneIntensity;
+            highlightColor.a = highlightIntensity;
+
+            smh.shadows.value = shadowColor;
+            smh.midtones.value = midtoneColor;
+            smh.highlights.value = highlightColor;
+        } 
+
         targetFogStart = Mathf.Lerp(nightFogStart, dayFogStart, dayFactor);
         targetFogEnd = Mathf.Lerp(nightFogEnd, dayFogEnd, dayFactor);
         targetFogColor = Color.Lerp(nightFogColor, dayFogColor, dayFactor);
@@ -147,7 +194,7 @@ public class TimeManager : MonoBehaviour
         if (mainCamera != null && mainCamera.clearFlags == CameraClearFlags.SolidColor)
         {
             mainCamera.backgroundColor = Color.Lerp(nightBackgroundColor, dayBackgroundColor, dayFactor);
-        } 
+        }
     }
 
     private void Update()
