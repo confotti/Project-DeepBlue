@@ -15,7 +15,7 @@ MonoBehaviour:
   active: 1
   color:
     m_OverrideState: 1
-    m_Value: {r: 0, g: 0.11365172, b: 0.23529412, a: 1}
+    m_Value: {r: 0, g: 0.23529412, b: 0.18409713, a: 1}
   center:
     m_OverrideState: 1
     m_Value: {x: 0.5, y: 0.5}
@@ -99,7 +99,7 @@ MonoBehaviour:
     m_Value: {r: 0.86627805, g: 0.9716981, b: 0.8669601, a: 1}
   hueShift:
     m_OverrideState: 1
-    m_Value: 0
+    m_Value: -10
   saturation:
     m_OverrideState: 1
     m_Value: 0
@@ -118,10 +118,10 @@ MonoBehaviour:
   active: 1
   temperature:
     m_OverrideState: 1
-    m_Value: 80
+    m_Value: 60
   tint:
     m_OverrideState: 1
-    m_Value: 65
+    m_Value: 60
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -132,7 +132,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d7fd9488000d3734a9e00ee676215985, type: 3}
-  m_Name: UnderWater Profile
+  m_Name: Kelpforest
   m_EditorClassIdentifier: 
   components:
   - {fileID: -7704913799229721361}
@@ -155,13 +155,13 @@ MonoBehaviour:
   active: 1
   shadows:
     m_OverrideState: 1
-    m_Value: {x: 0.19360822, y: 0.48069096, z: 1, w: 0}
+    m_Value: {x: 0.20491427, y: 0.44952947, z: 1, w: 0}
   midtones:
     m_OverrideState: 1
-    m_Value: {x: 0.20640147, y: 0.53671205, z: 1, w: 0}
+    m_Value: {x: 0.17733556, y: 0.48258236, z: 1, w: 0}
   highlights:
     m_OverrideState: 1
-    m_Value: {x: 0.204166, y: 0.40456426, z: 1, w: 0}
+    m_Value: {x: 0.16457558, y: 0.37235072, z: 1, w: 0}
   shadowsStart:
     m_OverrideState: 0
     m_Value: 0

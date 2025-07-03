@@ -677,6 +677,7 @@ GameObject:
   - component: {fileID: 544983421}
   - component: {fileID: 544983420}
   - component: {fileID: 544983419}
+  - component: {fileID: 544983422}
   m_Layer: 0
   m_Name: KelpVolume
   m_TagString: Untagged
@@ -719,9 +720,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_IsGlobal: 0
   priority: 0
-  blendDistance: 5
+  blendDistance: 10
   weight: 1
-  sharedProfile: {fileID: 11400000, guid: 0c250572e72825d4b9d8a99d286cfb32, type: 2}
+  sharedProfile: {fileID: 11400000, guid: 583c96af32ca340469da884c153dd939, type: 2}
 --- !u!4 &544983421
 Transform:
   m_ObjectHideFlags: 0
@@ -737,6 +738,21 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &544983422
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 544983418}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e78d35e60f919324d9cc5b828ca9f4da, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  volume: {fileID: 544983420}
+  transitionSpeed: 1
+  targetWeight: 1
 --- !u!1001 &715445916
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5815,6 +5831,7 @@ GameObject:
   - component: {fileID: 1448178226}
   - component: {fileID: 1448178225}
   - component: {fileID: 1448178227}
+  - component: {fileID: 1448178228}
   m_Layer: 0
   m_Name: Volume
   m_TagString: Untagged
@@ -5836,7 +5853,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_IsGlobal: 0
   priority: 0
-  blendDistance: 5
+  blendDistance: 10
   weight: 1
   sharedProfile: {fileID: 11400000, guid: 0c250572e72825d4b9d8a99d286cfb32, type: 2}
 --- !u!4 &1448178226
@@ -5875,6 +5892,21 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 305.18365, y: 65.1568, z: 414.5788}
   m_Center: {x: 4.955414, y: 4.2575417, z: 77.21939}
+--- !u!114 &1448178228
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1448178224}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e78d35e60f919324d9cc5b828ca9f4da, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  volume: {fileID: 1448178225}
+  transitionSpeed: 1
+  targetWeight: 1
 --- !u!1 &1471794299
 GameObject:
   m_ObjectHideFlags: 0
