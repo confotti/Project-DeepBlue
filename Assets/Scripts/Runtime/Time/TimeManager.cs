@@ -28,9 +28,9 @@ public class TimeManager : MonoBehaviour
     public Color dayHighlights = new Color(0.0f, 0.45f, 1f, 0.2f); 
     public Color nightHighlights = new Color(0.12f, 0.3f, 1f, 0.2f);
 
-    [Range(0f, 1f)] public float shadowIntensity = 0.2f; 
-    [Range(0f, 1f)] public float midtoneIntensity = 0.2f;
-    [Range(0f, 1f)] public float highlightIntensity = 0.2f; 
+    [Range(0f, 1f)] private float shadowIntensity = 0f; 
+    [Range(0f, 1f)] private float midtoneIntensity = 0f;
+    [Range(0f, 1f)] private float highlightIntensity = 0f; 
 
     [Header("Day and Night Cycle")]
     //transform the directional light
