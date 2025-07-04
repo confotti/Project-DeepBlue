@@ -24,6 +24,8 @@ public class PlayerMovement : MonoBehaviour
 
     private void Awake()
     {
+        Cursor.lockState = CursorLockMode.Locked;
+
         inputHandler = GetComponent<PlayerInputHandler>();
         rb = GetComponent<Rigidbody>();
     }
@@ -41,13 +43,26 @@ public class PlayerMovement : MonoBehaviour
 
     private void FixedUpdate()
     {
-        rb.linearVelocity = new Vector3(inputHandler.Move.x, 0, inputHandler.Move.y) * speed;
+        Movement();
 
         eulerLook.x -= inputHandler.Look.y * mouseSensitivity;
         eulerLook.y += inputHandler.Look.x * mouseSensitivity;
-        eulerLook.x %= 360;
+        eulerLook.y %= 360;
         eulerLook.x = Mathf.Clamp(eulerLook.x, lookYMin, lookYMax);
         transform.rotation = Quaternion.Euler(eulerLook);
+    }
+
+    private void Movement()
+    {
+        if(currentState  == States.swimming)
+        {
+            rb.linearVelocity = (transform.rotation * new Vector3(inputHandler.Move.x, 0, inputHandler.Move.y)).normalized * speed;
+        }
+        else
+        {
+            rb.linearVelocity = new Vector3(inputHandler.Move.x, 0, inputHandler.Move.y).normalized * speed;
+        }
+        
     }
 
 }
