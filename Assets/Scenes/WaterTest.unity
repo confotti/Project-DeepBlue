@@ -564,7 +564,7 @@ Light:
   m_CullingMask:
     serializedVersion: 2
     m_Bits: 0
-  m_RenderingLayerMask: 4294967295
+  m_RenderingLayerMask: 0
   m_Lightmapping: 4
   m_LightShadowCasterMode: 0
   m_AreaSize: {x: 1, y: 1}
@@ -875,13 +875,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 712731316}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0.7071068, y: 0, z: 0, w: 0.7071068}
   m_LocalPosition: {x: 40, y: -20, z: 30}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 719239689}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: -90, y: 0, z: 0}
 --- !u!1001 &715445916
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -6296,146 +6296,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: TimeManager
       objectReference: {fileID: 0}
-    - target: {fileID: 4126031456763104974, guid: 213a44a036db8fd42865e0f0a667a5b7, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 8157297926691827304, guid: 213a44a036db8fd42865e0f0a667a5b7, type: 3}
-      propertyPath: dayFogEnd
-      value: 150
-      objectReference: {fileID: 0}
     - target: {fileID: 8157297926691827304, guid: 213a44a036db8fd42865e0f0a667a5b7, type: 3}
       propertyPath: mainCamera
       value: 
       objectReference: {fileID: 330585545}
     - target: {fileID: 8157297926691827304, guid: 213a44a036db8fd42865e0f0a667a5b7, type: 3}
-      propertyPath: nightFogEnd
-      value: 80
-      objectReference: {fileID: 0}
-    - target: {fileID: 8157297926691827304, guid: 213a44a036db8fd42865e0f0a667a5b7, type: 3}
-      propertyPath: dayShadows.b
-      value: 0.9433962
-      objectReference: {fileID: 0}
-    - target: {fileID: 8157297926691827304, guid: 213a44a036db8fd42865e0f0a667a5b7, type: 3}
-      propertyPath: dayShadows.g
-      value: 0.44255513
-      objectReference: {fileID: 0}
-    - target: {fileID: 8157297926691827304, guid: 213a44a036db8fd42865e0f0a667a5b7, type: 3}
-      propertyPath: dayShadows.r
-      value: 0.031149892
-      objectReference: {fileID: 0}
-    - target: {fileID: 8157297926691827304, guid: 213a44a036db8fd42865e0f0a667a5b7, type: 3}
       propertyPath: sunTransform
       value: 
       objectReference: {fileID: 410087041}
-    - target: {fileID: 8157297926691827304, guid: 213a44a036db8fd42865e0f0a667a5b7, type: 3}
-      propertyPath: dayMidtones.b
-      value: 0.8867924
-      objectReference: {fileID: 0}
-    - target: {fileID: 8157297926691827304, guid: 213a44a036db8fd42865e0f0a667a5b7, type: 3}
-      propertyPath: dayMidtones.g
-      value: 0.50179154
-      objectReference: {fileID: 0}
-    - target: {fileID: 8157297926691827304, guid: 213a44a036db8fd42865e0f0a667a5b7, type: 3}
-      propertyPath: dayMidtones.r
-      value: 0.18823427
-      objectReference: {fileID: 0}
-    - target: {fileID: 8157297926691827304, guid: 213a44a036db8fd42865e0f0a667a5b7, type: 3}
-      propertyPath: nightShadows.b
-      value: 0.754717
-      objectReference: {fileID: 0}
-    - target: {fileID: 8157297926691827304, guid: 213a44a036db8fd42865e0f0a667a5b7, type: 3}
-      propertyPath: nightShadows.g
-      value: 0.43222418
-      objectReference: {fileID: 0}
-    - target: {fileID: 8157297926691827304, guid: 213a44a036db8fd42865e0f0a667a5b7, type: 3}
-      propertyPath: nightShadows.r
-      value: 0.16731933
-      objectReference: {fileID: 0}
-    - target: {fileID: 8157297926691827304, guid: 213a44a036db8fd42865e0f0a667a5b7, type: 3}
-      propertyPath: nightShadows.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8157297926691827304, guid: 213a44a036db8fd42865e0f0a667a5b7, type: 3}
-      propertyPath: nightShadows.y
-      value: 0.45
-      objectReference: {fileID: 0}
-    - target: {fileID: 8157297926691827304, guid: 213a44a036db8fd42865e0f0a667a5b7, type: 3}
-      propertyPath: nightShadows.z
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 8157297926691827304, guid: 213a44a036db8fd42865e0f0a667a5b7, type: 3}
-      propertyPath: dayHighlights.b
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 8157297926691827304, guid: 213a44a036db8fd42865e0f0a667a5b7, type: 3}
-      propertyPath: dayHighlights.g
-      value: 0.4509804
-      objectReference: {fileID: 0}
-    - target: {fileID: 8157297926691827304, guid: 213a44a036db8fd42865e0f0a667a5b7, type: 3}
-      propertyPath: dayHighlights.r
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8157297926691827304, guid: 213a44a036db8fd42865e0f0a667a5b7, type: 3}
-      propertyPath: nightMidtones.b
-      value: 0.7169812
-      objectReference: {fileID: 0}
-    - target: {fileID: 8157297926691827304, guid: 213a44a036db8fd42865e0f0a667a5b7, type: 3}
-      propertyPath: nightMidtones.g
-      value: 0.49218765
-      objectReference: {fileID: 0}
-    - target: {fileID: 8157297926691827304, guid: 213a44a036db8fd42865e0f0a667a5b7, type: 3}
-      propertyPath: nightMidtones.r
-      value: 0.32805273
-      objectReference: {fileID: 0}
-    - target: {fileID: 8157297926691827304, guid: 213a44a036db8fd42865e0f0a667a5b7, type: 3}
-      propertyPath: nightMidtones.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8157297926691827304, guid: 213a44a036db8fd42865e0f0a667a5b7, type: 3}
-      propertyPath: nightMidtones.y
-      value: 0.42
-      objectReference: {fileID: 0}
-    - target: {fileID: 8157297926691827304, guid: 213a44a036db8fd42865e0f0a667a5b7, type: 3}
-      propertyPath: nightMidtones.z
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 8157297926691827304, guid: 213a44a036db8fd42865e0f0a667a5b7, type: 3}
-      propertyPath: shadowIntensity
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8157297926691827304, guid: 213a44a036db8fd42865e0f0a667a5b7, type: 3}
-      propertyPath: midtoneIntensity
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8157297926691827304, guid: 213a44a036db8fd42865e0f0a667a5b7, type: 3}
-      propertyPath: nightHighlights.b
-      value: 0.7735849
-      objectReference: {fileID: 0}
-    - target: {fileID: 8157297926691827304, guid: 213a44a036db8fd42865e0f0a667a5b7, type: 3}
-      propertyPath: nightHighlights.g
-      value: 0.27496085
-      objectReference: {fileID: 0}
-    - target: {fileID: 8157297926691827304, guid: 213a44a036db8fd42865e0f0a667a5b7, type: 3}
-      propertyPath: nightHighlights.r
-      value: 0.14960839
-      objectReference: {fileID: 0}
-    - target: {fileID: 8157297926691827304, guid: 213a44a036db8fd42865e0f0a667a5b7, type: 3}
-      propertyPath: nightHighlights.x
-      value: 0.12
-      objectReference: {fileID: 0}
-    - target: {fileID: 8157297926691827304, guid: 213a44a036db8fd42865e0f0a667a5b7, type: 3}
-      propertyPath: nightHighlights.y
-      value: 0.3
-      objectReference: {fileID: 0}
-    - target: {fileID: 8157297926691827304, guid: 213a44a036db8fd42865e0f0a667a5b7, type: 3}
-      propertyPath: nightHighlights.z
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 8157297926691827304, guid: 213a44a036db8fd42865e0f0a667a5b7, type: 3}
-      propertyPath: highlightIntensity
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 8157297926691827304, guid: 213a44a036db8fd42865e0f0a667a5b7, type: 3}
       propertyPath: postProcessingVolume
       value: 
