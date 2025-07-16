@@ -15,22 +15,7 @@ public class TimeManager : MonoBehaviour
 
     [Header("Color Grading Settings")]
     public Volume postProcessingVolume;
-    private ColorAdjustments colorAdjustments;
-    private ShadowsMidtonesHighlights smh; 
-
-    [Header("Shadow/Midtone/Highlight Settings")]
-    public Color dayShadows = new Color(0.0f, 0.45f, 1f, 0.2f); 
-    public Color nightShadows = new Color(0.0f, 0.45f, 1f, 0.2f);
-
-    public Color dayMidtones = new Color(0.0f, 0.45f, 1f, 0.2f);
-    public Color nightMidtones = new Color(0.0f, 0.42f, 1f, 0.2f);
-
-    public Color dayHighlights = new Color(0.0f, 0.45f, 1f, 0.2f); 
-    public Color nightHighlights = new Color(0.12f, 0.3f, 1f, 0.2f);
-
-    [Range(0f, 1f)] private float shadowIntensity = 0f; 
-    [Range(0f, 1f)] private float midtoneIntensity = 0f;
-    [Range(0f, 1f)] private float highlightIntensity = 0f; 
+    private ColorAdjustments colorAdjustments; 
 
     [Header("Day and Night Cycle")]
     //transform the directional light
@@ -93,7 +78,6 @@ public class TimeManager : MonoBehaviour
         if (postProcessingVolume != null && postProcessingVolume.profile != null)
         {
             postProcessingVolume.profile.TryGet(out colorAdjustments);
-            postProcessingVolume.profile.TryGet(out smh); 
         } 
     }
 
@@ -163,26 +147,6 @@ public class TimeManager : MonoBehaviour
         {
             // Full day outside 15–20
             dayFactor = 1f;
-        }
-
-        if (smh != null)
-        {
-            smh.shadows.overrideState = true;
-            smh.midtones.overrideState = true;
-            smh.highlights.overrideState = true;
-
-            Color shadowColor = Color.Lerp(nightShadows, dayShadows, dayFactor);
-            Color midtoneColor = Color.Lerp(nightMidtones, dayMidtones, dayFactor);
-            Color highlightColor = Color.Lerp(nightHighlights, dayHighlights, dayFactor);
-
-            // Override alpha with your intensity sliders
-            shadowColor.a = shadowIntensity;
-            midtoneColor.a = midtoneIntensity;
-            highlightColor.a = highlightIntensity;
-
-            smh.shadows.value = shadowColor;
-            smh.midtones.value = midtoneColor;
-            smh.highlights.value = highlightColor;
         } 
 
         targetFogStart = Mathf.Lerp(nightFogStart, dayFogStart, dayFactor);
