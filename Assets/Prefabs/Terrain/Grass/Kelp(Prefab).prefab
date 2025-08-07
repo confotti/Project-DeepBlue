@@ -1,0 +1,59 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &2853520007454499016
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8181345725762429618}
+  - component: {fileID: 2495985869235727504}
+  m_Layer: 0
+  m_Name: Kelp(Prefab)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8181345725762429618
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2853520007454499016}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 806.91, y: 4.22, z: 187.10175}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2495985869235727504
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2853520007454499016}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb8a6c902668c7443acf6011fadc4421, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  numberOfKelpSegments: 30
+  kelpSegmentLength: 2
+  gravityForce: {x: 0, y: 0.15, z: 0}
+  dampingFactor: 0.98
+  collisionMask:
+    serializedVersion: 2
+    m_Bits: 16
+  collisionRadius: 0.1
+  bounceFactor: 0.1
+  numberOfConstraintRuns: 30
+  collisionSegmentInterval: 2
+  kelpSegmentMeshPrefab: {fileID: 9052444979771236848, guid: f73c5e29cb9e29d4ea09e743065d9564, type: 3}
+  topSegmentMeshPrefab: {fileID: 8052588498022515393, guid: 4b3b2ab575785384593e4f05137c1d1d, type: 3}

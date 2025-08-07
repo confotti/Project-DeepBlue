@@ -1,0 +1,21 @@
+// CombineVertices.compute
+
+#pragma kernel CSMain
+
+StructuredBuffer<float3> inputVertices;
+RWStructuredBuffer<float3> combinedVertices;
+
+int verticesPerMesh;
+int meshCount;
+
+[numthreads(64, 1, 1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+    uint idx = id.x;
+
+    if (idx >= verticesPerMesh * meshCount)
+        return;
+
+    // Just copy vertex positions for now
+    combinedVertices[idx] = inputVertices[idx];
+}
