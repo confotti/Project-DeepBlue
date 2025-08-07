@@ -1,0 +1,33 @@
+#pragma kernel CS_VerletUpdate
+
+struct StalkNode
+{
+    float3 currentPos;
+    float3 previousPos;
+    float3 direction;
+    float4 color;
+    float bendAmount;
+};
+
+RWStructuredBuffer<StalkNode> _StalkNodesBuffer;
+
+float _DeltaTime;
+float3 _Gravity;
+float _Damping;
+
+[numthreads(64,1,1)]
+void CS_VerletUpdate(uint id : SV_DispatchThreadID)
+{
+    if (id >= _StalkNodesBuffer.Length)
+        return;
+
+    StalkNode node = _StalkNodesBuffer[id];
+
+    float3 velocity = (node.currentPos - node.previousPos) * _Damping;
+    node.previousPos = node.currentPos;
+    node.currentPos += velocity + _Gravity * _DeltaTime;
+
+    // TODO: Add constraints, collision, bending here
+
+    _StalkNodesBuffer[id] = node;
+} 

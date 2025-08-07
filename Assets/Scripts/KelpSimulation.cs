@@ -186,7 +186,7 @@ public class KelpSimulation : MonoBehaviour
 
         public KelpSegment(Vector3 pos)
         {
-            CurrentPosition = pos;
+            CurrentPosition = pos; 
             OldPosition = pos;
         }
     }

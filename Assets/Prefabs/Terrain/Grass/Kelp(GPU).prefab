@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &2853520007454499016
+--- !u!1 &6188249482795173138
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,22 +8,22 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 8181345725762429618}
-  - component: {fileID: 2495985869235727504}
+  - component: {fileID: 7111760373504356558}
+  - component: {fileID: 1977535405019423568}
   m_Layer: 0
-  m_Name: Kelp(Prefab)
+  m_Name: Kelp(GPU)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &8181345725762429618
+--- !u!4 &7111760373504356558
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2853520007454499016}
+  m_GameObject: {fileID: 6188249482795173138}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 806.91, y: 4.22, z: 187.10175}
@@ -32,28 +32,25 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2495985869235727504
+--- !u!114 &1977535405019423568
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2853520007454499016}
+  m_GameObject: {fileID: 6188249482795173138}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bb8a6c902668c7443acf6011fadc4421, type: 3}
+  m_Script: {fileID: 11500000, guid: 09366c6e2f502674d8e54f9bc436801d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  numberOfKelpSegments: 30
-  kelpSegmentLength: 2
+  totalStalkNodes: 1000
+  totalLeafNodes: 2000
+  totalLeafObjects: 500
+  totalKelpObjects: 50
   gravityForce: {x: 0, y: 0.15, z: 0}
-  dampingFactor: 0.98
-  collisionMask:
-    serializedVersion: 2
-    m_Bits: 16
-  collisionRadius: 0.1
-  bounceFactor: 0.1
-  numberOfConstraintRuns: 30
-  collisionSegmentInterval: 10
-  kelpSegmentMeshPrefab: {fileID: 9052444979771236848, guid: f73c5e29cb9e29d4ea09e743065d9564, type: 3}
-  topSegmentMeshPrefab: {fileID: 8052588498022515393, guid: 4b3b2ab575785384593e4f05137c1d1d, type: 3}
+  damping: 0.98
+  deltaTime: 0.02
+  kelpComputeShader: {fileID: 7200000, guid: eb9d1596b85f42545ad66e37d6f71457, type: 3}
+  kelpRenderMaterial: {fileID: 2100000, guid: ad344eb610ba4434ba98d0e46e7ef4dd, type: 2}
+  kelpSegmentMesh: {fileID: -5495902117074765545, guid: 3077d64637b5854498d990d2063e4895, type: 3}
