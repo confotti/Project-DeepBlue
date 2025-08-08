@@ -110,7 +110,7 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
             {
                 int nodeIndex = kelpObjects[kelpIndex].startStalkNodeIndex + i;
 
-                Vector3 nodePos = basePosition + new Vector3(0, i * segmentSpacing, 0);
+                Vector3 nodePos = new Vector3(0, i * segmentSpacing, 0); 
 
                 stalkNodes[nodeIndex].currentPos = nodePos;
                 stalkNodes[nodeIndex].previousPos = nodePos;
@@ -153,7 +153,7 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
         kelpComputeShader.Dispatch(verletKernel, threadGroups, 1, 1);
 
         // Pass the world offset so meshes draw relative to this GameObject’s position
-        kelpRenderMaterial.SetVector("_WorldOffset", transform.position);
+        kelpRenderMaterial.SetVector("_WorldOffset", transform.position); 
 
         kelpRenderMaterial.SetBuffer("_StalkNodesBuffer", stalkNodesBuffer);
         kelpRenderMaterial.SetBuffer("_LeafNodesBuffer", leafNodesBuffer);

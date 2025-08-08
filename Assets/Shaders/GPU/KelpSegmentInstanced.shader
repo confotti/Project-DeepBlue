@@ -44,6 +44,8 @@ Shader "Custom/KelpSegmentInstanced"
             // === Structured Buffer Holding All Stalk Nodes ===
             StructuredBuffer<StalkNode> _StalkNodesBuffer;
 
+			float3 _WorldOffset; 
+
             // A fallback color (not used currently)
             float4 _Color;
 
@@ -120,10 +122,8 @@ Shader "Custom/KelpSegmentInstanced"
                 float3 rotated = mul(rotationMatrix, vertex);
 
                 // Final world position = node position + rotated offset
-                float3 worldPos = pos + rotated;
-
-                // Transform to clip space
-                o.pos = UnityWorldToClipPos(float4(worldPos, 1.0)); 
+                float3 worldPos = _WorldOffset + node.currentPos + rotated;
+				o.pos = UnityWorldToClipPos(float4(worldPos, 1.0)); 
 
                 // Pass color to fragment shader
                 o.color = node.color;
