@@ -49,7 +49,7 @@ Shader "Custom/KelpSegmentInstanced"
             // A fallback color (not used currently)
             float4 _Color;
 
-            // === Appdata: Per-vertex data + instance ID ===
+            // === Appdata: Per-vertex data + instance ID === 
             struct appdata
             {
                 float3 vertex : POSITION;      // Vertex position in local space

@@ -73,7 +73,7 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
     {
         InitializeBuffers();
         InitializeData();
-        verletKernel = kelpComputeShader.FindKernel("CS_VerletUpdate");
+        verletKernel = kelpComputeShader.FindKernel("CS_VerletUpdate"); 
     }
 
     void InitializeBuffers()
@@ -115,7 +115,7 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
                 stalkNodes[nodeIndex].currentPos = nodePos;
                 stalkNodes[nodeIndex].previousPos = nodePos;
                 stalkNodes[nodeIndex].direction = Vector3.up;
-                stalkNodes[nodeIndex].color = Color.green;
+                stalkNodes[nodeIndex].color = Color.green; 
                 stalkNodes[nodeIndex].bendAmount = 0f;
                 stalkNodes[nodeIndex].isTip = (i == nodesPerStalk - 1) ? 1 : 0;
             }
@@ -143,6 +143,8 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
         kelpComputeShader.SetFloat("_DeltaTime", Time.deltaTime);
         kelpComputeShader.SetVector("_Gravity", gravityForce);
         kelpComputeShader.SetFloat("_Damping", damping);
+        kelpComputeShader.SetFloat("_SegmentSpacing", segmentSpacing);
+        kelpComputeShader.SetFloat("_Time", Time.time); 
 
         kelpComputeShader.SetBuffer(verletKernel, "_StalkNodesBuffer", stalkNodesBuffer);
         kelpComputeShader.SetBuffer(verletKernel, "_LeafNodesBuffer", leafNodesBuffer);
@@ -151,6 +153,16 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
 
         int threadGroups = Mathf.CeilToInt(totalStalkNodes / 64f);
         kelpComputeShader.Dispatch(verletKernel, threadGroups, 1, 1);
+
+        int constraintKernel = kelpComputeShader.FindKernel("CS_ApplyConstraints");
+        kelpComputeShader.SetFloat("_SegmentSpacing", segmentSpacing);
+        kelpComputeShader.SetBuffer(constraintKernel, "_StalkNodesBuffer", stalkNodesBuffer);
+
+        // Run constraint pass multiple times for stability
+        for (int i = 0; i < 4; i++) 
+        {
+            kelpComputeShader.Dispatch(constraintKernel, threadGroups, 1, 1);
+        } 
 
         // Pass the world offset so meshes draw relative to this GameObject’s position
         kelpRenderMaterial.SetVector("_WorldOffset", transform.position); 
