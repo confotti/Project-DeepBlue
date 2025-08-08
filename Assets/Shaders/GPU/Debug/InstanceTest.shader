@@ -1,23 +1,18 @@
-Shader "Custom/KelpMinimal"
+Shader "Debug/InstanceTest"
 {
-    Properties
-    {
-        _Color ("Color", Color) = (0, 1, 0, 1)
-    }
     SubShader
     {
-        Tags { "RenderType"="Opaque" }
         Pass
         {
             HLSLPROGRAM
             #pragma vertex vert
             #pragma fragment frag
+            #pragma target 4.5
             #pragma multi_compile_instancing
 
-            #include "UnityCG.cginc"
+			#include "UnityCG.cginc" 
 
-            StructuredBuffer<float3> _SegmentPositions;
-            float4 _Color;
+            StructuredBuffer<float3> _TestPositions;
 
             struct appdata
             {
@@ -33,18 +28,14 @@ Shader "Custom/KelpMinimal"
             v2f vert(appdata v)
             {
                 v2f o;
-
-                float3 pos = _SegmentPositions[v.instanceID];
-
-                float3 worldPos = pos + v.vertex; // No rotation yet
+                float3 worldPos = _TestPositions[v.instanceID] + v.vertex;
                 o.pos = UnityObjectToClipPos(float4(worldPos, 1));
-
                 return o;
             }
 
             fixed4 frag(v2f i) : SV_Target
             {
-                return _Color;
+                return fixed4(1,0,0,1);
             }
             ENDHLSL
         }

@@ -13,15 +13,12 @@ MonoBehaviour:
   m_Name: Underwater Effects
   m_EditorClassIdentifier: 
   m_Active: 0
-  settings:
-    material: {fileID: 2100000, guid: 42c274181506f04478a0dd96f0dad037, type: 2}
-    renderPassEvent: 400
-    color: {r: 0.08851013, g: 0.3679245, b: 0.31329542, a: 0}
-    distance: 5
-    alpha: 0.5
-    refraction: 5.09
-    normalmap: {fileID: 2800000, guid: 08ef20a01c156e1428ca81211ca1275d, type: 3}
-    UV: {x: 1, y: 1, z: 0.2, w: 0.1}
+  settings: {material: {fileID: 2100000, guid: 42c274181506f04478a0dd96f0dad037, type: 2}, renderPassEvent: 400, color:
+      r: 0.08851013
+      g: 0.3679245
+      b: 0.31329542
+      a: 0
+, distance: 5, alpha: 0.5, refraction: 5.09, normalmap: {fileID: 2800000, guid: 08ef20a01c156e1428ca81211ca1275d, type: 3}, UV: {x: 1, y: 1, z: 0.2, w: 0.1}}
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -48,9 +45,8 @@ MonoBehaviour:
     probeVolumeBlendStatesCS: {fileID: 7200000, guid: b9a23f869c4fd45f19c5ada54dd82176, type: 3}
   m_RendererFeatures:
   - {fileID: 7833122117494664109}
-  - {fileID: -8886561759275006631}
   - {fileID: 4358541472353152204}
-  m_RendererFeatureMap: ad6b866f10d7b46c59c5d7b72997ac84ccec6a6660a67c3c
+  m_RendererFeatureMap: ad6b866f10d7b46cccec6a6660a67c3c
   m_UseNativeRenderPass: 0
   xrSystemData: {fileID: 0}
   postProcessData: {fileID: 11400000, guid: 41439944d30ece34e96484bdb6645b55, type: 2}

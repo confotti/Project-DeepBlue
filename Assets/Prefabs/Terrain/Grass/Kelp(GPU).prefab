@@ -26,7 +26,7 @@ Transform:
   m_GameObject: {fileID: 6188249482795173138}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 806.91, y: 4.22, z: 187.10175}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -44,13 +44,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 09366c6e2f502674d8e54f9bc436801d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  totalStalkNodes: 1000
-  totalLeafNodes: 2000
-  totalLeafObjects: 500
-  totalKelpObjects: 50
-  gravityForce: {x: 0, y: 0.15, z: 0}
+  totalStalkNodes: 35
+  totalLeafNodes: 15
+  totalLeafObjects: 100
+  totalKelpObjects: 1
+  gravityForce: {x: 0, y: 0, z: 0}
   damping: 0.98
-  deltaTime: 0.02
   kelpComputeShader: {fileID: 7200000, guid: eb9d1596b85f42545ad66e37d6f71457, type: 3}
   kelpRenderMaterial: {fileID: 2100000, guid: ad344eb610ba4434ba98d0e46e7ef4dd, type: 2}
-  kelpSegmentMesh: {fileID: -5495902117074765545, guid: 3077d64637b5854498d990d2063e4895, type: 3}
+  kelpSegmentMesh: {fileID: -1883317055400845340, guid: 3077d64637b5854498d990d2063e4895, type: 3}
+  segmentSpacing: 1

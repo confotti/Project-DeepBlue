@@ -1,0 +1,79 @@
+#pragma kernel CS_VerletUpdate
+
+struct StalkNode
+{
+    float3 currentPos;      // Current position of the node (in world space)
+	float3 padding0; 
+    
+	float3 previousPos;     // Previous position (used to calculate velocity)
+	float3 padding1; 
+    
+	float3 direction;       // Direction from this node to the next (used for rotation in rendering)
+	float3 padding2; 
+    
+	float4 color;           // Visual color of this node (passed to vertex shader)
+    float bendAmount;       // Bending amount for smooth bend effect
+	float3 padding3;  
+	
+	int isTip; 
+	float3 padding4; 
+};
+
+RWStructuredBuffer<StalkNode> _StalkNodesBuffer;
+
+float _DeltaTime;
+float3 _Gravity;
+float _Damping;
+
+[numthreads(64,1,1)]
+void CS_VerletUpdate(uint id : SV_DispatchThreadID)
+{
+    if (id >= _StalkNodesBuffer.Length)
+        return;
+
+    StalkNode node = _StalkNodesBuffer[id]; 
+
+    // Verlet integration with damping and gravity
+    float3 velocity = (node.currentPos - node.previousPos) * _Damping;
+    node.previousPos = node.currentPos;
+    node.currentPos += velocity + (_Gravity * _DeltaTime);
+
+    // Collision with seabed at y=0
+    float seabedHeight = 0.0f;
+    if (node.currentPos.y < seabedHeight)
+    {
+        node.currentPos.y = seabedHeight;
+
+        // Zero vertical velocity on collision
+        velocity = node.currentPos - node.previousPos;
+        velocity.y = 0;
+
+        node.previousPos = node.currentPos - velocity * _Damping;
+    }
+
+    // Compute direction as average between previous and next nodes
+    if (id > 0 && id < _StalkNodesBuffer.Length - 1)
+    {
+        float3 prevDir = normalize(node.currentPos - _StalkNodesBuffer[id - 1].currentPos);
+        float3 nextDir = normalize(_StalkNodesBuffer[id + 1].currentPos - node.currentPos);
+
+        // Average direction between previous and next nodes
+        node.direction = normalize(prevDir + nextDir);
+
+        // Bend amount based on difference between directions for smooth bending
+        float bend = length(nextDir - prevDir);
+        node.bendAmount = bend * 5.0;  // Adjust scale as needed
+    }
+    else if (id == 0)
+    {
+        node.direction = normalize(_StalkNodesBuffer[id + 1].currentPos - node.currentPos);
+        node.bendAmount = 0;
+    }
+    else if (id == _StalkNodesBuffer.Length - 1)
+    {
+        node.direction = normalize(node.currentPos - _StalkNodesBuffer[id - 1].currentPos);
+        node.bendAmount = 0;
+    }
+
+    _StalkNodesBuffer[id] = node; 
+} 
