@@ -44,7 +44,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 09366c6e2f502674d8e54f9bc436801d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  totalStalkNodes: 35
+  totalStalkNodes: 75
   totalLeafNodes: 15
   totalLeafObjects: 100
   totalKelpObjects: 1
@@ -53,4 +53,8 @@ MonoBehaviour:
   kelpComputeShader: {fileID: 7200000, guid: eb9d1596b85f42545ad66e37d6f71457, type: 3}
   kelpRenderMaterial: {fileID: 2100000, guid: ad344eb610ba4434ba98d0e46e7ef4dd, type: 2}
   kelpSegmentMesh: {fileID: -1883317055400845340, guid: 3077d64637b5854498d990d2063e4895, type: 3}
+  noiseStrength: 2
+  noiseScale: 0.5
   segmentSpacing: 1
+  kelpColor: {r: 0.15699537, g: 0.2264151, b: 0.17151469, a: 1}
+  kelpStemTexture: {fileID: 2800000, guid: 57f71b8dc16a795429fa4ffb3ada50c7, type: 3}

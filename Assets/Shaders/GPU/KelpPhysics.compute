@@ -1,5 +1,3 @@
-// KelpSimulation.compute
-
 // === Kernel Declarations ===
 #pragma kernel CS_VerletUpdate
 #pragma kernel CS_ApplyConstraints
@@ -34,6 +32,12 @@ float _Damping;
 float _SegmentSpacing;
 float _Time; 
 
+// === Hashing Function ===
+float hash(float3 p)
+{
+    return frac(sin(dot(p, float3(127.1, 311.7, 74.7))) * 43758.5453);
+}
+
 // === Verlet Integration Kernel ===
 [numthreads(64,1,1)]
 void CS_VerletUpdate(uint id : SV_DispatchThreadID)
@@ -52,12 +56,12 @@ void CS_VerletUpdate(uint id : SV_DispatchThreadID)
         return;
     }
 
-    // === Verlet integration with damping and gravity ===
+    // === Verlet integration ===
     float3 velocity = (node.currentPos - node.previousPos) * _Damping;
     node.previousPos = node.currentPos;
     node.currentPos += velocity + (_Gravity * _DeltaTime);
 
-    // === Seabed collision (y = 0) ===
+    // === Seabed collision ===
     float seabedHeight = 0.0f;
     if (node.currentPos.y < seabedHeight)
     {
@@ -65,9 +69,9 @@ void CS_VerletUpdate(uint id : SV_DispatchThreadID)
         velocity = node.currentPos - node.previousPos;
         velocity.y = 0;
         node.previousPos = node.currentPos - velocity * _Damping;
-    } 
+    }
 
-    // === Direction + Bend Calculation ===
+    // === Direction and Bend ===
     if (id < _StalkNodesBuffer.Length - 1)
     {
         float3 prevDir = normalize(node.currentPos - _StalkNodesBuffer[id - 1].currentPos);
@@ -102,11 +106,13 @@ void CS_ApplyConstraints(uint id : SV_DispatchThreadID)
     {
         float3 dir = delta / dist;
         float diff = dist - _SegmentSpacing;
-        float3 correction = dir * (diff * 0.5f);
+        float3 correction = dir * (diff * 0.5); 
 
-        // Move only current node (you could also adjust prevNode for more accuracy)
+        // Apply half correction to both nodes
         node.currentPos -= correction;
-    }
+        prevNode.currentPos += correction;
 
-    _StalkNodesBuffer[id] = node;
+        _StalkNodesBuffer[id] = node;
+        _StalkNodesBuffer[id - 1] = prevNode;
+    }
 } 

@@ -18,8 +18,13 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
     public Material kelpRenderMaterial;
     public Mesh kelpSegmentMesh;
 
+    [Header("Water Motion (Noise)")]
+    public float noiseStrength = 2.0f;
+    public float noiseScale = 0.5f;
+
     [Header("Visual Tuning")]
     public float segmentSpacing = 0.1f;
+    public Color kelpColor = Color.white; 
 
     ComputeBuffer stalkNodesBuffer;
     ComputeBuffer leafNodesBuffer;
@@ -73,7 +78,7 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
     {
         InitializeBuffers();
         InitializeData();
-        verletKernel = kelpComputeShader.FindKernel("CS_VerletUpdate"); 
+        verletKernel = kelpComputeShader.FindKernel("CS_VerletUpdate");
     }
 
     void InitializeBuffers()
@@ -110,12 +115,12 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
             {
                 int nodeIndex = kelpObjects[kelpIndex].startStalkNodeIndex + i;
 
-                Vector3 nodePos = new Vector3(0, i * segmentSpacing, 0); 
+                Vector3 nodePos = new Vector3(0, i * segmentSpacing, 0);
 
                 stalkNodes[nodeIndex].currentPos = nodePos;
                 stalkNodes[nodeIndex].previousPos = nodePos;
                 stalkNodes[nodeIndex].direction = Vector3.up;
-                stalkNodes[nodeIndex].color = Color.green; 
+                stalkNodes[nodeIndex].color = kelpColor;
                 stalkNodes[nodeIndex].bendAmount = 0f;
                 stalkNodes[nodeIndex].isTip = (i == nodesPerStalk - 1) ? 1 : 0;
             }
@@ -144,7 +149,9 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
         kelpComputeShader.SetVector("_Gravity", gravityForce);
         kelpComputeShader.SetFloat("_Damping", damping);
         kelpComputeShader.SetFloat("_SegmentSpacing", segmentSpacing);
-        kelpComputeShader.SetFloat("_Time", Time.time); 
+        kelpComputeShader.SetFloat("_Time", Time.time);
+        kelpComputeShader.SetFloat("_NoiseStrength", noiseStrength);
+        kelpComputeShader.SetFloat("_NoiseScale", noiseScale); 
 
         kelpComputeShader.SetBuffer(verletKernel, "_StalkNodesBuffer", stalkNodesBuffer);
         kelpComputeShader.SetBuffer(verletKernel, "_LeafNodesBuffer", leafNodesBuffer);
@@ -159,18 +166,18 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
         kelpComputeShader.SetBuffer(constraintKernel, "_StalkNodesBuffer", stalkNodesBuffer);
 
         // Run constraint pass multiple times for stability
-        for (int i = 0; i < 4; i++) 
+        for (int i = 0; i < 4; i++)
         {
             kelpComputeShader.Dispatch(constraintKernel, threadGroups, 1, 1);
-        } 
+        }
 
         // Pass the world offset so meshes draw relative to this GameObject’s position
-        kelpRenderMaterial.SetVector("_WorldOffset", transform.position); 
+        kelpRenderMaterial.SetVector("_WorldOffset", transform.position);
 
         kelpRenderMaterial.SetBuffer("_StalkNodesBuffer", stalkNodesBuffer);
         kelpRenderMaterial.SetBuffer("_LeafNodesBuffer", leafNodesBuffer);
         kelpRenderMaterial.SetBuffer("_LeafObjectsBuffer", leafObjectsBuffer);
-        kelpRenderMaterial.SetBuffer("_KelpObjectsBuffer", kelpObjectsBuffer);
+        kelpRenderMaterial.SetBuffer("_KelpObjectsBuffer", kelpObjectsBuffer); 
 
         // Define bounds centered at this GameObject to help culling
         Bounds drawBounds = new Bounds(
