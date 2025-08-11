@@ -48,11 +48,13 @@ MonoBehaviour:
   totalLeafNodes: 15
   totalLeafObjects: 100
   totalKelpObjects: 1
-  gravityForce: {x: 0, y: 0.15, z: 0}
-  damping: 0.98
+  gravityForce: {x: 0, y: 0.47, z: 0}
+  damping: 0.85
   kelpComputeShader: {fileID: 7200000, guid: eb9d1596b85f42545ad66e37d6f71457, type: 3}
   kelpRenderMaterial: {fileID: 2100000, guid: ad344eb610ba4434ba98d0e46e7ef4dd, type: 2}
   kelpSegmentMesh: {fileID: -1883317055400845340, guid: 3077d64637b5854498d990d2063e4895, type: 3}
   targetCamera: {fileID: 0}
   segmentSpacing: 1
   kelpColor: {r: 0.12415449, g: 0.16981131, b: 0.13240041, a: 1}
+  windStrength: 0.15
+  windFrequency: 0.25

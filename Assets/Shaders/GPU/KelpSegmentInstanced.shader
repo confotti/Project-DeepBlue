@@ -1,4 +1,4 @@
-Shader "Custom/KelpSegmentInstanced" 
+Shader "Custom/KelpSegmentInstanced"
 {
     Properties
     {
@@ -73,7 +73,9 @@ Shader "Custom/KelpSegmentInstanced"
                 StalkNode node = _StalkNodesBuffer[input.instanceID];
 
                 float3 dir = normalize(node.direction);
-                dir = all(abs(dir) < 0.001) ? float3(0,1,0) : dir;
+                // Prevent zero-length direction
+                if (all(abs(dir) < 0.001))
+                    dir = float3(0,1,0);
 
                 float3 up = float3(0,1,0);
                 float3 axis = cross(up, dir);
@@ -148,8 +150,8 @@ Shader "Custom/KelpSegmentInstanced"
                     finalColor += baseColor * light.color * NdotLAdd * light.distanceAttenuation * light.shadowAttenuation;
                 }
 
-                finalColor = saturate(finalColor);  // clamps each component between 0 and 1
-				return half4(finalColor, i.color.a); 
+                finalColor = saturate(finalColor);  // clamps between 0 and 1
+                return half4(finalColor, i.color.a);
             }
 
             ENDHLSL
@@ -157,4 +159,4 @@ Shader "Custom/KelpSegmentInstanced"
     }
 
     FallBack "Hidden/InternalErrorShader"
-}
+} 
