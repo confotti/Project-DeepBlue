@@ -71,20 +71,35 @@ void CS_VerletUpdate(uint id : SV_DispatchThreadID)
         node.previousPos = node.currentPos - velocity * _Damping;
     }
 
-    // === Direction and Bend ===
-    if (id < _StalkNodesBuffer.Length - 1)
-    {
-        float3 prevDir = normalize(node.currentPos - _StalkNodesBuffer[id - 1].currentPos);
-        float3 nextDir = normalize(_StalkNodesBuffer[id + 1].currentPos - node.currentPos);
+    // === Improved Direction and Bend ===
+    float3 prevDir;
+    float3 nextDir;
 
-        node.direction = normalize(prevDir + nextDir);
-        node.bendAmount = length(nextDir - prevDir) * 5.0;
+    if (id == _StalkNodesBuffer.Length - 1)
+    {
+        // Last node: use previous direction duplicated
+        prevDir = normalize(node.currentPos - _StalkNodesBuffer[id - 1].currentPos);
+        nextDir = prevDir;
+    }
+    else if (id == 1)
+    {
+        // Second node: average between root and next node
+        prevDir = normalize(node.currentPos - _StalkNodesBuffer[id - 1].currentPos);
+        nextDir = normalize(_StalkNodesBuffer[id + 1].currentPos - node.currentPos);
     }
     else
     {
-        node.direction = normalize(node.currentPos - _StalkNodesBuffer[id - 1].currentPos);
-        node.bendAmount = 0;
+        prevDir = normalize(node.currentPos - _StalkNodesBuffer[id - 1].currentPos);
+        nextDir = normalize(_StalkNodesBuffer[id + 1].currentPos - node.currentPos);
     }
+
+    float3 targetDir = normalize(prevDir + nextDir);
+
+    // Smooth direction update
+    float smoothingFactor = 0.2; // Adjust for smoothness
+    node.direction = normalize(lerp(node.direction, targetDir, smoothingFactor));
+
+    node.bendAmount = length(nextDir - prevDir) * 5.0;
 
     _StalkNodesBuffer[id] = node;
 }

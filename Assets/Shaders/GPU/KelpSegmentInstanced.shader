@@ -148,7 +148,8 @@ Shader "Custom/KelpSegmentInstanced"
                     finalColor += baseColor * light.color * NdotLAdd * light.distanceAttenuation * light.shadowAttenuation;
                 }
 
-                return half4(finalColor, i.color.a);
+                finalColor = saturate(finalColor);  // clamps each component between 0 and 1
+				return half4(finalColor, i.color.a); 
             }
 
             ENDHLSL
