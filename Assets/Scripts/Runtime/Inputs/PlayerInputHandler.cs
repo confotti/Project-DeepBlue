@@ -27,8 +27,12 @@ public class PlayerInputHandler : MonoBehaviour
         look.Enable();
 
         //Subscriptions
+        defaultInputActions.PlayerMovement.Interact.Enable();
         defaultInputActions.PlayerMovement.Interact.performed += Interact;
+        
+        defaultInputActions.PlayerMovement.Jump.Enable();
         defaultInputActions.PlayerMovement.Jump.performed += Jump;
+        
     }
 
     private void OnDisable()
