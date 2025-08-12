@@ -44,10 +44,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 09366c6e2f502674d8e54f9bc436801d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  totalStalkNodes: 4500
+  totalStalkNodes: 37500
   totalLeafNodes: 15
   totalLeafObjects: 100
-  totalKelpObjects: 60
+  totalKelpObjects: 500
   gravityForce: {x: 0, y: 0.47, z: 0}
   damping: 0.85
   kelpComputeShader: {fileID: 7200000, guid: eb9d1596b85f42545ad66e37d6f71457, type: 3}
@@ -58,4 +58,4 @@ MonoBehaviour:
   kelpColor: {r: 0.12415449, g: 0.16981131, b: 0.13240041, a: 1}
   windStrength: 0.06
   windFrequency: 0.16
-  spreadRadius: 15
+  spreadRadius: 100
