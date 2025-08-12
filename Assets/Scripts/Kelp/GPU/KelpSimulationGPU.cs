@@ -74,6 +74,7 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
         public Vector4 orientation;
         public float bendValue;
         public int stalkNodeIndex;
+        public float angleAroundStem; 
         public int padding;
     }
 
@@ -182,24 +183,28 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
                 stalkNodes[nodeIndex].isTip = (i == nodesPerStalk - 1) ? 1 : 0;
             }
 
-            // leaves (CPU-side objects)
             for (int l = 0; l < leavesPerStalk; l++)
             {
                 int leafObjIndex = kelpObjectsCPU[kelpIndex].startLeafNodeIndex + l;
                 if (leafObjIndex >= totalLeafObjects) break;
 
-                // attach leaf to a stalk node in the same kelp
+                // Attach to a random node along the stalk
+                int randomNodeOnStalk = Random.Range(0, nodesPerStalk);
                 leafObjects[leafObjIndex].stalkNodeIndex =
-                    kelpObjectsCPU[kelpIndex].startStalkNodeIndex + (l % nodesPerStalk);
+                    kelpObjectsCPU[kelpIndex].startStalkNodeIndex + randomNodeOnStalk;
 
-                // default orientation (identity quaternion)
+                // Random rotation around the stem
+                leafObjects[leafObjIndex].angleAroundStem = Random.Range(0f, Mathf.PI * 2f);
+
+                // Default orientation (identity quaternion)
                 leafObjects[leafObjIndex].orientation = new Vector4(0, 0, 0, 1);
                 leafObjects[leafObjIndex].bendValue = 0f;
                 leafObjects[leafObjIndex].padding = 0;
 
-                // initialize leaf node so shader has valid defaults (green)
-                leafNodes[leafObjIndex].currentPos = baseLocal; // will be overwritten by compute shader anyway
-                leafNodes[leafObjIndex].previousPos = baseLocal;
+                // Initialize leaf node position so shader has a valid default
+                Vector3 basseLocal = rootPositions[kelpIndex];
+                leafNodes[leafObjIndex].currentPos = basseLocal;
+                leafNodes[leafObjIndex].previousPos = basseLocal; 
                 leafNodes[leafObjIndex].color = new Vector4(0.2f, 0.8f, 0.2f, 1f);
             }
         }
@@ -243,7 +248,7 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
         stalkThreadGroups = Mathf.Max(1, stalkThreadGroups);
         kelpComputeShader.Dispatch(verletKernel, stalkThreadGroups, 1, 1);
 
-        for (int i = 0; i < 25; i++)
+        for (int i = 0; i < 30; i++)
             kelpComputeShader.Dispatch(constraintKernel, stalkThreadGroups, 1, 1);
 
         // dispatch leaf updater (uses totalLeafObjects)
@@ -266,8 +271,8 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
 
         // draw bounds
         Bounds drawBounds = new Bounds(
-            transform.position + Vector3.up * (totalStalkNodes * segmentSpacing * 0.5f),
-            new Vector3(spreadRadius * 2f + 10f, totalStalkNodes * segmentSpacing + 10f, spreadRadius * 2f + 10f)
+            transform.position + Vector3.up * (totalStalkNodes * segmentSpacing * 0.5f), 
+            new Vector3(spreadRadius * 2f + 10f, totalStalkNodes * segmentSpacing + 10f, spreadRadius * 2f + 10f) 
         );
 
         // Draw stalks

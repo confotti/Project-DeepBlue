@@ -40,6 +40,7 @@ struct LeafObject
     float4 orientation;
     float bendValue;
     int stalkNodeIndex;
+	float angleAroundStem; 
     int padding;
 };
 
@@ -259,25 +260,37 @@ void CS_ApplyConstraints(uint id : SV_DispatchThreadID)
     }
 } 
 
-// === New Kernel ===
 [numthreads(64,1,1)]
 void CS_UpdateLeafNodes(uint id : SV_DispatchThreadID)
 {
-    if (id >= _LeafNodesBuffer.Length) return;
+    if (id >= _LeafNodesBuffer.Length) 
+        return;
 
-    LeafNode leaf = _LeafNodesBuffer[id];
     LeafObject leafObj = _LeafObjectsBuffer[id];
+    LeafNode leafNode = _LeafNodesBuffer[id];
 
     int stalkIndex = leafObj.stalkNodeIndex;
-    if (stalkIndex >= _StalkNodesBuffer.Length) return;
+    if (stalkIndex < 0 || stalkIndex >= _StalkNodesBuffer.Length)
+        return;
 
     StalkNode stalkNode = _StalkNodesBuffer[stalkIndex];
+    float3 stalkPos = stalkNode.currentPos;
 
-    // Place leaf at stalk node position (offset slightly to side if desired)
-    float3 offset = float3(0.05, 0, 0); // tweak later
-    leaf.currentPos = stalkNode.currentPos + offset;
-    leaf.previousPos = leaf.currentPos;
-    leaf.color = float4(0, 1, 0, 1); // green for now
+    // Offset radius from the stem
+    float radius = 0.05; // adjust to control how far from stem the leaves appear
 
-    _LeafNodesBuffer[id] = leaf;
+    // Calculate offset position in circle around stalk node
+    float angle = leafObj.angleAroundStem;
+    float3 offset = float3(cos(angle), 0, sin(angle)) * radius;
+
+    // Assign leaf position with offset around the stalk node
+    leafNode.currentPos = stalkPos + offset;
+
+    // For previousPos, just keep the same (or lerp if you want smoothing)
+    leafNode.previousPos = leafNode.currentPos;
+
+    // You can set leaf color or other properties as before
+    leafNode.color = leafNode.color;
+
+    _LeafNodesBuffer[id] = leafNode; 
 } 

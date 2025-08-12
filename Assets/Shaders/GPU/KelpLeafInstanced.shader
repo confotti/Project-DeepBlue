@@ -44,6 +44,7 @@ Shader "Custom/KelpLeafInstanced"
                 float4 orientation;   // quaternion (x,y,z,w)
                 float bendValue;
                 int stalkNodeIndex;
+				float angleAroundStem; 
                 int padding;          // to align to 16 bytes
             };
 
@@ -65,6 +66,17 @@ Shader "Custom/KelpLeafInstanced"
                 float3 normalOS   : NORMAL;
                 uint instanceID   : SV_InstanceID;
             };
+
+			struct appdata
+			{
+				uint vertexID : SV_VertexID; 
+			};
+
+			struct v2f
+			{
+				float4 pos : SV_POSITION;
+				float4 color : COLOR; 
+			};
 
             struct Varyings
             {
@@ -101,25 +113,36 @@ Shader "Custom/KelpLeafInstanced"
             // Vertex shader
             // -----------------------
             Varyings vert(Attributes input)
-            {
-                Varyings output;
+			{
+				Varyings output; 
 
-                // read leaf and leaf-node (position + color)
-                uint iid = input.instanceID;
-                LeafObject leafObj = _LeafObjectsBuffer[iid];
-                LeafNode leafNode = _LeafNodesBuffer[iid];
+				// read leaf and leaf-node (position + color)
+				uint iid = input.instanceID;
+				LeafObject leafObj = _LeafObjectsBuffer[iid];
+				LeafNode leafNode = _LeafNodesBuffer[iid];
 
-                // object-space vertex
-                float3 v = input.positionOS;
-                float3 n = input.normalOS;
+				// object-space vertex
+				float3 v = input.positionOS;
+				float3 n = input.normalOS;
 
-                // --- geometric adjustments in leaf-local space ---
+				// --- geometric adjustments in leaf-local space ---
 
-                // Apply bend
+				// Apply bend
 				float bendStrength = leafObj.bendValue * 0.8; 
 				float t = saturate(v.y);
 				float bendAngle = bendStrength * (t * t);
 				v = RotateAroundLocalX(v, bendAngle);
+
+				// Rotate around the stem (Y-axis) by angleAroundStem
+				float ca = cos(leafObj.angleAroundStem);
+				float sa = sin(leafObj.angleAroundStem);
+				float3x3 rotY = float3x3(
+					ca, 0, -sa,
+					0,  1,  0,
+					sa, 0,  ca
+				);
+				v = mul(rotY, v);
+				n = mul(rotY, n);
 
 				// Rotate into leaf orientation space
 				v = RotateByQuaternion(v, leafObj.orientation);
@@ -134,8 +157,8 @@ Shader "Custom/KelpLeafInstanced"
 				output.color = leafNode.color * _BaseColor;
 				output.shadowCoord = TransformWorldToShadowCoord(worldPos);
 
-                return output;
-            }
+				return output;
+			}
 
             // -----------------------
             // Fragment shader
@@ -154,7 +177,7 @@ Shader "Custom/KelpLeafInstanced"
                 half NdotL = max(0, dot(normalWS, -lightDir));
 
                 half shadowAtten = MainLightRealtimeShadow(i.shadowCoord);
-                finalColor += baseColor * mainLight.color * NdotL * shadowAtten;
+                finalColor += baseColor * mainLight.color * NdotL * shadowAtten; 
 
                 // Additional lights (forward path)
                 uint additionalLightsCount = GetAdditionalLightsCount();
