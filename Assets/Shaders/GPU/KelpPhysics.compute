@@ -1,6 +1,7 @@
 // === Kernel Declarations ===
 #pragma kernel CS_VerletUpdate
 #pragma kernel CS_ApplyConstraints 
+#pragma kernel CS_UpdateLeafNodes 
 
 // === Struct Definitions ===
 struct StalkNode
@@ -22,9 +23,31 @@ struct StalkNode
     float3 padding4;
 };
 
+// === Leaf Structures ===
+struct LeafNode
+{
+    float3 currentPos;
+    float padding0;
+
+    float3 previousPos;
+    float padding1;
+
+    float4 color; 
+};
+
+struct LeafObject
+{
+    float4 orientation;
+    float bendValue;
+    int stalkNodeIndex;
+    int padding;
+};
+
 // === Buffers ===
 RWStructuredBuffer<StalkNode> _StalkNodesBuffer;
 StructuredBuffer<float3> initialRootPositions; 
+RWStructuredBuffer<LeafNode> _LeafNodesBuffer;
+StructuredBuffer<LeafObject> _LeafObjectsBuffer; 
 
 // === Parameters ===
 float _DeltaTime;
@@ -234,4 +257,27 @@ void CS_ApplyConstraints(uint id : SV_DispatchThreadID)
 
         _StalkNodesBuffer[id] = node;
     }
+} 
+
+// === New Kernel ===
+[numthreads(64,1,1)]
+void CS_UpdateLeafNodes(uint id : SV_DispatchThreadID)
+{
+    if (id >= _LeafNodesBuffer.Length) return;
+
+    LeafNode leaf = _LeafNodesBuffer[id];
+    LeafObject leafObj = _LeafObjectsBuffer[id];
+
+    int stalkIndex = leafObj.stalkNodeIndex;
+    if (stalkIndex >= _StalkNodesBuffer.Length) return;
+
+    StalkNode stalkNode = _StalkNodesBuffer[stalkIndex];
+
+    // Place leaf at stalk node position (offset slightly to side if desired)
+    float3 offset = float3(0.05, 0, 0); // tweak later
+    leaf.currentPos = stalkNode.currentPos + offset;
+    leaf.previousPos = leaf.currentPos;
+    leaf.color = float4(0, 1, 0, 1); // green for now
+
+    _LeafNodesBuffer[id] = leaf;
 } 

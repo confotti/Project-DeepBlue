@@ -13,6 +13,7 @@ Shader "Custom/KelpLeafInstanced"
         {
             Name "ForwardLit"
             Tags { "LightMode"="UniversalForward" }
+			Cull off 
 
             HLSLPROGRAM
             #pragma vertex vert
@@ -29,23 +30,13 @@ Shader "Custom/KelpLeafInstanced"
             // -----------------------
             // CPU-side struct mirrors
             // -----------------------
-            struct StalkNode
+            struct LeafNode
             {
                 float3 currentPos;
-                float padding0;
-
+				float padding0;
                 float3 previousPos;
-                float padding1;
-
-                float3 direction;
-                float padding2;
-
+				float padding1; 
                 float4 color;
-                float bendAmount;
-                float3 padding3;
-
-                int isTip;
-                float3 padding4;
             };
 
             struct LeafObject
@@ -59,7 +50,7 @@ Shader "Custom/KelpLeafInstanced"
             // -----------------------
             // Buffers & uniforms
             // -----------------------
-            StructuredBuffer<StalkNode> _StalkNodesBuffer;
+            StructuredBuffer<LeafNode> _LeafNodesBuffer;
             StructuredBuffer<LeafObject> _LeafObjectsBuffer;
 
             float3 _WorldOffset;
@@ -90,7 +81,6 @@ Shader "Custom/KelpLeafInstanced"
             // Rotate vector v by quaternion q (q.xyz, q.w)
             float3 RotateByQuaternion(float3 v, float4 q)
             {
-                // v' = v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v)
                 float3 t = 2.0 * cross(q.xyz, v);
                 float3 result = v + q.w * t + cross(q.xyz, t);
                 return result;
@@ -114,38 +104,35 @@ Shader "Custom/KelpLeafInstanced"
             {
                 Varyings output;
 
-                // read leaf and its parent stalk node
-                LeafObject leaf = _LeafObjectsBuffer[input.instanceID];
-                StalkNode stalk = _StalkNodesBuffer[leaf.stalkNodeIndex];
+                // read leaf and leaf-node (position + color)
+                uint iid = input.instanceID;
+                LeafObject leafObj = _LeafObjectsBuffer[iid];
+                LeafNode leafNode = _LeafNodesBuffer[iid];
 
                 // object-space vertex
                 float3 v = input.positionOS;
                 float3 n = input.normalOS;
 
-                // --- geometric adjustments in leaf-local space --- 
+                // --- geometric adjustments in leaf-local space ---
 
-                // 2) apply bending:
-                //    We bend the leaf by rotating vertices around the leaf-local X axis
-                //    The amount uses bendValue and the vertex's vertical (y) to vary along length.
-                //    You can tune the 0.5 multiplier if desired.
-                float bendStrength = leaf.bendValue * 0.8; // small overall scale
-                // Use a smooth curve so base is stable and tip bends more:
-                float t = saturate(v.y);             // 0 at base, 1 at tip
-                float bendAngle = bendStrength * (t * t); // quadratic distribution
-                v = RotateAroundLocalX(v, bendAngle);
+                // Apply bend
+				float bendStrength = leafObj.bendValue * 0.8; 
+				float t = saturate(v.y);
+				float bendAngle = bendStrength * (t * t);
+				v = RotateAroundLocalX(v, bendAngle);
 
-                // 3) rotate the vertex by the leaf orientation quaternion (transforms from leaf-local to world orientation)
-                v = RotateByQuaternion(v, leaf.orientation);
-                n = normalize(RotateByQuaternion(n, leaf.orientation));
+				// Rotate into leaf orientation space
+				v = RotateByQuaternion(v, leafObj.orientation);
+				n = normalize(RotateByQuaternion(n, leafObj.orientation)); 
 
-                // 4) translate into world: worldPos = worldOffset + stalk.currentPos + v
-                float3 worldPos = _WorldOffset + stalk.currentPos + v;
+				// Translate into world using precomputed leaf position
+				float3 worldPos = _WorldOffset + leafNode.currentPos + v;
 
-                output.positionWS = worldPos;
-                output.positionCS = TransformWorldToHClip(worldPos);
-                output.normalWS = n;
-                output.color = stalk.color * _BaseColor; // combine stalk node color with base color
-                output.shadowCoord = TransformWorldToShadowCoord(worldPos);
+				output.positionWS = worldPos;
+				output.positionCS = TransformWorldToHClip(worldPos);
+				output.normalWS = n;
+				output.color = leafNode.color * _BaseColor;
+				output.shadowCoord = TransformWorldToShadowCoord(worldPos);
 
                 return output;
             }
