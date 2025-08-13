@@ -1,9 +1,14 @@
-﻿// === Kernel Declarations ===
-#pragma kernel CS_VerletUpdate
-#pragma kernel CS_ApplyConstraints
-#pragma kernel CS_UpdateLeaves   // CHANGED
+﻿// ===========================
+// Kelp Compute (GPU)
+// ===========================
 
-// === Structs (match C# exactly) ===
+#pragma kernel CS_VerletUpdate            // stalk
+#pragma kernel CS_ApplyConstraints        // stalk
+#pragma kernel CS_VerletUpdateLeaves      // NEW: leaf segments verlet
+#pragma kernel CS_ApplyLeafConstraints    // NEW: leaf segments constraints + root attach
+#pragma kernel CS_UpdateLeaves            // per-leaf orientation/bend from rope
+
+// ---------- Structs (match C# layout) ----------
 struct StalkNode
 {
     float3 currentPos; float pad0;
@@ -14,7 +19,7 @@ struct StalkNode
     int    isTip;       float3 pad4;
 };
 
-struct LeafNode
+struct LeafSegment
 {
     float3 currentPos;  float pad0;
     float3 previousPos; float pad1;
@@ -23,45 +28,41 @@ struct LeafNode
 
 struct LeafObject
 {
-    float4 orientation;
-    float3 bendAxis;    float bendAngle;
-    int    stalkNodeIndex;
+    float4 orientation;     // 16
+    float3 bendAxis;        // 12
+    float  bendAngle;       // 4
+    int    stalkNodeIndex;  // n0 attachment
     float  angleAroundStem;
     float2 pad;
 };
 
-// === Buffers ===
-RWStructuredBuffer<StalkNode> _StalkNodesBuffer;
-StructuredBuffer<float3> initialRootPositions;
+// ---------- Buffers ----------
+RWStructuredBuffer<StalkNode>   _StalkNodesBuffer;
+StructuredBuffer<float3>        initialRootPositions;
 
-RWStructuredBuffer<LeafNode>   _LeafNodesBuffer;
-RWStructuredBuffer<LeafObject> _LeafObjectsBuffer;
+RWStructuredBuffer<LeafSegment> _LeafSegmentsBuffer;  // totalLeafObjects * _LeafNodesPerLeaf
+RWStructuredBuffer<LeafObject>  _LeafObjectsBuffer;
 
-// === Params ===
-float _DeltaTime;
+// ---------- Params ----------
+float  _DeltaTime;
 float3 _Gravity;
-float _Damping;
-float _SegmentSpacing;
-float _Time;
-float _WindStrength;
-float _WindFrequency;
-uint  _NodesPerStalk; 
+float  _Damping;
+float  _SegmentSpacing;
+float  _Time;
+float  _WindStrength;
+float  _WindFrequency;
 
-// === Hashing Functions ===
-// (Same hash and noise functions you had, unchanged)
+uint   _NodesPerStalk;
+uint   _LeafNodesPerLeaf;
+uint   _TotalLeafObjects;
 
-float hash(float3 p)
-{
-    return frac(sin(dot(p, float3(127.1, 311.7, 74.7))) * 43758.5453);
-}
+// ---------- Noise / helpers ----------
+float hash(float3 p) { return frac(sin(dot(p, float3(127.1,311.7,74.7))) * 43758.5453); }
 
-uint hash(uint x)
-{
+uint hashU(uint x){
     x = (x ^ 61u) ^ (x >> 16);
-    x *= 9u;
-    x = x ^ (x >> 4);
-    x *= 0x27d4eb2du;
-    x = x ^ (x >> 15);
+    x *= 9u; x = x ^ (x >> 4);
+    x *= 0x27d4eb2du; x = x ^ (x >> 15);
     return x;
 }
 
@@ -71,314 +72,298 @@ static const float3 grad3[12] = {
     float3(0,1,1), float3(0,-1,1), float3(0,1,-1), float3(0,-1,-1)
 };
 
-float fade(float t) {
-    return t * t * t * (t * (t * 6 - 15) + 10);
-}
+float fade(float t){ return t*t*t*(t*(t*6-15)+10); }
 
-float gradNoise3D(float3 pos) 
-{
+float gradNoise3D(float3 pos){
     int3 pi = (int3)floor(pos);
     float3 pf = pos - floor(pos);
+    float u = fade(pf.x), v = fade(pf.y), w = fade(pf.z);
 
-    float u = fade(pf.x);
-    float v = fade(pf.y);
-    float w = fade(pf.z);
+    uint aaa = hashU(hashU(hashU((uint)pi.x)+(uint)pi.y)+(uint)pi.z)%12;
+    uint aba = hashU(hashU(hashU((uint)pi.x)+(uint)(pi.y+1))+(uint)pi.z)%12;
+    uint aab = hashU(hashU(hashU((uint)pi.x)+(uint)pi.y)+(uint)(pi.z+1))%12;
+    uint abb = hashU(hashU(hashU((uint)pi.x)+(uint)(pi.y+1))+(uint)(pi.z+1))%12;
+    uint baa = hashU(hashU(hashU((uint)(pi.x+1))+(uint)pi.y)+(uint)pi.z)%12;
+    uint bba = hashU(hashU(hashU((uint)(pi.x+1))+(uint)(pi.y+1))+(uint)pi.z)%12;
+    uint bab = hashU(hashU(hashU((uint)(pi.x+1))+(uint)pi.y)+(uint)(pi.z+1))%12;
+    uint bbb = hashU(hashU(hashU((uint)(pi.x+1))+(uint)(pi.y+1))+(uint)(pi.z+1))%12;
 
-    uint aaa = hash(hash(hash((uint)pi.x) + (uint)pi.y) + (uint)pi.z) % 12;
-    uint aba = hash(hash(hash((uint)pi.x) + (uint)(pi.y + 1)) + (uint)pi.z) % 12;
-    uint aab = hash(hash(hash((uint)pi.x) + (uint)pi.y) + (uint)(pi.z + 1)) % 12;
-    uint abb = hash(hash(hash((uint)pi.x) + (uint)(pi.y + 1)) + (uint)(pi.z + 1)) % 12;
-    uint baa = hash(hash(hash((uint)(pi.x + 1)) + (uint)pi.y) + (uint)pi.z) % 12;
-    uint bba = hash(hash(hash((uint)(pi.x + 1)) + (uint)(pi.y + 1)) + (uint)pi.z) % 12;
-    uint bab = hash(hash(hash((uint)(pi.x + 1)) + (uint)pi.y) + (uint)(pi.z + 1)) % 12;
-    uint bbb = hash(hash(hash((uint)(pi.x + 1)) + (uint)(pi.y + 1)) + (uint)(pi.z + 1)) % 12;
+    float3 gaaa=grad3[aaa], gaba=grad3[aba], gaab=grad3[aab], gabb=grad3[abb];
+    float3 gbaa=grad3[baa], gbba=grad3[bba], gbab=grad3[bab], gbbb=grad3[bbb];
 
-    float3 gaaa = grad3[aaa];
-    float3 gaba = grad3[aba];
-    float3 gaab = grad3[aab];
-    float3 gabb = grad3[abb];
-    float3 gbaa = grad3[baa];
-    float3 gbba = grad3[bba];
-    float3 gbab = grad3[bab];
-    float3 gbbb = grad3[bbb];
-
-    float x1 = lerp(dot(gaaa, pf), dot(gbaa, pf - float3(1, 0, 0)), u);
-    float x2 = lerp(dot(gaba, pf - float3(0, 1, 0)), dot(gbba, pf - float3(1, 1, 0)), u);
+    float x1 = lerp(dot(gaaa,pf),                  dot(gbaa,pf-float3(1,0,0)), u);
+    float x2 = lerp(dot(gaba,pf-float3(0,1,0)),    dot(gbba,pf-float3(1,1,0)), u);
     float y1 = lerp(x1, x2, v);
 
-    float x3 = lerp(dot(gaab, pf - float3(0, 0, 1)), dot(gbab, pf - float3(1, 0, 1)), u);
-    float x4 = lerp(dot(gabb, pf - float3(0, 1, 1)), dot(gbbb, pf - float3(1, 1, 1)), u);
+    float x3 = lerp(dot(gaab,pf-float3(0,0,1)),    dot(gbab,pf-float3(1,0,1)), u);
+    float x4 = lerp(dot(gabb,pf-float3(0,1,1)),    dot(gbbb,pf-float3(1,1,1)), u);
     float y2 = lerp(x3, x4, v);
 
     return lerp(y1, y2, w);
 }
 
-// === Helper: safe forward from two nodes ===
-void GetForward(uint i0, out float3 fwd)
-{
-    float3 p0 = _StalkNodesBuffer[i0].currentPos;
-    float3 p1 = _StalkNodesBuffer[i0+1].currentPos;
-    fwd = normalize(p1 - p0);
-    if (!all(isfinite(fwd)) || length(fwd) < 1e-6) fwd = float3(0,1,0);
-} 
+// quaternions (avoid name clash with HLSL normalize)
+float4 QuatFromAxisAngle(float3 axis, float angle){
+    float h=angle*0.5; float s=sin(h);
+    return float4(axis*s, cos(h));
+}
+float4 QuatMul(float4 a, float4 b){
+    return float4(
+        a.w*b.xyz + b.w*a.xyz + cross(a.xyz,b.xyz),
+        a.w*b.w - dot(a.xyz,b.xyz)
+    );
+}
+float3 QuatRotate(float4 q, float3 v){
+    float3 t = 2.0 * cross(q.xyz, v);
+    return v + q.w * t + cross(q.xyz, t);
+}
+float4 QuatFromTo(float3 f, float3 t){
+    f = normalize(f); t = normalize(t);
+    float c = dot(f,t);
+    if(c < -0.9999){
+        float3 axis = normalize(cross(float3(0,1,0), f));
+        if(!all(isfinite(axis)) || length(axis)<1e-6) axis = normalize(cross(float3(1,0,0), f));
+        return QuatFromAxisAngle(axis, 3.14159265);
+    }
+    float3 axis = cross(f,t);
+    float s = sqrt((1+c)*2.0);
+    float invs = 1.0/s;
+    float4 q = float4(axis*invs, s*0.5);
+    return q / sqrt(dot(q,q));
+}
 
-// === Verlet Integration Kernel ===
+// ---------- Stalk: Verlet ----------
 [numthreads(64,1,1)]
 void CS_VerletUpdate(uint id : SV_DispatchThreadID)
 {
-    if (id >= _StalkNodesBuffer.Length)
-        return;
+    if (id >= _StalkNodesBuffer.Length) return;
 
     StalkNode node = _StalkNodesBuffer[id];
 
-    // Root node initialization per stalk
-    if (id % _NodesPerStalk == 0)
-    {
+    // root of each stalk pinned to initialRootPositions
+    if (id % _NodesPerStalk == 0){
         uint stalkIndex = id / _NodesPerStalk;
-        node.currentPos = initialRootPositions[stalkIndex];
+        node.currentPos  = initialRootPositions[stalkIndex];
         node.previousPos = node.currentPos;
-        node.direction = float3(0, 1, 0);
+        node.direction = float3(0,1,0);
         node.bendAmount = 0;
         _StalkNodesBuffer[id] = node;
         return;
-    } 
+    }
 
-    // Verlet integration
     float3 velocity = (node.currentPos - node.previousPos) * _Damping;
     node.previousPos = node.currentPos;
 
-	// Clamp velocity magnitude (example max speed)
-	float maxSpeed = 0.1;
-	float speed = length(velocity);
-	if(speed > maxSpeed)
-	{
-		velocity = normalize(velocity) * maxSpeed; 
-	}
+    // smooth wind
+    float3 np = float3(id*0.1, 0, 0) + float3(0, _Time*_WindFrequency, 0);
+    float3 wind = float3(
+        gradNoise3D(np + float3(0,0,0)),
+        gradNoise3D(np + float3(100,100,100)),
+        gradNoise3D(np + float3(200,200,200))
+    ) * _WindStrength;
 
-    // Wind force using smooth noise
-    float3 noisePos = float3(id * 0.1, 0, 0) + float3(0, _Time * _WindFrequency, 0); 
-    float noiseX = gradNoise3D(noisePos);
-    float noiseY = gradNoise3D(noisePos + float3(100, 100, 100));
-    float noiseZ = gradNoise3D(noisePos + float3(200, 200, 200));
-    float3 windForce = float3(noiseX, noiseY, noiseZ) * _WindStrength;
+    node.currentPos += velocity + (_Gravity * _DeltaTime) + wind * _DeltaTime;
 
-    node.currentPos += velocity + (_Gravity * _DeltaTime) + windForce * _DeltaTime;
-
-    // Seabed collision
-    float seabedHeight = 0.0f;
-    if (node.currentPos.y < seabedHeight)
-    {
-        node.currentPos.y = seabedHeight;
-
-        // Dampen vertical velocity on collision
-        velocity = node.currentPos - node.previousPos;
-        velocity.y = 0;
-        node.previousPos = node.currentPos - velocity * _Damping;
+    // seabed collision
+    if (node.currentPos.y < 0){
+        float3 vel = node.currentPos - node.previousPos;
+        node.currentPos.y = 0;
+        vel.y = 0;
+        node.previousPos = node.currentPos - vel * _Damping;
     }
 
-    // Update direction between neighbors (handle stalk boundaries)
-    float3 prevDir;
-    float3 nextDir;
-
-    // Ensure neighbors are within the same stalk
+    // smoothed direction & bend
     bool hasPrev = (id % _NodesPerStalk) != 0;
     bool hasNext = ((id + 1) % _NodesPerStalk) != 0 && (id + 1) < _StalkNodesBuffer.Length;
 
-    if (hasPrev && hasNext)
-    {
-        prevDir = normalize(node.currentPos - _StalkNodesBuffer[id - 1].currentPos);
-        nextDir = normalize(_StalkNodesBuffer[id + 1].currentPos - node.currentPos);
-    }
-    else if (hasPrev)
-    {
-        prevDir = normalize(node.currentPos - _StalkNodesBuffer[id - 1].currentPos);
-        nextDir = prevDir;
-    }
-    else if (hasNext)
-    {
-        prevDir = normalize(_StalkNodesBuffer[id + 1].currentPos - node.currentPos);
-        nextDir = prevDir;
-    }
-    else
-    {
-        prevDir = float3(0,1,0);
-        nextDir = float3(0,1,0);
-    }
+    float3 prevDir = float3(0,1,0);
+    float3 nextDir = float3(0,1,0);
+
+    if (hasPrev) prevDir = normalize(node.currentPos - _StalkNodesBuffer[id-1].currentPos);
+    if (hasNext) nextDir = normalize(_StalkNodesBuffer[id+1].currentPos - node.currentPos);
 
     float3 targetDir = normalize(prevDir + nextDir);
-    float smoothingFactor = 0.2;
-    node.direction = normalize(lerp(node.direction, targetDir, smoothingFactor));
+    node.direction = normalize(lerp(node.direction, targetDir, 0.2));
     node.bendAmount = length(nextDir - prevDir) * 5.0;
 
     _StalkNodesBuffer[id] = node;
 }
- 
-// === Constraint Relaxation Kernel ===
-// Enforces fixed distance (_SegmentSpacing) between consecutive nodes on the same stalk
+
+// ---------- Stalk: Constraints ----------
 [numthreads(64,1,1)]
 void CS_ApplyConstraints(uint id : SV_DispatchThreadID)
 {
-    if (id >= _StalkNodesBuffer.Length) 
-        return;
+    if (id >= _StalkNodesBuffer.Length) return;
+    if (id % _NodesPerStalk == 0) return; // root pinned
 
-    // Skip root nodes, they are fixed
-    if (id % _NodesPerStalk == 0)
-        return;
+    // ensure same stalk
+    if ((id / _NodesPerStalk) != ((id-1) / _NodesPerStalk)) return;
 
-    StalkNode node = _StalkNodesBuffer[id];
-    StalkNode prevNode = _StalkNodesBuffer[id - 1];
+    StalkNode a = _StalkNodesBuffer[id-1];
+    StalkNode b = _StalkNodesBuffer[id];
 
-    // Ensure prevNode is on the same stalk (id-1 is valid if same stalk)
-    if ((id / _NodesPerStalk) != ((id - 1) / _NodesPerStalk))
-        return;
+    float3 d = b.currentPos - a.currentPos;
+    float dist = length(d);
+    if (dist < 1e-6) d = float3(0,1,0), dist = 1.0;
 
-    float3 delta = node.currentPos - prevNode.currentPos; 
-    float dist = length(delta);
     float diff = dist - _SegmentSpacing;
-
-    if (abs(diff) > 0.0001)
-    {
-        float3 correction = normalize(delta) * diff * 0.5;
-
-        // Move current node back
-        node.currentPos -= correction;
-
-        // Move previous node forward unless root node (id-1 % _NodesPerStalk == 0)
-        if ((id - 1) % _NodesPerStalk != 0)
-        {
-            prevNode.currentPos += correction;
-            _StalkNodesBuffer[id - 1] = prevNode;
+    if (abs(diff) > 1e-5){
+        float3 corr = (d / dist) * (diff * 0.5);
+        // move both, except keep the root fixed
+        b.currentPos -= corr;
+        if (((id-1) % _NodesPerStalk) != 0){
+            a.currentPos += corr;
+            _StalkNodesBuffer[id-1] = a;
         }
-
-        _StalkNodesBuffer[id] = node;
+        _StalkNodesBuffer[id] = b;
     }
-} 
+}
 
-    // --- Quaternion Utilities ---
-    float4 QuatFromAxisAngle(float3 axis, float angle)
-    {
-        float halfAngle = angle * 0.5;
-        float s = sin(halfAngle);
-        return float4(axis * s, cos(halfAngle));
-    }
+// ---------- LEAF ROPE: Verlet (per segment) ----------
+[numthreads(64,1,1)]
+void CS_VerletUpdateLeaves(uint id : SV_DispatchThreadID)
+{
+    if (id >= _LeafSegmentsBuffer.Length) return;
 
-    float4 QuatMul(float4 q1, float4 q2)
-    {
-        return float4(
-            q1.w*q2.xyz + q2.w*q1.xyz + cross(q1.xyz, q2.xyz),
-            q1.w*q2.w - dot(q1.xyz, q2.xyz)
-        );
-    }
+    LeafSegment s = _LeafSegmentsBuffer[id];
 
-    float3 QuatRotate(float4 q, float3 v)
-    {
-        float3 t = 2.0 * cross(q.xyz, v);
-        return v + q.w * t + cross(q.xyz, t);
-    }
+    // standard verlet step
+    float3 vel = (s.currentPos - s.previousPos) * _Damping;
+    s.previousPos = s.currentPos;
 
-    float4 QuatFromTo(float3 from, float3 to) 
-    {
-        float3 f = normalize(from);
-        float3 t = normalize(to);
-        float cosTheta = dot(f, t);
-        float3 rotAxis;
+    // gentle wind
+    float3 np = float3(id*0.07, 0, 0) + float3(0, _Time*_WindFrequency, 0);
+    float3 wind = float3(
+        gradNoise3D(np + float3(0,0,0)),
+        gradNoise3D(np + float3(50,50,50)),
+        gradNoise3D(np + float3(100,100,100))
+    ) * (_WindStrength * 0.8);
 
-        if (cosTheta < -0.9999)
-        {
-            rotAxis = normalize(cross(float3(0,1,0), f));
-            if (length(rotAxis) < 1e-6)
-                rotAxis = normalize(cross(float3(1,0,0), f));
-            return QuatFromAxisAngle(rotAxis, 3.14159265);
-        }
+    s.currentPos += vel + (_Gravity * _DeltaTime) + wind * _DeltaTime;
 
-        rotAxis = cross(f, t);
-        float s = sqrt((1 + cosTheta) * 2);
-        float invs = 1 / s;
-        return normalize(float4(rotAxis * invs, s * 0.5));
+    // simple seabed
+    if (s.currentPos.y < 0){
+        float3 v2 = s.currentPos - s.previousPos;
+        s.currentPos.y = 0;
+        v2.y = 0;
+        s.previousPos = s.currentPos - v2 * _Damping;
     }
 
-    float4 normalize(float4 q)
-    {
-        return q / sqrt(dot(q, q));
-    } 
+    _LeafSegmentsBuffer[id] = s;
+}
 
-// === Leaf updater: writes both object orientation/bend and leaf-node base position ===
+// ---------- LEAF ROPE: Constraints (per segment) ----------
+[numthreads(64,1,1)]
+void CS_ApplyLeafConstraints(uint id : SV_DispatchThreadID)
+{
+    if (id >= _LeafSegmentsBuffer.Length) return;
+
+    uint leafID      = id / _LeafNodesPerLeaf;
+    uint nodeInLeaf  = id % _LeafNodesPerLeaf;
+
+    if (leafID >= _TotalLeafObjects) return;
+
+    LeafObject lo = _LeafObjectsBuffer[leafID];
+    int n0 = lo.stalkNodeIndex;
+    if (n0 < 0 || n0+1 >= _StalkNodesBuffer.Length) return;
+
+    // compute small radial offset around the stalk based on angleAroundStem
+    float3 p0 = _StalkNodesBuffer[n0].currentPos;
+    float3 fwd = float3(0,1,0);
+    // approximate stalk tangent using next node if same stalk
+    bool sameStalkNext = ((n0+1)/_NodesPerStalk)==(n0/_NodesPerStalk);
+    if (sameStalkNext){
+        float3 p1 = _StalkNodesBuffer[n0+1].currentPos;
+        fwd = normalize(p1 - p0);
+        if (!all(isfinite(fwd)) || length(fwd) < 1e-6) fwd = float3(0,1,0);
+    }
+
+    float3 tmpUp = abs(fwd.y) > 0.95 ? float3(1,0,0) : float3(0,1,0);
+    float3 side  = normalize(cross(tmpUp, fwd));
+    float3 bin   = normalize(cross(fwd, side));
+
+    float ca = cos(lo.angleAroundStem);
+    float sa = sin(lo.angleAroundStem);
+    float3 around = normalize(side * ca + bin * sa);
+
+    // rest length along the leaf rope
+    float rest = _SegmentSpacing;
+
+    if (nodeInLeaf == 0)
+    {
+        // Attach root to stalk n0 every frame (tiny radial offset to avoid z-fight)
+        LeafSegment rootSeg = _LeafSegmentsBuffer[id];
+        float3 attachPos = p0 + around * 0.015; // feel free to set to 0 for strict pin
+        rootSeg.currentPos  = attachPos;
+        rootSeg.previousPos = attachPos; // keep root stable
+        _LeafSegmentsBuffer[id] = rootSeg;
+        return;
+    }
+
+    // distance constraint to previous segment
+    int prev = id - 1;
+    LeafSegment a = _LeafSegmentsBuffer[prev];
+    LeafSegment b = _LeafSegmentsBuffer[id];
+
+    float3 d = b.currentPos - a.currentPos;
+    float  L = length(d);
+    if (L < 1e-6){ d = float3(0,1,0); L = 1.0; }
+
+    float3 corr = (d / L) * (L - rest);
+    // move both endpoints (root will be re-snapped next iteration)
+    b.currentPos -= corr * 0.5;
+    a.currentPos += corr * 0.5;
+
+    _LeafSegmentsBuffer[prev] = a;
+    _LeafSegmentsBuffer[id]   = b;
+}
+
+// ---------- Per-leaf update (orientation/bend for rendering) ----------
 [numthreads(64,1,1)]
 void CS_UpdateLeaves(uint i : SV_DispatchThreadID)
 {
-    if (i >= _LeafObjectsBuffer.Length) return; 
+    if (i >= _LeafObjectsBuffer.Length) return;
 
-    LeafObject leafObj = _LeafObjectsBuffer[i];
+    uint baseSeg = i * _LeafNodesPerLeaf;
+    if (baseSeg >= _LeafSegmentsBuffer.Length) return;
 
-    int n0 = leafObj.stalkNodeIndex;
-    int n1 = n0 + 1;
-    int n2 = n0 + 2;
-    if (n2 >= _StalkNodesBuffer.Length) return;
+    // need at least two segments for forward
+    uint s0i = baseSeg;
+    uint s1i = baseSeg + min(1, _LeafNodesPerLeaf-1);
+    uint s2i = baseSeg + min(2, _LeafNodesPerLeaf-1);
 
-    // Guard against crossing to next stalk
-    uint stalk0 = n0 / _NodesPerStalk;
-    if (n1 / _NodesPerStalk != stalk0 || n2 / _NodesPerStalk != stalk0) return;
+    float3 p0 = _LeafSegmentsBuffer[s0i].currentPos;
+    float3 p1 = _LeafSegmentsBuffer[s1i].currentPos;
 
-    float3 p0 = _StalkNodesBuffer[n0].currentPos;
-    float3 p1 = _StalkNodesBuffer[n1].currentPos;
-    float3 p2 = _StalkNodesBuffer[n2].currentPos;
-
-    // --- Orientation (align leaf forward with p0->p1) ---
     float3 forward = normalize(p1 - p0);
-    float3 upRef = float3(0,1,0);
-    float3 axis = cross(upRef, forward);
-    float angle = acos(clamp(dot(upRef, forward), -1.0, 1.0));
-    if (length(axis) < 1e-5) { axis = float3(0,0,1); angle = 0; }
-    axis = normalize(axis);
-    float halfA = 0.5f * angle;
-    float s = sin(halfA);
-    leafObj.orientation = float4(axis * s, cos(halfA));
+    if (!all(isfinite(forward)) || length(forward) < 1e-6) forward = float3(0,1,0);
 
-    // --- Bend computation along 3-node curve ---
-    float3 dirBase = normalize(p1 - p0);
-    float3 dirTip  = normalize(p2 - p1);
+    // orientation: rotate UP to leaf forward
+    float4 q = QuatFromTo(float3(0,1,0), forward);
+
+    // bend from first two edges if available
+    float3 dirBase = forward;
+    float3 dirTip  = dirBase;
+    if (s2i < _LeafSegmentsBuffer.Length){
+        float3 p2 = _LeafSegmentsBuffer[s2i].currentPos;
+        dirTip = normalize(p2 - p1);
+        if (!all(isfinite(dirTip)) || length(dirTip)<1e-6) dirTip = dirBase;
+    }
+
     float3 bendAxis = cross(dirBase, dirTip);
-
-    if (length(bendAxis) < 1e-5)
-    {
+    float  bendAngle = 0.0;
+    if (length(bendAxis) < 1e-5){
         bendAxis = abs(dirBase.y) < 0.95 ? float3(0,1,0) : float3(1,0,0);
-        leafObj.bendAngle = 0;
-    }
-    else
-    {
+        bendAngle = 0.0;
+    } else {
         bendAxis = normalize(bendAxis);
-        leafObj.bendAngle = acos(clamp(dot(dirBase, dirTip), -1.0, 1.0));
+        bendAngle = acos(clamp(dot(dirBase, dirTip), -1.0, 1.0));
     }
 
-    leafObj.bendAxis = bendAxis;
+    LeafObject lo = _LeafObjectsBuffer[i];
+    lo.orientation = q;
+    lo.bendAxis    = bendAxis;
+    lo.bendAngle   = bendAngle;
 
-    uint stalkStartIndex = (n0 / _NodesPerStalk) * _NodesPerStalk;  // first node of this stalk
-	uint stalkEndIndex   = stalkStartIndex + _NodesPerStalk - 1;
-
-	// local node index along this stalk
-	uint localNodeIndex = n0 - stalkStartIndex;
-
-	// t = 0 (bottom) → 1 (top)
-	float t = localNodeIndex / float(_NodesPerStalk - 1);
-
-	// --- Update leaf node base position ---
-	float3 basePos = _StalkNodesBuffer[n0].currentPos;  // use actual node position
-
-	float3 tmpUp = abs(forward.y) > 0.95 ? float3(1,0,0) : float3(0,1,0);
-	float3 side   = normalize(cross(tmpUp, forward));
-	float3 binorm = normalize(cross(forward, side));
-
-	float ca = cos(leafObj.angleAroundStem);
-	float sa = sin(leafObj.angleAroundStem);
-	float3 around = normalize(side * ca + binorm * sa);
-
-	basePos += around * 0.015; // small radial offset
-
-	// --- Update leaf node ---
-	LeafNode node = _LeafNodesBuffer[i];
-	node.previousPos = node.currentPos;
-	node.currentPos = basePos;
-	_LeafNodesBuffer[i] = node; 
-
-    _LeafObjectsBuffer[i] = leafObj;
+    _LeafObjectsBuffer[i] = lo;
 } 

@@ -30,12 +30,12 @@
             // -----------------------
             // CPU-side struct mirrors
             // -----------------------
-            struct LeafNode
-			{
-				float3 currentPos; float  pad0;
-				float3 previousPos; float  pad1;
-				float4 color; 
-			};
+            struct LeafSegment
+            {
+                float3 currentPos; float pad0;
+                float3 previousPos; float pad1;
+                float4 color;
+            }; 
 
             struct LeafObject
 			{
@@ -49,11 +49,12 @@
             // -----------------------
             // Buffers & uniforms
             // -----------------------
-            StructuredBuffer<LeafNode> _LeafNodesBuffer;
-            StructuredBuffer<LeafObject> _LeafObjectsBuffer;
+            StructuredBuffer<LeafSegment> _LeafSegmentsBuffer;
+            StructuredBuffer<LeafObject> _LeafObjectsBuffer; 
 
             float3 _WorldOffset;
             float4 _BaseColor;
+			int _LeafNodesPerLeaf; // set from C# 
 
             // -----------------------
             // Vertex attributes & varyings
@@ -117,61 +118,52 @@
             // -----------------------
             // Vertex shader
             // -----------------------
-            Varyings vert(Attributes input)
+            Varyings vert(Attributes IN)
 			{
-				Varyings output; 
+				Varyings OUT; 
 
-				// Instance index
-				uint iid = input.instanceID;
+				uint leafID = IN.instanceID;                  // one draw instance per LEAF
+				uint baseSeg = leafID * _LeafNodesPerLeaf;    // ROOT of this leaf's mini-rope
 
-				// Read per-leaf data from buffers
-				LeafObject leafObj = _LeafObjectsBuffer[iid];
-				LeafNode leafNode = _LeafNodesBuffer[iid];
+				// read per-leaf data
+				LeafObject lo = _LeafObjectsBuffer[leafID];
 
-				// Object-space vertex
-				float3 v = input.positionOS;
-				float3 n = input.normalOS;
+				// read this leaf's ROOT segment for placement & color
+				LeafSegment rootSeg = _LeafSegmentsBuffer[baseSeg];
 
-				// -------------------------------------------------------
-				// 1) Rotate vertex into stem orientation space
-				// -------------------------------------------------------
-				v = RotateByQuaternion(v, leafObj.orientation);
-				n = normalize(RotateByQuaternion(n, leafObj.orientation));
+				// object-space vertex & normal
+				float3 v = IN.positionOS;
+				float3 n = IN.normalOS;
 
-				// -------------------------------------------------------
-				// 2) Bend smoothly along bendAxis using bendAngle
-				//    Bend factor t = position along leaf length (0 = base, 1 = tip)
-				// -------------------------------------------------------
-				float t = saturate(v.y); // assumes leaf length runs along +Y
-				float angle = leafObj.bendAngle * t * t; // quadratic falloff
-				v = RotateAxisAngle(v, leafObj.bendAxis, angle);
-				n = normalize(RotateAxisAngle(n, leafObj.bendAxis, angle));
+				// 1) orient mesh along rope base direction (computed in compute and stored in lo.orientation)
+				v = RotateByQuaternion(v, lo.orientation);
+				n = normalize(RotateByQuaternion(n, lo.orientation));
 
-				// -------------------------------------------------------
-				// 3) Apply radial offset around stalk (angleAroundStem)
-				// -------------------------------------------------------
-				float ca = cos(leafObj.angleAroundStem);
-				float sa = sin(leafObj.angleAroundStem);
+				// 2) apply smooth bend about bendAxis with bendAngle (tip bends more)
+				float t = saturate(v.y);                  // assumes +Y is leaf length in mesh
+				float ang = lo.bendAngle * t * t;        // quadratic falloff
+				v = RotateAxisAngle(v, lo.bendAxis, ang);
+				n = normalize(RotateAxisAngle(n, lo.bendAxis, ang));
+
+				// 3) radial rotation around stem (decorative spin)
+				float ca = cos(lo.angleAroundStem), sa = sin(lo.angleAroundStem);
 				float3x3 rotY = float3x3(
 					ca, 0, -sa,
-					0,  1,  0,
-					sa, 0,  ca 
+					 0, 1,   0,
+					sa, 0,  ca
 				);
 				v = mul(rotY, v);
 				n = normalize(mul(rotY, n));
 
-				// -------------------------------------------------------
-				// 4) Place in world space
-				// -------------------------------------------------------
-				float3 worldPos = _WorldOffset + leafNode.currentPos + v;
+				// 4) place in world using this leaf's ROOT segment
+				float3 worldPos = _WorldOffset + rootSeg.currentPos + v;
 
-				output.positionWS = worldPos;
-				output.positionCS = TransformWorldToHClip(worldPos);
-				output.normalWS = n;
-				output.color = leafNode.color * _BaseColor;
-				output.shadowCoord = TransformWorldToShadowCoord(worldPos);
-
-				return output;
+				OUT.positionWS = worldPos;
+				OUT.positionCS = TransformWorldToHClip(worldPos);
+				OUT.normalWS   = n;
+				OUT.color      = rootSeg.color * _BaseColor;
+				OUT.shadowCoord= TransformWorldToShadowCoord(worldPos);
+				return OUT;
 			} 
 
             // -----------------------
@@ -179,35 +171,23 @@
             // -----------------------
             half4 frag(Varyings i) : SV_Target
             {
-                half3 normalWS = normalize(i.normalWS);
-                half3 viewDirWS = normalize(_WorldSpaceCameraPos - i.positionWS);
+                half3 N = normalize(i.normalWS);
+				Light mainLight = GetMainLight();
+				half3 L = normalize(mainLight.direction);
 
-                half3 baseColor = i.color.rgb;
-                half3 finalColor = 0;
+				half NdotL = max(0, dot(N, -L));
+				half shadowAtten = MainLightRealtimeShadow(i.shadowCoord);
+				half3 col = i.color.rgb * mainLight.color * NdotL * shadowAtten;
 
-                // Main directional light
-                Light mainLight = GetMainLight();
-                half3 lightDir = normalize(mainLight.direction);
-                half NdotL = max(0, dot(normalWS, -lightDir));
-
-                half shadowAtten = MainLightRealtimeShadow(i.shadowCoord);
-                finalColor += baseColor * mainLight.color * NdotL * shadowAtten; 
-
-                // Additional lights (forward path)
-                uint additionalLightsCount = GetAdditionalLightsCount();
-                for (uint li = 0; li < additionalLightsCount; ++li)
-                {
-                    Light light = GetAdditionalLight(li, i.positionWS);
-                    half3 lightDirAdd = normalize(light.direction);
-                    half NdotLAdd = max(0, dot(normalWS, -lightDirAdd));
-                    finalColor += baseColor * light.color * NdotLAdd * light.distanceAttenuation * light.shadowAttenuation;
-                }
-
-                finalColor = saturate(finalColor);
-                return half4(finalColor, i.color.a);
-            }
-
-            ENDHLSL
+				uint addCount = GetAdditionalLightsCount();
+				for (uint li = 0; li < addCount; ++li){
+					Light l2 = GetAdditionalLight(li, i.positionWS);
+					half3 L2 = normalize(l2.direction);
+					col += i.color.rgb * l2.color * max(0, dot(N, -L2)) * l2.distanceAttenuation * l2.shadowAttenuation;
+				}
+				return half4(saturate(col), i.color.a);
+			}
+			ENDHLSL 
         }
     }
 
