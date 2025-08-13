@@ -1,4 +1,4 @@
-Shader "Custom/KelpLeafInstanced"
+﻿Shader "Custom/KelpLeafInstanced"
 {
     Properties
     {
@@ -31,22 +31,22 @@ Shader "Custom/KelpLeafInstanced"
             // CPU-side struct mirrors
             // -----------------------
             struct LeafNode
-            {
-                float3 currentPos;
-				float padding0;
-                float3 previousPos;
-				float padding1; 
-                float4 color;
-            };
+			{
+				float3 currentPos;
+				float  pad0;
+				float3 previousPos;
+				float  pad1;
+				float4 color; 
+			};
 
             struct LeafObject
-            {
-                float4 orientation;   // quaternion (x,y,z,w)
-                float bendValue;
-                int stalkNodeIndex;
-				float angleAroundStem; 
-                int padding;          // to align to 16 bytes
-            };
+			{
+				float4 orientation;
+				float3 bendAxis;    float bendAngle;
+				int    stalkNodeIndex;
+				float  angleAroundStem;
+				float2 pad; 
+			};
 
             // -----------------------
             // Buffers & uniforms
@@ -98,7 +98,7 @@ Shader "Custom/KelpLeafInstanced"
                 return result;
             }
 
-            // Rotate around local X axis by angle (radians) � operate on a float3
+            // Rotate around local X axis by angle (radians) — operate on a float3
             float3 RotateAroundLocalX(float3 p, float angle)
             {
                 float s = sin(angle);
@@ -108,6 +108,13 @@ Shader "Custom/KelpLeafInstanced"
                 float z = p.y * s + p.z * c;
                 return float3(p.x, y, z);
             }
+
+			float3 RotateAxisAngle(float3 v, float3 axis, float angle)
+				{
+					float s = sin(angle);
+					float c = cos(angle);
+					return v * c + cross(axis, v) * s + axis * dot(axis, v) * (1 - c); 
+				} 
 
             // -----------------------
             // Vertex shader
@@ -128,7 +135,7 @@ Shader "Custom/KelpLeafInstanced"
 				// --- geometric adjustments in leaf-local space ---
 
 				// Apply bend
-				float bendStrength = leafObj.bendValue * 0.8; 
+				float bendStrength = leafObj.bendAngle * 0.8; 
 				float t = saturate(v.y);
 				float bendAngle = bendStrength * (t * t);
 				v = RotateAroundLocalX(v, bendAngle);
@@ -139,7 +146,7 @@ Shader "Custom/KelpLeafInstanced"
 				float3x3 rotY = float3x3(
 					ca, 0, -sa,
 					0,  1,  0,
-					sa, 0,  ca
+					sa, 0,  ca 
 				);
 				v = mul(rotY, v);
 				n = mul(rotY, n);
@@ -147,6 +154,11 @@ Shader "Custom/KelpLeafInstanced"
 				// Rotate into leaf orientation space
 				v = RotateByQuaternion(v, leafObj.orientation);
 				n = normalize(RotateByQuaternion(n, leafObj.orientation)); 
+
+				// Bend fade
+				float t2 = saturate(v.y); // assuming y is leaf length 
+				v = RotateAxisAngle(v, leafObj.bendAxis, leafObj.bendAngle * t);
+				n = normalize(RotateAxisAngle(n, leafObj.bendAxis, leafObj.bendAngle * t)); 
 
 				// Translate into world using precomputed leaf position
 				float3 worldPos = _WorldOffset + leafNode.currentPos + v;

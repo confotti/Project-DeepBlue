@@ -1,66 +1,51 @@
 // === Kernel Declarations ===
 #pragma kernel CS_VerletUpdate
-#pragma kernel CS_ApplyConstraints 
-#pragma kernel CS_UpdateLeafNodes 
+#pragma kernel CS_ApplyConstraints
+#pragma kernel CS_UpdateLeaves   // CHANGED
 
-// === Struct Definitions ===
+// === Structs (match C# exactly) ===
 struct StalkNode
 {
-    float3 currentPos;
-    float padding0;
-
-    float3 previousPos;
-    float padding1;
-
-    float3 direction;
-    float padding2;
-
+    float3 currentPos; float pad0;
+    float3 previousPos; float pad1;
+    float3 direction;   float pad2;
     float4 color;
-    float bendAmount;
-    float3 padding3;
-
-    int isTip;
-    float3 padding4;
+    float  bendAmount;  float3 pad3;
+    int    isTip;       float3 pad4;
 };
 
-// === Leaf Structures ===
 struct LeafNode
 {
-    float3 currentPos;
-    float padding0;
-
-    float3 previousPos;
-    float padding1;
-
-    float4 color; 
+    float3 currentPos;  float pad0;
+    float3 previousPos; float pad1;
+    float4 color;
 };
 
 struct LeafObject
 {
     float4 orientation;
-    float bendValue;
-    int stalkNodeIndex;
-	float angleAroundStem; 
-    int padding;
+    float3 bendAxis;    float bendAngle;
+    int    stalkNodeIndex;
+    float  angleAroundStem;
+    float2 pad;
 };
 
 // === Buffers ===
 RWStructuredBuffer<StalkNode> _StalkNodesBuffer;
-StructuredBuffer<float3> initialRootPositions; 
-RWStructuredBuffer<LeafNode> _LeafNodesBuffer;
-StructuredBuffer<LeafObject> _LeafObjectsBuffer; 
+StructuredBuffer<float3> initialRootPositions;
 
-// === Parameters ===
+RWStructuredBuffer<LeafNode>   _LeafNodesBuffer;
+RWStructuredBuffer<LeafObject> _LeafObjectsBuffer;
+
+// === Params ===
 float _DeltaTime;
 float3 _Gravity;
 float _Damping;
 float _SegmentSpacing;
 float _Time;
-
 float _WindStrength;
 float _WindFrequency;
-
-uint _NodesPerStalk; // Number of nodes per stalk, passed from CPU 
+uint  _NodesPerStalk; 
 
 // === Hashing Functions ===
 // (Same hash and noise functions you had, unchanged)
@@ -127,6 +112,15 @@ float gradNoise3D(float3 pos)
 
     return lerp(y1, y2, w);
 }
+
+// === Helper: safe forward from two nodes ===
+void GetForward(uint i0, out float3 fwd)
+{
+    float3 p0 = _StalkNodesBuffer[i0].currentPos;
+    float3 p1 = _StalkNodesBuffer[i0+1].currentPos;
+    fwd = normalize(p1 - p0);
+    if (!all(isfinite(fwd)) || length(fwd) < 1e-6) fwd = float3(0,1,0);
+} 
 
 // === Verlet Integration Kernel ===
 [numthreads(64,1,1)]
@@ -260,37 +254,71 @@ void CS_ApplyConstraints(uint id : SV_DispatchThreadID)
     }
 } 
 
+// === Leaf updater: writes both object orientation/bend and leaf-node base position ===
 [numthreads(64,1,1)]
-void CS_UpdateLeafNodes(uint id : SV_DispatchThreadID)
+void CS_UpdateLeaves(uint i : SV_DispatchThreadID)
 {
-    if (id >= _LeafNodesBuffer.Length) 
-        return;
+    if (i >= _LeafObjectsBuffer.Length) return;
 
-    LeafObject leafObj = _LeafObjectsBuffer[id];
-    LeafNode leafNode = _LeafNodesBuffer[id];
+    LeafObject leafObj = _LeafObjectsBuffer[i];
 
-    int stalkIndex = leafObj.stalkNodeIndex;
-    if (stalkIndex < 0 || stalkIndex >= _StalkNodesBuffer.Length)
-        return;
+    int n0 = leafObj.stalkNodeIndex;
+    int n1 = n0 + 1;
+    int n2 = n0 + 2;
+    if (n2 >= _StalkNodesBuffer.Length) return;
 
-    StalkNode stalkNode = _StalkNodesBuffer[stalkIndex];
-    float3 stalkPos = stalkNode.currentPos;
+    // Guard against crossing to next stalk
+    uint stalk0 = n0 / _NodesPerStalk;
+    if (n1 / _NodesPerStalk != stalk0 || n2 / _NodesPerStalk != stalk0) return;
 
-    // Offset radius from the stem
-    float radius = 0.05; // adjust to control how far from stem the leaves appear
+    float3 p0 = _StalkNodesBuffer[n0].currentPos;
+    float3 p1 = _StalkNodesBuffer[n1].currentPos;
+    float3 p2 = _StalkNodesBuffer[n2].currentPos;
 
-    // Calculate offset position in circle around stalk node
-    float angle = leafObj.angleAroundStem;
-    float3 offset = float3(cos(angle), 0, sin(angle)) * radius;
+    // --- Orientation (rotate Y-up to forward = p1-p0) ---
+    float3 forward = normalize(p1 - p0);
+    float3 upRef   = float3(0,1,0);
+    float c = clamp(dot(upRef, forward), -1.0, 1.0);
+    float angle = acos(c);
+    float3 axis  = cross(upRef, forward);
+    if (length(axis) < 1e-5) { axis = float3(0,0,1); angle = 0; }
+    axis = normalize(axis);
+    float halfA = 0.5f * angle;
+    float s = sin(halfA);
+    leafObj.orientation = float4(axis * s, cos(halfA));
 
-    // Assign leaf position with offset around the stalk node
-    leafNode.currentPos = stalkPos + offset;
+    // --- Bend (between p0->p1 and p1->p2) ---
+    float3 dirBase = normalize(p1 - p0);
+    float3 dirTip  = normalize(p2 - p1);
+    float d = clamp(dot(dirBase, dirTip), -1.0, 1.0);
+    float bendAngle = acos(d);
+    float3 bendAxis = cross(dirBase, dirTip);
+    if (length(bendAxis) < 1e-5) { bendAxis = float3(0,0,1); bendAngle = 0; }
+    leafObj.bendAxis  = normalize(bendAxis);
+    leafObj.bendAngle = bendAngle;
 
-    // For previousPos, just keep the same (or lerp if you want smoothing)
-    leafNode.previousPos = leafNode.currentPos;
+    // --- Leaf base position ---
+    // Put the leaf base at p0 (the segment start). Vertex shader will rotate around the stem.
+    // If you want a small radial offset from stem, uncomment the offset block.
 
-    // You can set leaf color or other properties as before
-    leafNode.color = leafNode.color;
+    float3 basePos = p0;
 
-    _LeafNodesBuffer[id] = leafNode; 
+    // Optional small radial offset (keeps leaves from z-fighting with stalk center)
+    // Compute a side vector, rotate it by angleAroundStem, add small radius:
+    /*
+    float3 tmpUp = abs(forward.y) > 0.95 ? float3(1,0,0) : float3(0,1,0);
+    float3 side = normalize(cross(tmpUp, forward));
+    float3 binorm = normalize(cross(forward, side));
+    float ca = cos(leafObj.angleAroundStem);
+    float sa = sin(leafObj.angleAroundStem);
+    float3 around = normalize(side * ca + binorm * sa);
+    basePos += around * 0.015; // tweak radius
+    */
+
+    LeafNode node = _LeafNodesBuffer[i];
+    node.previousPos = node.currentPos;
+    node.currentPos  = basePos;
+    _LeafNodesBuffer[i] = node;
+
+    _LeafObjectsBuffer[i] = leafObj;
 } 
