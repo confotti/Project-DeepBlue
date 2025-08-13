@@ -32,10 +32,8 @@
             // -----------------------
             struct LeafNode
 			{
-				float3 currentPos;
-				float  pad0;
-				float3 previousPos;
-				float  pad1;
+				float3 currentPos; float  pad0;
+				float3 previousPos; float  pad1;
 				float4 color; 
 			};
 
@@ -84,7 +82,7 @@
                 float3 positionWS : TEXCOORD0;
                 float3 normalWS   : TEXCOORD1;
                 float4 color      : COLOR;
-                float4 shadowCoord: TEXCOORD2;
+                float4 shadowCoord: TEXCOORD2; 
             };
 
             // -----------------------
@@ -123,24 +121,35 @@
 			{
 				Varyings output; 
 
-				// read leaf and leaf-node (position + color)
+				// Instance index
 				uint iid = input.instanceID;
+
+				// Read per-leaf data from buffers
 				LeafObject leafObj = _LeafObjectsBuffer[iid];
 				LeafNode leafNode = _LeafNodesBuffer[iid];
 
-				// object-space vertex
+				// Object-space vertex
 				float3 v = input.positionOS;
 				float3 n = input.normalOS;
 
-				// --- geometric adjustments in leaf-local space ---
+				// -------------------------------------------------------
+				// 1) Rotate vertex into stem orientation space
+				// -------------------------------------------------------
+				v = RotateByQuaternion(v, leafObj.orientation);
+				n = normalize(RotateByQuaternion(n, leafObj.orientation));
 
-				// Apply bend
-				float bendStrength = leafObj.bendAngle * 0.8; 
-				float t = saturate(v.y);
-				float bendAngle = bendStrength * (t * t);
-				v = RotateAroundLocalX(v, bendAngle);
+				// -------------------------------------------------------
+				// 2) Bend smoothly along bendAxis using bendAngle
+				//    Bend factor t = position along leaf length (0 = base, 1 = tip)
+				// -------------------------------------------------------
+				float t = saturate(v.y); // assumes leaf length runs along +Y
+				float angle = leafObj.bendAngle * t * t; // quadratic falloff
+				v = RotateAxisAngle(v, leafObj.bendAxis, angle);
+				n = normalize(RotateAxisAngle(n, leafObj.bendAxis, angle));
 
-				// Rotate around the stem (Y-axis) by angleAroundStem
+				// -------------------------------------------------------
+				// 3) Apply radial offset around stalk (angleAroundStem)
+				// -------------------------------------------------------
 				float ca = cos(leafObj.angleAroundStem);
 				float sa = sin(leafObj.angleAroundStem);
 				float3x3 rotY = float3x3(
@@ -149,18 +158,11 @@
 					sa, 0,  ca 
 				);
 				v = mul(rotY, v);
-				n = mul(rotY, n);
+				n = normalize(mul(rotY, n));
 
-				// Rotate into leaf orientation space
-				v = RotateByQuaternion(v, leafObj.orientation);
-				n = normalize(RotateByQuaternion(n, leafObj.orientation)); 
-
-				// Bend fade
-				float t2 = saturate(v.y); // assuming y is leaf length 
-				v = RotateAxisAngle(v, leafObj.bendAxis, leafObj.bendAngle * t);
-				n = normalize(RotateAxisAngle(n, leafObj.bendAxis, leafObj.bendAngle * t)); 
-
-				// Translate into world using precomputed leaf position
+				// -------------------------------------------------------
+				// 4) Place in world space
+				// -------------------------------------------------------
 				float3 worldPos = _WorldOffset + leafNode.currentPos + v;
 
 				output.positionWS = worldPos;
@@ -170,7 +172,7 @@
 				output.shadowCoord = TransformWorldToShadowCoord(worldPos);
 
 				return output;
-			}
+			} 
 
             // -----------------------
             // Fragment shader

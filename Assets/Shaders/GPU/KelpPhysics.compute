@@ -275,50 +275,55 @@ void CS_UpdateLeaves(uint i : SV_DispatchThreadID)
     float3 p1 = _StalkNodesBuffer[n1].currentPos;
     float3 p2 = _StalkNodesBuffer[n2].currentPos;
 
-    // --- Orientation (rotate Y-up to forward = p1-p0) ---
+    // --- Orientation (align leaf forward with p0->p1) ---
     float3 forward = normalize(p1 - p0);
-    float3 upRef   = float3(0,1,0);
-    float c = clamp(dot(upRef, forward), -1.0, 1.0);
-    float angle = acos(c);
-    float3 axis  = cross(upRef, forward);
+    float3 upRef = float3(0,1,0);
+    float3 axis = cross(upRef, forward);
+    float angle = acos(clamp(dot(upRef, forward), -1.0, 1.0));
     if (length(axis) < 1e-5) { axis = float3(0,0,1); angle = 0; }
     axis = normalize(axis);
     float halfA = 0.5f * angle;
     float s = sin(halfA);
     leafObj.orientation = float4(axis * s, cos(halfA));
 
-    // --- Bend (between p0->p1 and p1->p2) ---
+    // --- Bend computation along 3-node curve ---
     float3 dirBase = normalize(p1 - p0);
     float3 dirTip  = normalize(p2 - p1);
-    float d = clamp(dot(dirBase, dirTip), -1.0, 1.0);
-    float bendAngle = acos(d);
     float3 bendAxis = cross(dirBase, dirTip);
-    if (length(bendAxis) < 1e-5) { bendAxis = float3(0,0,1); bendAngle = 0; }
-    leafObj.bendAxis  = normalize(bendAxis);
-    leafObj.bendAngle = bendAngle;
 
-    // --- Leaf base position ---
-    // Put the leaf base at p0 (the segment start). Vertex shader will rotate around the stem.
-    // If you want a small radial offset from stem, uncomment the offset block.
+    // If nodes are nearly collinear, pick a safe axis
+    if (length(bendAxis) < 1e-5)
+    {
+        bendAxis = abs(dirBase.y) < 0.95 ? float3(0,1,0) : float3(1,0,0);
+        leafObj.bendAngle = 0;
+    }
+    else
+    {
+        bendAxis = normalize(bendAxis);
+        leafObj.bendAngle = acos(clamp(dot(dirBase, dirTip), -1.0, 1.0));
+    }
 
+    leafObj.bendAxis = bendAxis;
+
+    // --- Leaf base position (around stalk) ---
     float3 basePos = p0;
 
-    // Optional small radial offset (keeps leaves from z-fighting with stalk center)
-    // Compute a side vector, rotate it by angleAroundStem, add small radius:
-    /*
+    // Generate perpendicular frame around forward
     float3 tmpUp = abs(forward.y) > 0.95 ? float3(1,0,0) : float3(0,1,0);
-    float3 side = normalize(cross(tmpUp, forward));
+    float3 side   = normalize(cross(tmpUp, forward));
     float3 binorm = normalize(cross(forward, side));
+
     float ca = cos(leafObj.angleAroundStem);
     float sa = sin(leafObj.angleAroundStem);
     float3 around = normalize(side * ca + binorm * sa);
-    basePos += around * 0.015; // tweak radius
-    */
 
+    basePos += around * 0.015; // small radial offset
+
+    // --- Update leaf node ---
     LeafNode node = _LeafNodesBuffer[i];
     node.previousPos = node.currentPos;
-    node.currentPos  = basePos;
+    node.currentPos = basePos;
     _LeafNodesBuffer[i] = node;
 
     _LeafObjectsBuffer[i] = leafObj;
-} 
+}
