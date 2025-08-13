@@ -38,7 +38,7 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
 
     int verletKernel;
     int constraintKernel;
-    int updateLeavesKernel; // CHANGED
+    int updateLeavesKernel; 
 
     KelpObject[] kelpObjectsCPU;
 
@@ -91,7 +91,7 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
 
         verletKernel = kelpComputeShader.FindKernel("CS_VerletUpdate");
         constraintKernel = kelpComputeShader.FindKernel("CS_ApplyConstraints");
-        updateLeavesKernel = kelpComputeShader.FindKernel("CS_UpdateLeaves"); // CHANGED
+        updateLeavesKernel = kelpComputeShader.FindKernel("CS_UpdateLeaves"); 
 
         if (targetCamera == null) targetCamera = Camera.main;
     }

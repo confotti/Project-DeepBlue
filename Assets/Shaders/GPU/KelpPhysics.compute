@@ -1,4 +1,4 @@
-// === Kernel Declarations ===
+﻿// === Kernel Declarations ===
 #pragma kernel CS_VerletUpdate
 #pragma kernel CS_ApplyConstraints
 #pragma kernel CS_UpdateLeaves   // CHANGED
@@ -254,11 +254,59 @@ void CS_ApplyConstraints(uint id : SV_DispatchThreadID)
     }
 } 
 
+    // --- Quaternion Utilities ---
+    float4 QuatFromAxisAngle(float3 axis, float angle)
+    {
+        float halfAngle = angle * 0.5;
+        float s = sin(halfAngle);
+        return float4(axis * s, cos(halfAngle));
+    }
+
+    float4 QuatMul(float4 q1, float4 q2)
+    {
+        return float4(
+            q1.w*q2.xyz + q2.w*q1.xyz + cross(q1.xyz, q2.xyz),
+            q1.w*q2.w - dot(q1.xyz, q2.xyz)
+        );
+    }
+
+    float3 QuatRotate(float4 q, float3 v)
+    {
+        float3 t = 2.0 * cross(q.xyz, v);
+        return v + q.w * t + cross(q.xyz, t);
+    }
+
+    float4 QuatFromTo(float3 from, float3 to) 
+    {
+        float3 f = normalize(from);
+        float3 t = normalize(to);
+        float cosTheta = dot(f, t);
+        float3 rotAxis;
+
+        if (cosTheta < -0.9999)
+        {
+            rotAxis = normalize(cross(float3(0,1,0), f));
+            if (length(rotAxis) < 1e-6)
+                rotAxis = normalize(cross(float3(1,0,0), f));
+            return QuatFromAxisAngle(rotAxis, 3.14159265);
+        }
+
+        rotAxis = cross(f, t);
+        float s = sqrt((1 + cosTheta) * 2);
+        float invs = 1 / s;
+        return normalize(float4(rotAxis * invs, s * 0.5));
+    }
+
+    float4 normalize(float4 q)
+    {
+        return q / sqrt(dot(q, q));
+    } 
+
 // === Leaf updater: writes both object orientation/bend and leaf-node base position ===
 [numthreads(64,1,1)]
 void CS_UpdateLeaves(uint i : SV_DispatchThreadID)
 {
-    if (i >= _LeafObjectsBuffer.Length) return;
+    if (i >= _LeafObjectsBuffer.Length) return; 
 
     LeafObject leafObj = _LeafObjectsBuffer[i];
 
@@ -291,7 +339,6 @@ void CS_UpdateLeaves(uint i : SV_DispatchThreadID)
     float3 dirTip  = normalize(p2 - p1);
     float3 bendAxis = cross(dirBase, dirTip);
 
-    // If nodes are nearly collinear, pick a safe axis
     if (length(bendAxis) < 1e-5)
     {
         bendAxis = abs(dirBase.y) < 0.95 ? float3(0,1,0) : float3(1,0,0);
@@ -305,25 +352,33 @@ void CS_UpdateLeaves(uint i : SV_DispatchThreadID)
 
     leafObj.bendAxis = bendAxis;
 
-    // --- Leaf base position (around stalk) ---
-    float3 basePos = p0;
+    uint stalkStartIndex = (n0 / _NodesPerStalk) * _NodesPerStalk;  // first node of this stalk
+	uint stalkEndIndex   = stalkStartIndex + _NodesPerStalk - 1;
 
-    // Generate perpendicular frame around forward
-    float3 tmpUp = abs(forward.y) > 0.95 ? float3(1,0,0) : float3(0,1,0);
-    float3 side   = normalize(cross(tmpUp, forward));
-    float3 binorm = normalize(cross(forward, side));
+	// local node index along this stalk
+	uint localNodeIndex = n0 - stalkStartIndex;
 
-    float ca = cos(leafObj.angleAroundStem);
-    float sa = sin(leafObj.angleAroundStem);
-    float3 around = normalize(side * ca + binorm * sa);
+	// t = 0 (bottom) → 1 (top)
+	float t = localNodeIndex / float(_NodesPerStalk - 1);
 
-    basePos += around * 0.015; // small radial offset
+	// --- Update leaf node base position ---
+	float3 basePos = _StalkNodesBuffer[n0].currentPos;  // use actual node position
 
-    // --- Update leaf node ---
-    LeafNode node = _LeafNodesBuffer[i];
-    node.previousPos = node.currentPos;
-    node.currentPos = basePos;
-    _LeafNodesBuffer[i] = node;
+	float3 tmpUp = abs(forward.y) > 0.95 ? float3(1,0,0) : float3(0,1,0);
+	float3 side   = normalize(cross(tmpUp, forward));
+	float3 binorm = normalize(cross(forward, side));
+
+	float ca = cos(leafObj.angleAroundStem);
+	float sa = sin(leafObj.angleAroundStem);
+	float3 around = normalize(side * ca + binorm * sa);
+
+	basePos += around * 0.015; // small radial offset
+
+	// --- Update leaf node ---
+	LeafNode node = _LeafNodesBuffer[i];
+	node.previousPos = node.currentPos;
+	node.currentPos = basePos;
+	_LeafNodesBuffer[i] = node; 
 
     _LeafObjectsBuffer[i] = leafObj;
-}
+} 
