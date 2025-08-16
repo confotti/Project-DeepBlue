@@ -318,7 +318,6 @@ void CS_ApplyLeafConstraints(uint id : SV_DispatchThreadID)
     _LeafSegmentsBuffer[id]   = b;
 }
 
-// ---------- Per-leaf update (orientation/bend for rendering) ----------
 [numthreads(64,1,1)]
 void CS_UpdateLeaves(uint i : SV_DispatchThreadID)
 {
@@ -327,43 +326,49 @@ void CS_UpdateLeaves(uint i : SV_DispatchThreadID)
     uint baseSeg = i * _LeafNodesPerLeaf;
     if (baseSeg >= _LeafSegmentsBuffer.Length) return;
 
-    // need at least two segments for forward
-    uint s0i = baseSeg;
-    uint s1i = baseSeg + min(1, _LeafNodesPerLeaf-1);
-    uint s2i = baseSeg + min(2, _LeafNodesPerLeaf-1);
-
-    float3 p0 = _LeafSegmentsBuffer[s0i].currentPos;
-    float3 p1 = _LeafSegmentsBuffer[s1i].currentPos;
-
-    float3 forward = normalize(p1 - p0);
-    if (!all(isfinite(forward)) || length(forward) < 1e-6) forward = float3(0,1,0);
-
-    // orientation: rotate UP to leaf forward
-    float4 q = QuatFromTo(float3(0,1,0), forward);
-
-    // bend from first two edges if available
-    float3 dirBase = forward;
-    float3 dirTip  = dirBase;
-    if (s2i < _LeafSegmentsBuffer.Length){
-        float3 p2 = _LeafSegmentsBuffer[s2i].currentPos;
-        dirTip = normalize(p2 - p1);
-        if (!all(isfinite(dirTip)) || length(dirTip)<1e-6) dirTip = dirBase;
-    }
-
-    float3 bendAxis = cross(dirBase, dirTip);
-    float  bendAngle = 0.0;
-    if (length(bendAxis) < 1e-5){
-        bendAxis = abs(dirBase.y) < 0.95 ? float3(0,1,0) : float3(1,0,0);
-        bendAngle = 0.0;
-    } else {
-        bendAxis = normalize(bendAxis);
-        bendAngle = acos(clamp(dot(dirBase, dirTip), -1.0, 1.0));
-    }
-
     LeafObject lo = _LeafObjectsBuffer[i];
-    lo.orientation = q;
-    lo.bendAxis    = bendAxis;
-    lo.bendAngle   = bendAngle;
+
+    // Start from root segment
+    float3 prevPos = _LeafSegmentsBuffer[baseSeg].currentPos;
+    float3 prevDir = float3(0,1,0); // default up
+
+    for (uint j = 1; j < _LeafNodesPerLeaf; ++j)
+    {
+        uint segIdx = baseSeg + j;
+        if (segIdx >= _LeafSegmentsBuffer.Length) break;
+
+        float3 currPos = _LeafSegmentsBuffer[segIdx].currentPos;
+        float3 dir = normalize(currPos - prevPos);
+        if (!all(isfinite(dir)) || length(dir) < 1e-6)
+            dir = prevDir;
+
+        // Compute rotation from previous segment to current segment
+        float4 q = QuatFromTo(prevDir, dir);
+        // Compute bend axis/angle
+        float3 bendAxis = cross(prevDir, dir);
+        float bendAngle = 0.0;
+        if (length(bendAxis) > 1e-5)
+        {
+            bendAxis = normalize(bendAxis);
+            bendAngle = acos(clamp(dot(prevDir, dir), -1.0, 1.0));
+        }
+        else
+        {
+            bendAxis = abs(prevDir.y) < 0.95 ? float3(0,1,0) : float3(1,0,0);
+        }
+
+        // Optionally store per-segment bend (if you want to render each segment separately)
+        // _LeafSegmentsBuffer[segIdx].color.xyz = bendAxis * bendAngle; // debug
+
+        prevDir = dir;
+        prevPos = currPos;
+    }
+
+    // Store final leaf orientation at root (for instancing)
+    float3 tipDir = prevDir;
+    lo.orientation = QuatFromTo(float3(0,1,0), tipDir);
+    lo.bendAxis = cross(float3(0,1,0), tipDir);
+    lo.bendAngle = acos(clamp(dot(float3(0,1,0), tipDir), -1.0, 1.0));
 
     _LeafObjectsBuffer[i] = lo;
 } 

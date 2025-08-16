@@ -24,7 +24,7 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
     public float segmentSpacing = 0.1f;
     public Color kelpColor = Color.white;
     public float windStrength = 0.5f;
-    public float windFrequency = 1f;
+    public float windFrequency = 1f; 
 
     // 2–3 nodes per leaf gives nice rope-like motion
     [Range(2, 6)]
@@ -198,11 +198,19 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
                 for (int n = 0; n < leafNodesPerLeaf; n++)
                 {
                     int segIndex = li * leafNodesPerLeaf + n;
-                    Vector3 p = n0Pos + outward * 0.02f + Vector3.up * (segmentSpacing * (n + 0.25f));
+
+                    // Original upward segment
+                    Vector3 p = n0Pos + Vector3.up * (segmentSpacing * (n + 0.25f));
+
+                    // Rotate the node 45 degrees around the stem (Y-axis)
+                    float angleRad = Mathf.Deg2Rad * 45f; // 45 degrees in radians
+                    Vector3 offset = new Vector3(Mathf.Cos(angleRad), 0, Mathf.Sin(angleRad)) * 0.02f;
+                    p += offset;
+
                     leafSegments[segIndex].currentPos = p;
                     leafSegments[segIndex].previousPos = p;
                     leafSegments[segIndex].color = new Vector4(0.2f, 0.8f, 0.2f, 1f);
-                }
+                } 
             }
         }
 
@@ -261,12 +269,12 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
         // --- Dispatch stalk
         int stalkGroups = Mathf.Max(1, Mathf.CeilToInt(totalStalkNodes / 64f));
         kelpComputeShader.Dispatch(stalkVerletKernel, stalkGroups, 1, 1);
-        for (int i = 0; i < 30; i++) kelpComputeShader.Dispatch(stalkConstraintKernel, stalkGroups, 1, 1);
+        for (int i = 0; i < 25; i++) kelpComputeShader.Dispatch(stalkConstraintKernel, stalkGroups, 1, 1); 
 
         // --- Dispatch leaves (verlet over segments, then constraints over segments, then per-leaf update)
         int leafSegGroups = Mathf.Max(1, Mathf.CeilToInt(totalLeafSegments / 64f));
         kelpComputeShader.Dispatch(leafVerletKernel, leafSegGroups, 1, 1);
-        for (int i = 0; i < 30; i++) kelpComputeShader.Dispatch(leafConstraintKernel, leafSegGroups, 1, 1);
+        for (int i = 0; i < 25; i++) kelpComputeShader.Dispatch(leafConstraintKernel, leafSegGroups, 1, 1);
 
         // one thread per LEAF (not per segment) to update orientation/bend/around-stem
         int leafGroups = Mathf.Max(1, Mathf.CeilToInt(totalLeafObjects / 64f));
