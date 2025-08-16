@@ -180,10 +180,10 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
                 if (li >= totalLeafObjects) break;
 
                 // Attach to a random stalk segment (not last two)
-                int randSegLocal = Mathf.Clamp(Random.Range(0, nodesPerStalk - 2), 0, nodesPerStalk - 3);
+                int randSegLocal = Random.Range(3, nodesPerStalk - 2); // start from node index 3
                 int n0 = kelpObjectsCPU[k].startStalkNodeIndex + randSegLocal;
+                leafObjs[li].stalkNodeIndex = n0; 
 
-                leafObjs[li].stalkNodeIndex = n0;
                 leafObjs[li].angleAroundStem = Random.Range(0f, Mathf.PI * 2f);
                 leafObjs[li].orientation = new Vector4(0, 0, 0, 1);
                 leafObjs[li].bendAxis = new Vector3(0, 0, 1);
@@ -299,6 +299,59 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
         Graphics.DrawMeshInstancedProcedural(kelpSegmentMesh, 0, kelpRenderMaterial, drawBounds, totalStalkNodes);
         Graphics.DrawMeshInstancedProcedural(kelpLeafMesh, 0, leafRenderMaterial, drawBounds, totalLeafObjects);
     }
+
+    void OnDrawGizmos()
+    {
+        if (stalkNodesBuffer == null || leafSegmentsBuffer == null)
+            return;
+
+        StalkNode[] stalkNodes = new StalkNode[totalStalkNodes];
+        stalkNodesBuffer.GetData(stalkNodes);
+
+        Gizmos.color = Color.yellow;
+        int nodesPerStalk = Mathf.Max(1, totalStalkNodes / totalKelpObjects);
+
+        for (int i = 0; i < totalStalkNodes; i++)
+        {
+            Vector3 pos = transform.position + stalkNodes[i].currentPos; // <-- add transform.position
+            Gizmos.DrawSphere(pos, 0.015f);
+
+            // Draw line to next stalk node in same kelp
+            if (i < totalStalkNodes - 1 && (i + 1) / nodesPerStalk == i / nodesPerStalk)
+            {
+                Vector3 nextPos = transform.position + stalkNodes[i + 1].currentPos; // <-- add transform.position
+                Gizmos.DrawLine(pos, nextPos);
+            }
+        }
+
+        // --- Draw leaf nodes ---
+        int nodesPerLeaf = Mathf.Max(2, leafNodesPerLeaf);
+        int totalLeafSegs = totalLeafObjects * nodesPerLeaf;
+
+        LeafSegment[] leafSegs = new LeafSegment[totalLeafSegs];
+        leafSegmentsBuffer.GetData(leafSegs);
+
+        Gizmos.color = Color.green;
+
+        for (int leafIndex = 0; leafIndex < totalLeafObjects; leafIndex++)
+        {
+            int baseIndex = leafIndex * nodesPerLeaf;
+
+            for (int i = 0; i < nodesPerLeaf; i++)
+            {
+                if (baseIndex + i >= leafSegs.Length) break;
+
+                Vector3 pos = transform.position + leafSegs[baseIndex + i].currentPos; // <-- add transform.position
+                Gizmos.DrawSphere(pos, 0.01f);
+
+                if (i < nodesPerLeaf - 1 && baseIndex + i + 1 < leafSegs.Length)
+                {
+                    Vector3 nextPos = transform.position + leafSegs[baseIndex + i + 1].currentPos; // <-- add transform.position
+                    Gizmos.DrawLine(pos, nextPos);
+                }
+            }
+        }
+    } 
 
     void OnDestroy()
     {
