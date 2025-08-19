@@ -1,14 +1,9 @@
-﻿// ===========================
-// Kelp Compute (GPU)
-// ===========================
-
-#pragma kernel CS_VerletUpdate            // stalk
+﻿#pragma kernel CS_VerletUpdate            // stalk
 #pragma kernel CS_ApplyConstraints        // stalk
 #pragma kernel CS_VerletUpdateLeaves      // NEW: leaf segments verlet
 #pragma kernel CS_ApplyLeafConstraints    // NEW: leaf segments constraints + root attach
 #pragma kernel CS_UpdateLeaves            // per-leaf orientation/bend from rope
 
-// ---------- Structs (match C# layout) ----------
 struct StalkNode
 {
     float3 currentPos; float pad0;
@@ -51,6 +46,9 @@ float  _SegmentSpacing;
 float  _Time;
 float  _WindStrength;
 float  _WindFrequency;
+float  _LeafGravity = 0.2; 
+float _LeafMinAngle = -1.0; // in radians
+float _LeafMaxAngle =  1.0; // in radians 
 
 uint   _NodesPerStalk;
 uint   _LeafNodesPerLeaf;
@@ -237,9 +235,12 @@ void CS_VerletUpdateLeaves(uint id : SV_DispatchThreadID)
         gradNoise3D(np + float3(0,0,0)),
         gradNoise3D(np + float3(50,50,50)),
         gradNoise3D(np + float3(100,100,100))
-    ) * (_WindStrength * 0.8);
+    ) * (_WindStrength * 0.2); 
 
-    s.currentPos += vel + (_Gravity * _DeltaTime) + wind * _DeltaTime;
+    // Adjusted gravity for leaves
+	float3 leafGravity = _Gravity * _LeafGravity; 
+
+	s.currentPos += vel + (leafGravity * _DeltaTime) + wind * _DeltaTime; 
 
     // simple seabed
     if (s.currentPos.y < 0){
@@ -260,24 +261,21 @@ void CS_ApplyLeafConstraints(uint id : SV_DispatchThreadID)
 
     uint leafID      = id / _LeafNodesPerLeaf;
     uint nodeInLeaf  = id % _LeafNodesPerLeaf;
-
     if (leafID >= _TotalLeafObjects) return;
 
     LeafObject lo = _LeafObjectsBuffer[leafID];
     int n0 = lo.stalkNodeIndex;
     if (n0 < 0 || n0+1 >= _StalkNodesBuffer.Length) return;
 
-    // compute small radial offset around the stalk based on angleAroundStem
+    // --- compute stalk orientation ---
     float3 p0 = _StalkNodesBuffer[n0].currentPos;
     float3 fwd = float3(0,1,0);
-    // approximate stalk tangent using next node if same stalk
     bool sameStalkNext = ((n0+1)/_NodesPerStalk)==(n0/_NodesPerStalk);
-    if (sameStalkNext){
+    if (sameStalkNext) {
         float3 p1 = _StalkNodesBuffer[n0+1].currentPos;
         fwd = normalize(p1 - p0);
         if (!all(isfinite(fwd)) || length(fwd) < 1e-6) fwd = float3(0,1,0);
     }
-
     float3 tmpUp = abs(fwd.y) > 0.95 ? float3(1,0,0) : float3(0,1,0);
     float3 side  = normalize(cross(tmpUp, fwd));
     float3 bin   = normalize(cross(fwd, side));
@@ -286,37 +284,66 @@ void CS_ApplyLeafConstraints(uint id : SV_DispatchThreadID)
     float sa = sin(lo.angleAroundStem);
     float3 around = normalize(side * ca + bin * sa);
 
-    // rest length along the leaf rope
-    float rest = _SegmentSpacing;
+    float rest = _SegmentSpacing * 3;
 
+    // --- 1. pin the root to stalk ---
     if (nodeInLeaf == 0)
     {
-        // Attach root to stalk n0 every frame (tiny radial offset to avoid z-fight)
         LeafSegment rootSeg = _LeafSegmentsBuffer[id];
-        float3 attachPos = p0 + around * 0.015; // feel free to set to 0 for strict pin
+        float3 attachPos = p0 + around * 0.015; // radial offset
         rootSeg.currentPos  = attachPos;
-        rootSeg.previousPos = attachPos; // keep root stable
+        rootSeg.previousPos = attachPos;
         _LeafSegmentsBuffer[id] = rootSeg;
         return;
+    } 
+
+    // --- 2. enforce spacing to previous node ---
+    int prevID = id - 1;
+    LeafSegment prevSeg = _LeafSegmentsBuffer[prevID];
+    LeafSegment seg     = _LeafSegmentsBuffer[id];
+
+    float3 d = seg.currentPos - prevSeg.currentPos;
+    float dist = length(d);
+
+    if (dist > 1e-6)
+    {
+        float3 dir = d / dist;
+        float diff = dist - rest;
+        float3 corr = dir * diff * 0.5;
+
+        if (nodeInLeaf == 1) {
+            // root pinned, push only current
+            seg.currentPos -= corr * 1.4; 
+        } else {
+            // move both
+            prevSeg.currentPos += corr;
+            seg.currentPos     -= corr; 
+        }
     }
 
-    // distance constraint to previous segment
-    int prev = id - 1;
-    LeafSegment a = _LeafSegmentsBuffer[prev];
-    LeafSegment b = _LeafSegmentsBuffer[id];
+    _LeafSegmentsBuffer[prevID] = prevSeg;
+    _LeafSegmentsBuffer[id]     = seg;
 
-    float3 d = b.currentPos - a.currentPos;
-    float  L = length(d);
-    if (L < 1e-6){ d = float3(0,1,0); L = 1.0; }
+    // --- 3. tip drift power (soft correction to full length) ---
+    if (nodeInLeaf == _LeafNodesPerLeaf - 1)
+    {
+        float3 stalkPos = p0;
+        float3 away = seg.currentPos - stalkPos;
+        float d2 = length(away);
+        float targetLength = rest * (_LeafNodesPerLeaf - 1);
 
-    float3 corr = (d / L) * (L - rest);
-    // move both endpoints (root will be re-snapped next iteration)
-    b.currentPos -= corr * 0.5;
-    a.currentPos += corr * 0.5;
+        if (d2 < targetLength)
+        {
+            float3 dir = (d2 > 1e-6) ? away / d2 : around;
+            float3 target = stalkPos + dir * targetLength;
 
-    _LeafSegmentsBuffer[prev] = a;
-    _LeafSegmentsBuffer[id]   = b;
-}
+            float driftPower = 0.1; // tune: 0=soft, 1=stiff snap 
+            seg.currentPos = lerp(seg.currentPos, target, driftPower);
+        }
+
+        _LeafSegmentsBuffer[id] = seg;
+    }
+} 
 
 [numthreads(64,1,1)]
 void CS_UpdateLeaves(uint i : SV_DispatchThreadID)
@@ -341,21 +368,6 @@ void CS_UpdateLeaves(uint i : SV_DispatchThreadID)
         float3 dir = normalize(currPos - prevPos);
         if (!all(isfinite(dir)) || length(dir) < 1e-6)
             dir = prevDir;
-
-        // Compute rotation from previous segment to current segment
-        float4 q = QuatFromTo(prevDir, dir);
-        // Compute bend axis/angle
-        float3 bendAxis = cross(prevDir, dir);
-        float bendAngle = 0.0;
-        if (length(bendAxis) > 1e-5)
-        {
-            bendAxis = normalize(bendAxis);
-            bendAngle = acos(clamp(dot(prevDir, dir), -1.0, 1.0));
-        }
-        else
-        {
-            bendAxis = abs(prevDir.y) < 0.95 ? float3(0,1,0) : float3(1,0,0);
-        }
 
         // Optionally store per-segment bend (if you want to render each segment separately)
         // _LeafSegmentsBuffer[segIdx].color.xyz = bendAxis * bendAngle; // debug

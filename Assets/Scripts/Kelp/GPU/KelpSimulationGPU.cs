@@ -21,7 +21,7 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
     public Camera targetCamera;
 
     [Header("Visual Tuning")]
-    public float segmentSpacing = 0.1f;
+    public float segmentSpacing = 1f; 
     public Color kelpColor = Color.white;
     public float windStrength = 0.5f;
     public float windFrequency = 1f; 
@@ -141,7 +141,7 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
             float x = Random.Range(-spreadRadius, spreadRadius);
             float z = Random.Range(-spreadRadius, spreadRadius);
             rootPositions[i] = new Vector3(x, 0f, z);
-        }
+        } 
 
         // Fill stalks + leaves
         for (int k = 0; k < totalKelpObjects; k++)
@@ -182,36 +182,57 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
                 // Attach to a random stalk segment (not last two)
                 int randSegLocal = Random.Range(3, nodesPerStalk - 2); // start from node index 3
                 int n0 = kelpObjectsCPU[k].startStalkNodeIndex + randSegLocal;
-                leafObjs[li].stalkNodeIndex = n0; 
+                leafObjs[li].stalkNodeIndex = n0;
 
+                // assign random radial placement around stem
                 leafObjs[li].angleAroundStem = Random.Range(0f, Mathf.PI * 2f);
                 leafObjs[li].orientation = new Vector4(0, 0, 0, 1);
                 leafObjs[li].bendAxis = new Vector3(0, 0, 1);
                 leafObjs[li].bendAngle = 0f;
                 leafObjs[li].pad = Vector2.zero;
 
-                // Initialize mini chain along a small outward dir from the stalk
+                // ---- MATCH INIT TO GPU CONSTRAINT BASIS ----
                 Vector3 n0Pos = stalkNodes[n0].currentPos;
-                // Simple outward guess; shader will refine using angleAroundStem
-                Vector3 outward = Vector3.right;
+
+                // compute stalk tangent for local frame
+                Vector3 stalkDir = Vector3.up;
+                if (randSegLocal + 1 < nodesPerStalk)
+                {
+                    stalkDir = (stalkNodes[n0 + 1].currentPos - n0Pos).normalized;
+                }
+                if (stalkDir == Vector3.zero) stalkDir = Vector3.up;
+
+                // side/bin like in shader
+                Vector3 tmpUp = Mathf.Abs(stalkDir.y) > 0.95f ? Vector3.right : Vector3.up;
+                Vector3 side = Vector3.Normalize(Vector3.Cross(tmpUp, stalkDir));
+                Vector3 bin = Vector3.Normalize(Vector3.Cross(stalkDir, side));
+
+                float ca = Mathf.Cos(leafObjs[li].angleAroundStem);
+                float sa = Mathf.Sin(leafObjs[li].angleAroundStem);
+                Vector3 around = (side * ca + bin * sa).normalized;
+
+                // outward offset from stem
+                Vector3 outward = around * 0.02f;
+
+                // ---- DISTRIBUTE LEAF SEGMENTS ALONG FULL MESH HEIGHT ----
+                float leafHeight = 10f; // matches your mesh tip at y=10
+                float step = leafHeight / (leafNodesPerLeaf - 1);
 
                 for (int n = 0; n < leafNodesPerLeaf; n++)
                 {
                     int segIndex = li * leafNodesPerLeaf + n;
 
-                    // Original upward segment
-                    Vector3 p = n0Pos + Vector3.up * (segmentSpacing * (n + 0.25f));
+                    // distribute nodes evenly from base to tip
+                    float yOffset = step * n;
 
-                    // Rotate the node 45 degrees around the stem (Y-axis)
-                    float angleRad = Mathf.Deg2Rad * 45f; // 45 degrees in radians
-                    Vector3 offset = new Vector3(Mathf.Cos(angleRad), 0, Mathf.Sin(angleRad)) * 0.02f;
-                    p += offset;
+                    // position = stalk base + outward offset + upward offset
+                    Vector3 p = n0Pos + outward + stalkDir * yOffset;
 
                     leafSegments[segIndex].currentPos = p;
                     leafSegments[segIndex].previousPos = p;
                     leafSegments[segIndex].color = new Vector4(0.2f, 0.8f, 0.2f, 1f);
-                } 
-            }
+                }
+            } 
         }
 
         // upload static data
@@ -274,7 +295,7 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
         // --- Dispatch leaves (verlet over segments, then constraints over segments, then per-leaf update)
         int leafSegGroups = Mathf.Max(1, Mathf.CeilToInt(totalLeafSegments / 64f));
         kelpComputeShader.Dispatch(leafVerletKernel, leafSegGroups, 1, 1);
-        for (int i = 0; i < 25; i++) kelpComputeShader.Dispatch(leafConstraintKernel, leafSegGroups, 1, 1);
+        for (int i = 0; i < 3; i++) kelpComputeShader.Dispatch(leafConstraintKernel, leafSegGroups, 1, 1);
 
         // one thread per LEAF (not per segment) to update orientation/bend/around-stem
         int leafGroups = Mathf.Max(1, Mathf.CeilToInt(totalLeafObjects / 64f));
@@ -300,7 +321,7 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
         Graphics.DrawMeshInstancedProcedural(kelpLeafMesh, 0, leafRenderMaterial, drawBounds, totalLeafObjects);
     }
 
-    void OnDrawGizmos()
+    /*void OnDrawGizmos() 
     {
         if (stalkNodesBuffer == null || leafSegmentsBuffer == null)
             return;
@@ -351,7 +372,7 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
                 }
             }
         }
-    } 
+    } */
 
     void OnDestroy()
     {

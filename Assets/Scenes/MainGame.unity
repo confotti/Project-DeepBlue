@@ -18754,6 +18754,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Kelp(LineRenderer)
       objectReference: {fileID: 0}
+    - target: {fileID: 1758611433590382148, guid: c42e629f857af5d4cacbfc1f6956c9f6, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7446410487594216791, guid: c42e629f857af5d4cacbfc1f6956c9f6, type: 3}
       propertyPath: m_LocalPosition.x
       value: 821.23
@@ -21874,7 +21878,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2853520007454499016, guid: 1637c3c5ea854294f803f8454d076186, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8181345725762429618, guid: 1637c3c5ea854294f803f8454d076186, type: 3}
       propertyPath: m_LocalPosition.x
@@ -21930,9 +21934,25 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 1977535405019423568, guid: a1b798d06422de14abf4b907f94b548a, type: 3}
+      propertyPath: spreadRadius
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 1977535405019423568, guid: a1b798d06422de14abf4b907f94b548a, type: 3}
       propertyPath: targetCamera
       value: 
       objectReference: {fileID: 307323280}
+    - target: {fileID: 1977535405019423568, guid: a1b798d06422de14abf4b907f94b548a, type: 3}
+      propertyPath: totalStalkNodes
+      value: 19000
+      objectReference: {fileID: 0}
+    - target: {fileID: 1977535405019423568, guid: a1b798d06422de14abf4b907f94b548a, type: 3}
+      propertyPath: totalKelpObjects
+      value: 250
+      objectReference: {fileID: 0}
+    - target: {fileID: 1977535405019423568, guid: a1b798d06422de14abf4b907f94b548a, type: 3}
+      propertyPath: totalLeafObjects
+      value: 37500
+      objectReference: {fileID: 0}
     - target: {fileID: 6188249482795173138, guid: a1b798d06422de14abf4b907f94b548a, type: 3}
       propertyPath: m_Name
       value: Kelp(GPU)
