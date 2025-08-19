@@ -290,7 +290,7 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
         // --- Dispatch stalk
         int stalkGroups = Mathf.Max(1, Mathf.CeilToInt(totalStalkNodes / 64f));
         kelpComputeShader.Dispatch(stalkVerletKernel, stalkGroups, 1, 1);
-        for (int i = 0; i < 25; i++) kelpComputeShader.Dispatch(stalkConstraintKernel, stalkGroups, 1, 1); 
+        for (int i = 0; i < 35; i++) kelpComputeShader.Dispatch(stalkConstraintKernel, stalkGroups, 1, 1); 
 
         // --- Dispatch leaves (verlet over segments, then constraints over segments, then per-leaf update)
         int leafSegGroups = Mathf.Max(1, Mathf.CeilToInt(totalLeafSegments / 64f));
@@ -310,6 +310,21 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
         leafRenderMaterial.SetInt("_LeafNodesPerLeaf", Mathf.Max(2, leafNodesPerLeaf));
         leafRenderMaterial.SetBuffer("_LeafSegmentsBuffer", leafSegmentsBuffer);
         leafRenderMaterial.SetBuffer("_LeafObjectsBuffer", leafObjectsBuffer);
+
+        // === Frustum Culling ===
+        Plane[] frustumPlanes = GeometryUtility.CalculateFrustumPlanes(targetCamera);
+        int visibleStalkCount = 0;
+
+        for (int i = 0; i < totalKelpObjects; i++)
+        {
+            Vector3 worldCenter = transform.position + kelpObjectsCPU[i].boundsCenter;
+            Bounds bounds = new Bounds(worldCenter, kelpObjectsCPU[i].boundsExtents * 2f);
+
+            if (GeometryUtility.TestPlanesAABB(frustumPlanes, bounds))
+            {
+                visibleStalkCount += kelpObjectsCPU[i].stalkNodeCount;
+            }
+        } 
 
         // Draw
         Bounds drawBounds = new Bounds(

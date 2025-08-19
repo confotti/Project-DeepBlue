@@ -232,9 +232,9 @@ void CS_VerletUpdateLeaves(uint id : SV_DispatchThreadID)
     // gentle wind
     float3 np = float3(id*0.07, 0, 0) + float3(0, _Time*_WindFrequency, 0);
     float3 wind = float3(
-        gradNoise3D(np + float3(0,0,0)),
-        gradNoise3D(np + float3(50,50,50)),
-        gradNoise3D(np + float3(100,100,100))
+        gradNoise3D(np + float3(0,0,0)) * 0.2,
+        gradNoise3D(np + float3(50,50,50)) * 0.2,
+        gradNoise3D(np + float3(50,50,50)) * 0.2 
     ) * (_WindStrength * 0.2); 
 
     // Adjusted gravity for leaves
