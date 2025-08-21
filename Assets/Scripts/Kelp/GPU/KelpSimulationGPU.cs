@@ -336,7 +336,7 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
         Graphics.DrawMeshInstancedProcedural(kelpLeafMesh, 0, leafRenderMaterial, drawBounds, totalLeafObjects);
     }
 
-    /*void OnDrawGizmos() 
+    void OnDrawGizmos() 
     {
         if (stalkNodesBuffer == null || leafSegmentsBuffer == null)
             return;
@@ -387,7 +387,7 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
                 }
             }
         }
-    } */
+    } 
 
     void OnDestroy()
     {

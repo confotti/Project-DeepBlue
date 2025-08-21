@@ -70,8 +70,18 @@ Shader "Custom/KelpSegmentInstanced"
                 StalkNode nodeA = _StalkNodesBuffer[input.instanceID];
                 StalkNode nodeB = _StalkNodesBuffer[input.instanceID + 1]; // next node
 
-                float3 p0 = nodeA.currentPos;
-				float3 p1 = (nodeA.isTip == 1) ? nodeA.currentPos : _StalkNodesBuffer[input.instanceID + 1].currentPos; 
+				float3 p0, p1;
+
+				if (nodeA.isTip == 1)
+				{
+					p0 = _StalkNodesBuffer[input.instanceID - 1].currentPos; // base of tip
+					p1 = nodeA.currentPos;                                    // tip position
+				}
+				else
+				{
+					p0 = nodeA.currentPos;
+					p1 = _StalkNodesBuffer[input.instanceID + 1].currentPos;
+				}
 
                 float3 axis = p1 - p0;
                 float len = length(axis);
@@ -108,39 +118,49 @@ Shader "Custom/KelpSegmentInstanced"
                 // Scale Y to match segment length
                 vertex.y *= len;
 
-                // Optional tip pinch
-                if (nodeA.isTip == 1)
-                {
-					float t = saturate(vertex.y); // 0..1 along tip mesh
-					float pinch = 1.0 - t;
+                bool isLastNode = (input.instanceID == _StalkNodesBuffer.Length - 1); 
 
+                // --- Tip node: collapse vertices to create a triangle ---
+                if (nodeA.isTip == 1 || isLastNode) 
+                {
+                    // t goes 0..1 along segment (0 = base of tip, 1 = tip position)
+					float t = saturate(vertex.y); 
+
+					// Determine local right/forward vectors to spread the vertices
 					float3 right = normalize(cross(abs(dir.y) < 0.99 ? float3(0,1,0) : float3(1,0,0), dir));
 					float3 forward = cross(dir, right);
 
-					// Lerp along segment + lateral pinch
-					float3 worldPos = lerp(p0, p1, t) + vertex.x * pinch * right + vertex.z * pinch * forward;
-					worldPos += _WorldOffset;
+					// Fully pinch vertices to zero at the tip
+					float pinch = 1.0 - t; // 1 at base, 0 at tip
+					float3 offset = vertex.x * pinch * right + vertex.z * pinch * forward;
 
+					// Move vertices along the segment
+					float3 worldPos = lerp(p0, p1, t) + offset + _WorldOffset;
+
+					// Output
 					output.positionWS = worldPos;
 					output.positionCS = TransformWorldToHClip(worldPos);
 
-					// Compute normal from offsets
-					output.normalWS = normalize(vertex.x * right + t * dir + vertex.z * forward); 
-				}
-				else
-				{
-					vertex.y *= len; // only scale regular segments
-					float3 rotated = mul(rotationMatrix, vertex);
-					float3 worldPos = _WorldOffset + p0 + rotated;
-
-					output.positionWS = worldPos;
-					output.positionCS = TransformWorldToHClip(worldPos);
-
-					output.normalWS = normalize(mul(rotationMatrix, input.normalOS)); 
+					// Normal points along the segment
+					output.normalWS = dir;
 
 					output.color = nodeA.color;
 					output.shadowCoord = TransformWorldToShadowCoord(worldPos);
-				} 
+                }
+                else
+                {
+                    // Regular segment
+                    float3 rotated = mul(rotationMatrix, vertex);
+                    float3 worldPos = _WorldOffset + p0 + rotated;
+
+                    output.positionWS = worldPos;
+                    output.positionCS = TransformWorldToHClip(worldPos);
+
+                    output.normalWS = normalize(mul(rotationMatrix, input.normalOS)); 
+
+                    output.color = nodeA.color;
+                    output.shadowCoord = TransformWorldToShadowCoord(worldPos);
+                } 
 
                 return output;
             }
