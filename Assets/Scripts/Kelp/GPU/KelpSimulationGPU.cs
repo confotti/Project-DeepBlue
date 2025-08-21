@@ -31,7 +31,10 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
     public int leafNodesPerLeaf = 3;
 
     [Header("Placement")]
+    public Terrain terrain;
+    public LayerMask groundMask; // set to your seabed/rock layer
     public float spreadRadius = 5f;
+    public float raycastHeight = 50f; // how high above to cast rays from
 
     // compute buffers
     ComputeBuffer stalkNodesBuffer;
@@ -140,7 +143,28 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
         {
             float x = Random.Range(-spreadRadius, spreadRadius);
             float z = Random.Range(-spreadRadius, spreadRadius);
-            rootPositions[i] = new Vector3(x, 0f, z);
+
+            float worldX = transform.position.x + x;
+            float worldZ = transform.position.z + z;
+
+            float y = 0f;
+            bool foundGround = false;
+
+            // 1️⃣ Try raycast against meshes
+            Vector3 rayOrigin = new Vector3(worldX, raycastHeight, worldZ);
+            if (Physics.Raycast(rayOrigin, Vector3.down, out RaycastHit hit, Mathf.Infinity, groundMask))
+            {
+                y = hit.point.y;
+                foundGround = true;
+            }
+
+            // 2️⃣ If no mesh hit, fall back to terrain
+            if (!foundGround && terrain != null)
+            {
+                y = terrain.SampleHeight(new Vector3(worldX, 0, worldZ)) + terrain.GetPosition().y;
+            }
+
+            rootPositions[i] = new Vector3(x, y - 0.8f, z); // local space
         } 
 
         // Fill stalks + leaves
@@ -336,7 +360,7 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
         Graphics.DrawMeshInstancedProcedural(kelpLeafMesh, 0, leafRenderMaterial, drawBounds, totalLeafObjects);
     }
 
-    void OnDrawGizmos() 
+    /*void OnDrawGizmos() 
     {
         if (stalkNodesBuffer == null || leafSegmentsBuffer == null)
             return;
@@ -387,7 +411,7 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
                 }
             }
         }
-    } 
+    } */
 
     void OnDestroy()
     {

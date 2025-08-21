@@ -44,9 +44,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 09366c6e2f502674d8e54f9bc436801d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  totalStalkNodes: 75
-  totalLeafObjects: 15
-  totalKelpObjects: 1
+  totalStalkNodes: 37500
+  totalLeafObjects: 75000
+  totalKelpObjects: 500
   gravityForce: {x: 0, y: 0.47, z: 0}
   damping: 0.9
   kelpComputeShader: {fileID: 7200000, guid: eb9d1596b85f42545ad66e37d6f71457, type: 3}
@@ -60,4 +60,9 @@ MonoBehaviour:
   windStrength: 0.12
   windFrequency: 0.16
   leafNodesPerLeaf: 3
-  spreadRadius: 0.01
+  terrain: {fileID: 0}
+  groundMask:
+    serializedVersion: 2
+    m_Bits: 8
+  spreadRadius: 100
+  raycastHeight: 50
