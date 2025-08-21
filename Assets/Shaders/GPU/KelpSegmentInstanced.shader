@@ -30,17 +30,13 @@ Shader "Custom/KelpSegmentInstanced"
             {
                 float3 currentPos;
                 float padding0;
-
                 float3 previousPos;
                 float padding1;
-
                 float3 direction;
                 float padding2;
-
                 float4 color;
                 float bendAmount;
                 float3 padding3;
-
                 int isTip;
                 float3 padding4;
             };
@@ -70,15 +66,21 @@ Shader "Custom/KelpSegmentInstanced"
             {
                 Varyings output;
 
-                StalkNode node = _StalkNodesBuffer[input.instanceID];
+                // --- Get segment endpoints ---
+                StalkNode nodeA = _StalkNodesBuffer[input.instanceID];
+                StalkNode nodeB = _StalkNodesBuffer[input.instanceID + 1]; // next node
 
-                float3 dir = normalize(node.direction);
-                // Prevent zero-length direction
-                if (all(abs(dir) < 0.001))
-                    dir = float3(0,1,0);
+                float3 p0 = nodeA.currentPos;
+				float3 p1 = (nodeA.isTip == 1) ? nodeA.currentPos : _StalkNodesBuffer[input.instanceID + 1].currentPos; 
 
+                float3 axis = p1 - p0;
+                float len = length(axis);
+                float3 dir = (len > 0.0001) ? axis / len : float3(0,1,0);
+				float lenAdjusted = len * 1.1; 
+
+                // --- Build rotation matrix from up -> dir ---
                 float3 up = float3(0,1,0);
-                float3 axis = cross(up, dir);
+                float3 rotAxis = cross(up, dir);
                 float angle = acos(saturate(dot(up, dir)));
 
                 float s = sin(angle);
@@ -86,39 +88,59 @@ Shader "Custom/KelpSegmentInstanced"
                 float t = 1 - c;
 
                 float3x3 rotationMatrix;
-
-                if (length(axis) < 0.001)
+                if (length(rotAxis) < 0.001)
                 {
                     rotationMatrix = float3x3(1,0,0, 0,1,0, 0,0,1);
                 }
                 else
                 {
-                    axis = normalize(axis);
+                    rotAxis = normalize(rotAxis);
                     rotationMatrix = float3x3(
-                        t*axis.x*axis.x + c,         t*axis.x*axis.y - s*axis.z,  t*axis.x*axis.z + s*axis.y,
-                        t*axis.x*axis.y + s*axis.z, t*axis.y*axis.y + c,         t*axis.y*axis.z - s*axis.x,
-                        t*axis.x*axis.z - s*axis.y, t*axis.y*axis.z + s*axis.x,  t*axis.z*axis.z + c
+                        t*rotAxis.x*rotAxis.x + c,         t*rotAxis.x*rotAxis.y - s*rotAxis.z,  t*rotAxis.x*rotAxis.z + s*rotAxis.y,
+                        t*rotAxis.x*rotAxis.y + s*rotAxis.z, t*rotAxis.y*rotAxis.y + c,         t*rotAxis.y*rotAxis.z - s*rotAxis.x,
+                        t*rotAxis.x*rotAxis.z - s*rotAxis.y, t*rotAxis.y*rotAxis.z + s*rotAxis.x,  t*rotAxis.z*rotAxis.z + c
                     );
                 }
 
+                // --- Transform cube vertices ---
                 float3 vertex = input.positionOS;
 
-                if (node.isTip == 1)
+                // Scale Y to match segment length
+                vertex.y *= len;
+
+                // Optional tip pinch
+                if (nodeA.isTip == 1)
                 {
-                    float pinchFactor = saturate(1 - vertex.y);
-                    vertex.xz *= pinchFactor;
-                }
+					float t = saturate(vertex.y); // 0..1 along tip mesh
+					float pinch = 1.0 - t;
 
-                float3 rotated = mul(rotationMatrix, vertex);
-                float3 worldPos = _WorldOffset + node.currentPos + rotated;
-                output.positionWS = worldPos;
-                output.positionCS = TransformWorldToHClip(worldPos);
+					float3 right = normalize(cross(abs(dir.y) < 0.99 ? float3(0,1,0) : float3(1,0,0), dir));
+					float3 forward = cross(dir, right);
 
-                float3 worldNormal = normalize(mul(rotationMatrix, input.normalOS));
-                output.normalWS = worldNormal;
+					// Lerp along segment + lateral pinch
+					float3 worldPos = lerp(p0, p1, t) + vertex.x * pinch * right + vertex.z * pinch * forward;
+					worldPos += _WorldOffset;
 
-                output.color = node.color;
-                output.shadowCoord = TransformWorldToShadowCoord(worldPos);
+					output.positionWS = worldPos;
+					output.positionCS = TransformWorldToHClip(worldPos);
+
+					// Compute normal from offsets
+					output.normalWS = normalize(vertex.x * right + t * dir + vertex.z * forward); 
+				}
+				else
+				{
+					vertex.y *= len; // only scale regular segments
+					float3 rotated = mul(rotationMatrix, vertex);
+					float3 worldPos = _WorldOffset + p0 + rotated;
+
+					output.positionWS = worldPos;
+					output.positionCS = TransformWorldToHClip(worldPos);
+
+					output.normalWS = normalize(mul(rotationMatrix, input.normalOS)); 
+
+					output.color = nodeA.color;
+					output.shadowCoord = TransformWorldToShadowCoord(worldPos);
+				} 
 
                 return output;
             }
@@ -136,7 +158,6 @@ Shader "Custom/KelpSegmentInstanced"
                 half3 lightDir = normalize(mainLight.direction);
                 half NdotL = max(0, dot(normalWS, -lightDir));
 
-                // Shadow attenuation
                 half shadowAtten = MainLightRealtimeShadow(i.shadowCoord);
                 finalColor += baseColor * mainLight.color * NdotL * shadowAtten;
 
@@ -150,7 +171,7 @@ Shader "Custom/KelpSegmentInstanced"
                     finalColor += baseColor * light.color * NdotLAdd * light.distanceAttenuation * light.shadowAttenuation;
                 }
 
-                finalColor = saturate(finalColor);  // clamps between 0 and 1
+                finalColor = saturate(finalColor);
                 return half4(finalColor, i.color.a);
             }
 

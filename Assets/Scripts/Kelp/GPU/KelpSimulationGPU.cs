@@ -43,9 +43,9 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
     // kernels
     int stalkVerletKernel;
     int stalkConstraintKernel;
-    int leafVerletKernel;          // NEW
-    int leafConstraintKernel;      // NEW
-    int updateLeavesKernel;        // keeps orientation/bend for rendering
+    int leafVerletKernel;        
+    int leafConstraintKernel;    
+    int updateLeavesKernel;       
 
     KelpObject[] kelpObjectsCPU;
 
@@ -149,7 +149,7 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
             Vector3 baseLocal = rootPositions[k];
 
             kelpObjectsCPU[k].startStalkNodeIndex = k * nodesPerStalk;
-            kelpObjectsCPU[k].stalkNodeCount = nodesPerStalk;
+            kelpObjectsCPU[k].stalkNodeCount = nodesPerStalk; 
             kelpObjectsCPU[k].startLeafIndex = k * leavesPerStalk;
             kelpObjectsCPU[k].leafCount = leavesPerStalk;
 

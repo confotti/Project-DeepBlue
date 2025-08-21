@@ -27,9 +27,6 @@
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Shadows.hlsl"
 
-            // -----------------------
-            // CPU-side struct mirrors
-            // -----------------------
             struct LeafSegment
             {
                 float3 currentPos; float pad0;
@@ -46,23 +43,17 @@
 				float2 pad; 
 			};
 
-            // -----------------------
-            // Buffers & uniforms
-            // -----------------------
             StructuredBuffer<LeafSegment> _LeafSegmentsBuffer;
             StructuredBuffer<LeafObject> _LeafObjectsBuffer; 
 
             float3 _WorldOffset;
             float4 _BaseColor;
-			int _LeafNodesPerLeaf; // set from C# 
+			int _LeafNodesPerLeaf; 
 
-            // -----------------------
-            // Vertex attributes & varyings
-            // -----------------------
             struct Attributes
             {
                 float3 positionOS : POSITION;
-                float3 normalOS   : NORMAL;
+                float3 normalOS   : NORMAL; 
                 uint instanceID   : SV_InstanceID;
             };
 
@@ -86,10 +77,6 @@
                 float4 shadowCoord: TEXCOORD2; 
             };
 
-            // -----------------------
-            // Helpers
-            // -----------------------
-            // Rotate vector v by quaternion q (q.xyz, q.w)
             float3 RotateByQuaternion(float3 v, float4 q)
             {
                 float3 t = 2.0 * cross(q.xyz, v);
@@ -115,9 +102,6 @@
 					return v * c + cross(axis, v) * s + axis * dot(axis, v) * (1 - c); 
 				} 
 
-            // -----------------------
-            // Vertex shader
-            // -----------------------
             Varyings vert(Attributes IN)
 			{
 				Varyings OUT; 
@@ -129,7 +113,7 @@
 				LeafObject lo = _LeafObjectsBuffer[leafID];
 
 				// read this leaf's ROOT segment for placement & color
-				LeafSegment rootSeg = _LeafSegmentsBuffer[baseSeg];
+				LeafSegment rootSeg = _LeafSegmentsBuffer[baseSeg]; 
 
 				// object-space vertex & normal
 				float3 v = IN.positionOS;
@@ -160,33 +144,42 @@
 
 				OUT.positionWS = worldPos;
 				OUT.positionCS = TransformWorldToHClip(worldPos);
-				OUT.normalWS   = n;
-				OUT.color      = rootSeg.color * _BaseColor;
+				OUT.normalWS = normalize(n); 
+				OUT.color = _BaseColor; 
 				OUT.shadowCoord= TransformWorldToShadowCoord(worldPos);
 				return OUT;
 			} 
 
-            // -----------------------
-            // Fragment shader
-            // -----------------------
             half4 frag(Varyings i) : SV_Target
-            {
-                half3 N = normalize(i.normalWS);
+			{
+				half3 N = normalize(i.normalWS);
+
+				// Ensure light hits both sides by flipping if needed 
+				half3 N_forLighting = (dot(N, GetMainLight().direction) < 0) ? -N : N; 
+
+				// Main directional light
 				Light mainLight = GetMainLight();
 				half3 L = normalize(mainLight.direction);
-
-				half NdotL = max(0, dot(N, -L));
+				half NdotL = max(0, dot(N, L));
 				half shadowAtten = MainLightRealtimeShadow(i.shadowCoord);
-				half3 col = i.color.rgb * mainLight.color * NdotL * shadowAtten;
 
+				// Ambient from environment probe / spherical harmonics
+				half3 ambient = SampleSH(N);
+
+				// Base lighting
+				half3 col = i.color.rgb * (ambient + mainLight.color * NdotL * shadowAtten); 
+
+				// Additional lights
 				uint addCount = GetAdditionalLightsCount();
 				for (uint li = 0; li < addCount; ++li){
 					Light l2 = GetAdditionalLight(li, i.positionWS);
 					half3 L2 = normalize(l2.direction);
-					col += i.color.rgb * l2.color * max(0, dot(N, -L2)) * l2.distanceAttenuation * l2.shadowAttenuation;
+					col += i.color.rgb * l2.color * max(0, dot(N, L2)) * l2.distanceAttenuation * l2.shadowAttenuation;
 				}
-				return half4(saturate(col), i.color.a);
+
+				return half4(saturate(col), i.color.a); 
 			}
+
 			ENDHLSL 
         }
     }
