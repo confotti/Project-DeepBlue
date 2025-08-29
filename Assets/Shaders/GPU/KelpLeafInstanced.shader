@@ -3,6 +3,7 @@
     Properties
     {
         _BaseColor ("Base Color", Color) = (0.2,0.7,0.2,1)
+        _MainTex ("Leaf Texture", 2D) = "white" {}
     }
 
     SubShader
@@ -13,7 +14,7 @@
         {
             Name "ForwardLit"
             Tags { "LightMode"="UniversalForward" }
-			Cull off 
+            Cull off
 
             HLSLPROGRAM
             #pragma vertex vert
@@ -27,6 +28,9 @@
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Shadows.hlsl"
 
+            TEXTURE2D(_MainTex);
+            SAMPLER(sampler_MainTex);
+
             struct LeafSegment
             {
                 float3 currentPos; float pad0;
@@ -35,38 +39,28 @@
             }; 
 
             struct LeafObject
-			{
-				float4 orientation;
-				float3 bendAxis;    float bendAngle;
-				int    stalkNodeIndex;
-				float  angleAroundStem;
-				float2 pad; 
-			};
+            {
+                float4 orientation;
+                float3 bendAxis; float bendAngle;
+                int stalkNodeIndex;
+                float angleAroundStem;
+                float2 pad; 
+            };
 
             StructuredBuffer<LeafSegment> _LeafSegmentsBuffer;
             StructuredBuffer<LeafObject> _LeafObjectsBuffer; 
 
             float3 _WorldOffset;
             float4 _BaseColor;
-			int _LeafNodesPerLeaf; 
+            int _LeafNodesPerLeaf; 
 
             struct Attributes
             {
                 float3 positionOS : POSITION;
-                float3 normalOS   : NORMAL; 
+                float3 normalOS   : NORMAL;
+                float2 uv         : TEXCOORD0;
                 uint instanceID   : SV_InstanceID;
             };
-
-			struct appdata
-			{
-				uint vertexID : SV_VertexID; 
-			};
-
-			struct v2f
-			{
-				float4 pos : SV_POSITION;
-				float4 color : COLOR; 
-			};
 
             struct Varyings
             {
@@ -74,115 +68,101 @@
                 float3 positionWS : TEXCOORD0;
                 float3 normalWS   : TEXCOORD1;
                 float4 color      : COLOR;
+                float2 uv         : TEXCOORD3;
                 float4 shadowCoord: TEXCOORD2; 
             };
 
             float3 RotateByQuaternion(float3 v, float4 q)
             {
                 float3 t = 2.0 * cross(q.xyz, v);
-                float3 result = v + q.w * t + cross(q.xyz, t);
-                return result;
+                return v + q.w * t + cross(q.xyz, t);
             }
 
-            // Rotate around local X axis by angle (radians) — operate on a float3
-            float3 RotateAroundLocalX(float3 p, float angle)
+            float3 RotateAxisAngle(float3 v, float3 axis, float angle)
             {
                 float s = sin(angle);
                 float c = cos(angle);
-                // x stays the same
-                float y = p.y * c - p.z * s;
-                float z = p.y * s + p.z * c;
-                return float3(p.x, y, z);
-            }
-
-			float3 RotateAxisAngle(float3 v, float3 axis, float angle)
-				{
-					float s = sin(angle);
-					float c = cos(angle);
-					return v * c + cross(axis, v) * s + axis * dot(axis, v) * (1 - c); 
-				} 
+                return v * c + cross(axis, v) * s + axis * dot(axis, v) * (1 - c); 
+            } 
 
             Varyings vert(Attributes IN)
-			{
-				Varyings OUT; 
+            {
+                Varyings OUT; 
 
-				uint leafID = IN.instanceID;                  // one draw instance per LEAF
-				uint baseSeg = leafID * _LeafNodesPerLeaf;    // ROOT of this leaf's mini-rope
+                uint leafID = IN.instanceID;
+                uint baseSeg = leafID * _LeafNodesPerLeaf;
 
-				// read per-leaf data
-				LeafObject lo = _LeafObjectsBuffer[leafID];
+                LeafObject lo = _LeafObjectsBuffer[leafID];
+                LeafSegment rootSeg = _LeafSegmentsBuffer[baseSeg];
 
-				// read this leaf's ROOT segment for placement & color
-				LeafSegment rootSeg = _LeafSegmentsBuffer[baseSeg]; 
+                float3 v = IN.positionOS;
+                float3 n = IN.normalOS;
 
-				// object-space vertex & normal
-				float3 v = IN.positionOS;
-				float3 n = IN.normalOS;
+                // Orient mesh along root direction
+                v = RotateByQuaternion(v, lo.orientation);
+                n = normalize(RotateByQuaternion(n, lo.orientation));
 
-				// 1) orient mesh along rope base direction (computed in compute and stored in lo.orientation)
-				v = RotateByQuaternion(v, lo.orientation);
-				n = normalize(RotateByQuaternion(n, lo.orientation));
+                // Bend toward tip
+                float t = saturate(v.y);
+                float ang = lo.bendAngle * t * t;
+                v = RotateAxisAngle(v, lo.bendAxis, ang);
+                n = normalize(RotateAxisAngle(n, lo.bendAxis, ang));
 
-				// 2) apply smooth bend about bendAxis with bendAngle (tip bends more)
-				float t = saturate(v.y);                  // assumes +Y is leaf length in mesh
-				float ang = lo.bendAngle * t * t;        // quadratic falloff
-				v = RotateAxisAngle(v, lo.bendAxis, ang);
-				n = normalize(RotateAxisAngle(n, lo.bendAxis, ang));
+                // Radial rotation around stalk
+                float ca = cos(lo.angleAroundStem), sa = sin(lo.angleAroundStem);
+                float3x3 rotY = float3x3(
+                    ca, 0, -sa,
+                     0, 1,   0,
+                    sa, 0,  ca
+                );
+                v = mul(rotY, v);
+                n = normalize(mul(rotY, n));
 
-				// 3) radial rotation around stem (decorative spin)
-				float ca = cos(lo.angleAroundStem), sa = sin(lo.angleAroundStem);
-				float3x3 rotY = float3x3(
-					ca, 0, -sa,
-					 0, 1,   0,
-					sa, 0,  ca
-				);
-				v = mul(rotY, v);
-				n = normalize(mul(rotY, n));
+                float3 worldPos = _WorldOffset + rootSeg.currentPos + v;
 
-				// 4) place in world using this leaf's ROOT segment
-				float3 worldPos = _WorldOffset + rootSeg.currentPos + v;
+                OUT.positionWS = worldPos;
+                OUT.positionCS = TransformWorldToHClip(worldPos);
+                OUT.normalWS = normalize(n);
+                OUT.color = _BaseColor;
+                OUT.uv = IN.uv;
+                OUT.shadowCoord = TransformWorldToShadowCoord(worldPos);
 
-				OUT.positionWS = worldPos;
-				OUT.positionCS = TransformWorldToHClip(worldPos);
-				OUT.normalWS = normalize(n); 
-				OUT.color = _BaseColor; 
-				OUT.shadowCoord= TransformWorldToShadowCoord(worldPos);
-				return OUT;
-			} 
+                return OUT;
+            } 
 
             half4 frag(Varyings i) : SV_Target
-			{
-				half3 N = normalize(i.normalWS);
+            {
+                half3 N = normalize(i.normalWS);
 
-				// Ensure light hits both sides by flipping if needed 
-				half3 N_forLighting = (dot(N, GetMainLight().direction) < 0) ? -N : N; 
+                // Flip normals if needed
+                half3 N_forLighting = (dot(N, GetMainLight().direction) < 0) ? -N : N; 
 
-				// Main directional light
-				Light mainLight = GetMainLight();
-				half3 L = normalize(mainLight.direction);
-				half NdotL = max(0, dot(N, L));
-				half shadowAtten = MainLightRealtimeShadow(i.shadowCoord);
+                Light mainLight = GetMainLight();
+                half3 L = normalize(mainLight.direction);
+                half NdotL = max(0, dot(N, L));
+                half shadowAtten = MainLightRealtimeShadow(i.shadowCoord);
 
-				// Ambient from environment probe / spherical harmonics
-				half3 ambient = SampleSH(N);
+                half3 ambient = SampleSH(N);
 
-				// Base lighting
-				half3 col = i.color.rgb * (ambient + mainLight.color * NdotL * shadowAtten); 
+                // Sample leaf texture
+                half4 texColor = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, i.uv);
 
-				// Additional lights
-				uint addCount = GetAdditionalLightsCount();
-				for (uint li = 0; li < addCount; ++li){
-					Light l2 = GetAdditionalLight(li, i.positionWS);
-					half3 L2 = normalize(l2.direction);
-					col += i.color.rgb * l2.color * max(0, dot(N, L2)) * l2.distanceAttenuation * l2.shadowAttenuation;
-				}
+                half3 col = i.color.rgb * texColor.rgb * (ambient + mainLight.color * NdotL * shadowAtten);
 
-				return half4(saturate(col), i.color.a); 
-			}
+                uint addCount = GetAdditionalLightsCount();
+                for (uint li = 0; li < addCount; ++li)
+                {
+                    Light l2 = GetAdditionalLight(li, i.positionWS);
+                    half3 L2 = normalize(l2.direction);
+                    col += i.color.rgb * texColor.rgb * l2.color * max(0, dot(N, L2)) * l2.distanceAttenuation * l2.shadowAttenuation;
+                }
 
-			ENDHLSL 
+                return half4(saturate(col), texColor.a * i.color.a);
+            }
+
+            ENDHLSL
         }
     }
 
     FallBack "Hidden/InternalErrorShader"
-} 
+}

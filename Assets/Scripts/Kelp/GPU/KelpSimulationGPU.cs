@@ -36,6 +36,8 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
     public float spreadRadius = 5f;
     public float raycastHeight = 50f; // how high above to cast rays from
 
+    float leafLength = 7f; 
+
     // compute buffers
     ComputeBuffer stalkNodesBuffer;
     ComputeBuffer leafSegmentsBuffer;   // totalLeafObjects * leafNodesPerLeaf
@@ -141,8 +143,20 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
         Vector3[] rootPositions = new Vector3[totalKelpObjects];
         for (int i = 0; i < totalKelpObjects; i++)
         {
-            float x = Random.Range(-spreadRadius, spreadRadius);
-            float z = Random.Range(-spreadRadius, spreadRadius);
+            // Radial spread
+            float angle = Random.Range(0f, Mathf.PI * 2f);
+            float radius = spreadRadius * Mathf.Sqrt(Random.value); 
+            float x = Mathf.Cos(angle) * radius;
+            float z = Mathf.Sin(angle) * radius; 
+
+            // Minimal jitter to avoid perfect symmetry
+            Vector3 jitter = new Vector3(
+                Random.Range(-0.1f, 0.1f),
+                0f,
+                Random.Range(-0.1f, 0.1f)
+            );
+            x += jitter.x;
+            z += jitter.z; 
 
             float worldX = transform.position.x + x;
             float worldZ = transform.position.z + z;
@@ -164,13 +178,15 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
                 y = terrain.SampleHeight(new Vector3(worldX, 0, worldZ)) + terrain.GetPosition().y;
             }
 
-            rootPositions[i] = new Vector3(x, y - 0.8f, z); // local space
+            float yLocal = y - transform.position.y - 0.8f;
+            Vector3 rootPosLocal = new Vector3(x, yLocal, z);
+            rootPositions[i] = rootPosLocal; 
         } 
 
         // Fill stalks + leaves
         for (int k = 0; k < totalKelpObjects; k++)
         {
-            Vector3 baseLocal = rootPositions[k];
+            Vector3 baseLocal = rootPositions[k] + transform.position; 
 
             kelpObjectsCPU[k].startStalkNodeIndex = k * nodesPerStalk;
             kelpObjectsCPU[k].stalkNodeCount = nodesPerStalk; 
@@ -188,7 +204,7 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
                 int nodeIndex = kelpObjectsCPU[k].startStalkNodeIndex + i;
                 if (nodeIndex >= totalStalkNodes) break;
 
-                Vector3 nodePosLocal = baseLocal + Vector3.up * (i * segmentSpacing);
+                Vector3 nodePosLocal = rootPositions[k] + Vector3.up * (i * segmentSpacing); 
                 stalkNodes[nodeIndex].currentPos = nodePosLocal;
                 stalkNodes[nodeIndex].previousPos = nodePosLocal;
                 stalkNodes[nodeIndex].direction = Vector3.up;
@@ -226,10 +242,18 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
                 }
                 if (stalkDir == Vector3.zero) stalkDir = Vector3.up;
 
+                float stalkTwist = Random.Range(0f, Mathf.PI * 2f); 
                 // side/bin like in shader
                 Vector3 tmpUp = Mathf.Abs(stalkDir.y) > 0.95f ? Vector3.right : Vector3.up;
                 Vector3 side = Vector3.Normalize(Vector3.Cross(tmpUp, stalkDir));
                 Vector3 bin = Vector3.Normalize(Vector3.Cross(stalkDir, side));
+
+                // rotate the side/bin basis by stalkTwist
+                float ct = Mathf.Cos(stalkTwist);
+                float st = Mathf.Sin(stalkTwist);
+
+                Vector3 rotatedSide = side * ct + bin * st;
+                Vector3 rotatedBin = -side * st + bin * ct; 
 
                 float ca = Mathf.Cos(leafObjs[li].angleAroundStem);
                 float sa = Mathf.Sin(leafObjs[li].angleAroundStem);
@@ -239,9 +263,7 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
                 Vector3 outward = around * 0.02f;
 
                 // ---- DISTRIBUTE LEAF SEGMENTS ALONG FULL MESH HEIGHT ----
-                float leafHeight = 10f; // matches your mesh tip at y=10
-                float step = leafHeight / (leafNodesPerLeaf - 1);
-
+                float step = leafLength / (leafNodesPerLeaf - 1); 
                 for (int n = 0; n < leafNodesPerLeaf; n++)
                 {
                     int segIndex = li * leafNodesPerLeaf + n;
@@ -319,7 +341,7 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
         // --- Dispatch leaves (verlet over segments, then constraints over segments, then per-leaf update)
         int leafSegGroups = Mathf.Max(1, Mathf.CeilToInt(totalLeafSegments / 64f));
         kelpComputeShader.Dispatch(leafVerletKernel, leafSegGroups, 1, 1);
-        for (int i = 0; i < 3; i++) kelpComputeShader.Dispatch(leafConstraintKernel, leafSegGroups, 1, 1);
+        for (int i = 0; i < 20; i++) kelpComputeShader.Dispatch(leafConstraintKernel, leafSegGroups, 1, 1);
 
         // one thread per LEAF (not per segment) to update orientation/bend/around-stem
         int leafGroups = Mathf.Max(1, Mathf.CeilToInt(totalLeafObjects / 64f));

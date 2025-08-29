@@ -34,6 +34,7 @@ struct LeafObject
 // ---------- Buffers ----------
 RWStructuredBuffer<StalkNode>   _StalkNodesBuffer;
 StructuredBuffer<float3>        initialRootPositions;
+StructuredBuffer<float3>		leafRestPositions; // relative to stalk root 
 
 RWStructuredBuffer<LeafSegment> _LeafSegmentsBuffer;  // totalLeafObjects * _LeafNodesPerLeaf
 RWStructuredBuffer<LeafObject>  _LeafObjectsBuffer;
@@ -156,8 +157,8 @@ void CS_VerletUpdate(uint id : SV_DispatchThreadID)
     float3 np = float3(id*0.1, 0, 0) + float3(0, _Time*_WindFrequency, 0);
     float3 wind = float3(
         gradNoise3D(np + float3(0,0,0)),
-        gradNoise3D(np + float3(100,100,100)),
-        gradNoise3D(np + float3(200,200,200))
+        gradNoise3D(np + float3(50,50,50)), 
+        gradNoise3D(np + float3(100,100,100))
     ) * _WindStrength;
 
     node.currentPos += velocity + (_Gravity * _DeltaTime) + wind * _DeltaTime;
@@ -225,8 +226,8 @@ void CS_VerletUpdateLeaves(uint id : SV_DispatchThreadID)
 
     LeafSegment s = _LeafSegmentsBuffer[id];
 
-    // standard verlet step
-    float3 vel = (s.currentPos - s.previousPos) * _Damping;
+    // standard verlet velocity
+    float3 vel = (s.currentPos - s.previousPos) * _Damping * 0.7;
     s.previousPos = s.currentPos;
 
     // gentle wind
@@ -234,16 +235,59 @@ void CS_VerletUpdateLeaves(uint id : SV_DispatchThreadID)
     float3 wind = float3(
         gradNoise3D(np + float3(0,0,0)) * 0.2,
         gradNoise3D(np + float3(50,50,50)) * 0.2,
-        gradNoise3D(np + float3(50,50,50)) * 0.2 
-    ) * (_WindStrength * 0.2); 
+        gradNoise3D(np + float3(100,100,100)) * 0.2
+    ) * (_WindStrength * 0.2);  
 
-    // Adjusted gravity for leaves
-	float3 leafGravity = _Gravity * _LeafGravity; 
+    // gravity
+    float3 leafGravity = _Gravity * _LeafGravity;
 
-	s.currentPos += vel + (leafGravity * _DeltaTime) + wind * _DeltaTime; 
+    // -- Apply velocity, gravity, and wind first --
+    s.currentPos += vel + (leafGravity * _DeltaTime) + wind * _DeltaTime;
 
-    // simple seabed
-    if (s.currentPos.y < 0){
+    // -- Apply soft spring toward rest position relative to stalk --
+    uint leafID = id / _LeafNodesPerLeaf;
+    uint nodeInLeaf = id % _LeafNodesPerLeaf;
+
+    if (leafID < _TotalLeafObjects)
+    {
+        LeafObject lo = _LeafObjectsBuffer[leafID];
+        int stalkIdx = lo.stalkNodeIndex;
+        if (stalkIdx >= 0 && stalkIdx < _StalkNodesBuffer.Length)
+        {
+            // Rest position along the stalk + offset along leaf initial direction
+            float3 rootPos = _StalkNodesBuffer[stalkIdx].currentPos;
+
+            // calculate rest direction around stalk
+            float3 fwd = float3(0,1,0);
+            bool sameStalkNext = ((stalkIdx+1)/_NodesPerStalk) == (stalkIdx/_NodesPerStalk);
+            if (sameStalkNext)
+            {
+                float3 nextPos = _StalkNodesBuffer[stalkIdx+1].currentPos;
+                fwd = normalize(nextPos - rootPos);
+            }
+
+            float3 tmpUp = abs(fwd.y) > 0.95 ? float3(1,0,0) : float3(0,1,0);
+            float3 side = normalize(cross(tmpUp, fwd));
+            float3 bin = normalize(cross(fwd, side));
+
+            float ca = cos(lo.angleAroundStem);
+            float sa = sin(lo.angleAroundStem);
+            float3 around = normalize(side * ca + bin * sa);
+
+            float restLen = _SegmentSpacing * 1.6;
+            float3 restPos = rootPos + around * 0.015 + fwd * restLen * nodeInLeaf;
+
+            // spring toward rest position
+            float springStiffness = 0.2;
+            float tipFactor = nodeInLeaf / float(_LeafNodesPerLeaf); // more flexible at tip
+            float3 spring = (restPos - s.currentPos) * springStiffness * tipFactor;
+            s.currentPos += spring * _DeltaTime;
+        }
+    }
+
+    // simple seabed collision
+    if (s.currentPos.y < 0)
+    {
         float3 v2 = s.currentPos - s.previousPos;
         s.currentPos.y = 0;
         v2.y = 0;
@@ -251,7 +295,7 @@ void CS_VerletUpdateLeaves(uint id : SV_DispatchThreadID)
     }
 
     _LeafSegmentsBuffer[id] = s;
-}
+} 
 
 // ---------- LEAF ROPE: Constraints (per segment) ----------
 [numthreads(64,1,1)]
@@ -259,43 +303,44 @@ void CS_ApplyLeafConstraints(uint id : SV_DispatchThreadID)
 {
     if (id >= _LeafSegmentsBuffer.Length) return;
 
-    uint leafID      = id / _LeafNodesPerLeaf;
-    uint nodeInLeaf  = id % _LeafNodesPerLeaf;
+    uint leafID     = id / _LeafNodesPerLeaf;
+    uint nodeInLeaf = id % _LeafNodesPerLeaf;
     if (leafID >= _TotalLeafObjects) return;
 
     LeafObject lo = _LeafObjectsBuffer[leafID];
     int n0 = lo.stalkNodeIndex;
     if (n0 < 0 || n0+1 >= _StalkNodesBuffer.Length) return;
 
-    // --- compute stalk orientation ---
     float3 p0 = _StalkNodesBuffer[n0].currentPos;
     float3 fwd = float3(0,1,0);
-    bool sameStalkNext = ((n0+1)/_NodesPerStalk)==(n0/_NodesPerStalk);
+
+    bool sameStalkNext = ((n0+1)/_NodesPerStalk) == (n0/_NodesPerStalk);
     if (sameStalkNext) {
         float3 p1 = _StalkNodesBuffer[n0+1].currentPos;
         fwd = normalize(p1 - p0);
-        if (!all(isfinite(fwd)) || length(fwd) < 1e-6) fwd = float3(0,1,0);
+        if (!all(isfinite(fwd)) || length(fwd)<1e-6) fwd = float3(0,1,0);
     }
+
     float3 tmpUp = abs(fwd.y) > 0.95 ? float3(1,0,0) : float3(0,1,0);
     float3 side  = normalize(cross(tmpUp, fwd));
     float3 bin   = normalize(cross(fwd, side));
 
     float ca = cos(lo.angleAroundStem);
     float sa = sin(lo.angleAroundStem);
-    float3 around = normalize(side * ca + bin * sa);
+    float3 around = normalize(side*ca + bin*sa);
 
-    float rest = _SegmentSpacing * 3;
+    float rest = _SegmentSpacing * 1.6;
 
-    // --- 1. pin the root to stalk ---
+    // --- 1. pin the root ---
     if (nodeInLeaf == 0)
     {
         LeafSegment rootSeg = _LeafSegmentsBuffer[id];
-        float3 attachPos = p0 + around * 0.015; // radial offset
-        rootSeg.currentPos  = attachPos;
-        rootSeg.previousPos = attachPos;
+        float3 attachPos = p0 + around*0.08;
+        rootSeg.currentPos  = lerp(rootSeg.currentPos, attachPos, 0.5); 
+        rootSeg.previousPos = lerp(rootSeg.previousPos, attachPos, 0.5);
         _LeafSegmentsBuffer[id] = rootSeg;
         return;
-    } 
+    }
 
     // --- 2. enforce spacing to previous node ---
     int prevID = id - 1;
@@ -304,46 +349,31 @@ void CS_ApplyLeafConstraints(uint id : SV_DispatchThreadID)
 
     float3 d = seg.currentPos - prevSeg.currentPos;
     float dist = length(d);
-
     if (dist > 1e-6)
     {
         float3 dir = d / dist;
         float diff = dist - rest;
         float3 corr = dir * diff * 0.5;
 
-        if (nodeInLeaf == 1) {
-            // root pinned, push only current
-            seg.currentPos -= corr * 1.4; 
-        } else {
-            // move both
-            prevSeg.currentPos += corr;
-            seg.currentPos     -= corr; 
-        }
+        prevSeg.currentPos += corr;
+        seg.currentPos     -= corr; 
     }
-
     _LeafSegmentsBuffer[prevID] = prevSeg;
     _LeafSegmentsBuffer[id]     = seg;
 
-    // --- 3. tip drift power (soft correction to full length) ---
+    // --- 3. tip drift toward "rest spring line" ---
     if (nodeInLeaf == _LeafNodesPerLeaf - 1)
     {
-        float3 stalkPos = p0;
-        float3 away = seg.currentPos - stalkPos;
-        float d2 = length(away);
-        float targetLength = rest * (_LeafNodesPerLeaf - 1);
+        float3 tipDir = normalize(seg.currentPos - p0);
+        float3 restPos = p0 + tipDir * rest * (_LeafNodesPerLeaf-1); 
 
-        if (d2 < targetLength)
-        {
-            float3 dir = (d2 > 1e-6) ? away / d2 : around;
-            float3 target = stalkPos + dir * targetLength;
-
-            float driftPower = 0.1; // tune: 0=soft, 1=stiff snap 
-            seg.currentPos = lerp(seg.currentPos, target, driftPower);
-        }
+        // interpolate toward the rest position
+        float driftPower = 0.3; // adjust softness
+        seg.currentPos = lerp(seg.currentPos, restPos, driftPower);
 
         _LeafSegmentsBuffer[id] = seg;
     }
-} 
+}
 
 [numthreads(64,1,1)]
 void CS_UpdateLeaves(uint i : SV_DispatchThreadID)
@@ -351,7 +381,7 @@ void CS_UpdateLeaves(uint i : SV_DispatchThreadID)
     if (i >= _LeafObjectsBuffer.Length) return;
 
     uint baseSeg = i * _LeafNodesPerLeaf;
-    if (baseSeg >= _LeafSegmentsBuffer.Length) return;
+    if (baseSeg + _LeafNodesPerLeaf > _LeafSegmentsBuffer.Length) return; 
 
     LeafObject lo = _LeafObjectsBuffer[i];
 
