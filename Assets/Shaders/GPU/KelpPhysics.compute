@@ -47,7 +47,7 @@ float  _Time;
 float  _WindStrength;
 float  _WindFrequency;
 float _StemRadius;
-float  _LeafGravity = 0.2; 
+float  _LeafGravity = 0.47; 
 
 uint   _NodesPerStalk;
 uint   _LeafNodesPerLeaf;
@@ -155,7 +155,7 @@ void CS_VerletUpdate(uint id : SV_DispatchThreadID)
     float3 np = float3(id*0.1, 0, 0) + float3(0, _Time*_WindFrequency, 0);
     float3 wind = float3(
         gradNoise3D(np + float3(0,0,0)),
-        gradNoise3D(np + float3(50,50,50)), 
+        gradNoise3D(np + float3(20,20,20)), 
         gradNoise3D(np + float3(100,100,100))
     ) * _WindStrength;
 
@@ -232,7 +232,7 @@ void CS_VerletUpdateLeaves(uint id : SV_DispatchThreadID)
     float3 np = float3(id*0.07, 0, 0) + float3(0, _Time*_WindFrequency, 0);
     float3 wind = float3(
         gradNoise3D(np), 
-        gradNoise3D(np + float3(50,50,50)), 
+        gradNoise3D(np + float3(20,20,20)), 
         gradNoise3D(np + float3(100,100,100))
     ) * (_WindStrength * 0.2);  
 
@@ -270,14 +270,16 @@ void CS_VerletUpdateLeaves(uint id : SV_DispatchThreadID)
             float sa = sin(lo.angleAroundStem);
             float3 around = normalize(side * ca + bin * sa);
 
-            float restLen = _SegmentSpacing * 1.6;
+            float restLen = _SegmentSpacing * 1.2;
             float3 restPos = rootPos + around * 0.015 + fwd * restLen * nodeInLeaf;
 
             // spring toward rest position
             float springStiffness = 0.2;
-            float tipFactor = nodeInLeaf / float(_LeafNodesPerLeaf); // more flexible at tip
-            float3 spring = (restPos - s.currentPos) * springStiffness * tipFactor;
-            s.currentPos += spring * _DeltaTime;
+            float t = nodeInLeaf / float(_LeafNodesPerLeaf - 1); // normalize 0..1
+            float sFactor = 4.0 * t * (1.0 - t);                // S-curve: 0 at root & tip, max in middle
+            float maxSpring = 0.02; // or some small fraction of rest length
+            float spring = clamp(spring, -maxSpring, maxSpring);
+            s.currentPos += spring * _DeltaTime; 
         }
     }
 
@@ -324,13 +326,13 @@ void CS_ApplyLeafConstraints(uint id : SV_DispatchThreadID)
     float sa = sin(lo.angleAroundStem);
     float3 around = normalize(side*ca + bin*sa);
 
-    float rest = _SegmentSpacing * 1.6;
+    float rest = _SegmentSpacing * 1.2;
 
     // --- 1. pin the root ---
     if (nodeInLeaf == 0)
     {
         LeafSegment rootSeg = _LeafSegmentsBuffer[id];
-        float3 attachPos = p0 + around*0.08;
+        float3 attachPos = p0 + around*0.02;
         rootSeg.currentPos  = attachPos;
 		rootSeg.previousPos = attachPos; 
         _LeafSegmentsBuffer[id] = rootSeg;
@@ -363,7 +365,7 @@ void CS_ApplyLeafConstraints(uint id : SV_DispatchThreadID)
         float3 restPos = p0 + tipDir * rest * (_LeafNodesPerLeaf-1); 
 
         // interpolate toward the rest position
-        float driftPower = 0.3; // adjust softness
+        float driftPower = 0.1; // adjust softness
         seg.currentPos = lerp(seg.currentPos, restPos, driftPower);
 
         _LeafSegmentsBuffer[id] = seg;

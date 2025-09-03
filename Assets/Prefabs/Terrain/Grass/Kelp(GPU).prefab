@@ -45,7 +45,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   totalStalkNodes: 7500
-  totalLeafObjects: 10000
+  totalLeafObjects: 20000
   totalKelpObjects: 100
   gravityForce: {x: 0, y: 0.47, z: 0}
   damping: 0.75
@@ -66,5 +66,5 @@ MonoBehaviour:
   groundMask:
     serializedVersion: 2
     m_Bits: 8
-  spreadRadius: 20
+  spreadRadius: 22
   raycastHeight: 50

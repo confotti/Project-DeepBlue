@@ -102,11 +102,12 @@
                 v = RotateByQuaternion(v, lo.orientation);
                 n = normalize(RotateByQuaternion(n, lo.orientation));
 
-                // Bend toward tip
-                float t = saturate(v.y);
-                float ang = lo.bendAngle * t * t;
+                float leafLength = 5.0; // your mesh length in units
+                float t = saturate(v.y / leafLength);      // normalize Y (0..1)
+                float bendFactor = 4.0 * t * (1.0 - t);   // peaks at t=0.5
+                float ang = lo.bendAngle * bendFactor;
                 v = RotateAxisAngle(v, lo.bendAxis, ang);
-                n = normalize(RotateAxisAngle(n, lo.bendAxis, ang));
+                n = normalize(RotateAxisAngle(n, lo.bendAxis, ang)); 
 
                 // Radial rotation around stalk
                 float ca = cos(lo.angleAroundStem), sa = sin(lo.angleAroundStem);

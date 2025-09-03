@@ -314,11 +314,11 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
 
         int stalkGroups = Mathf.Max(1, Mathf.CeilToInt(totalStalkNodes / 64f));
         kelpComputeShader.Dispatch(stalkVerletKernel, stalkGroups, 1, 1);
-        for (int i = 0; i < 35; i++) kelpComputeShader.Dispatch(stalkConstraintKernel, stalkGroups, 1, 1); 
+        for (int i = 0; i < 30; i++) kelpComputeShader.Dispatch(stalkConstraintKernel, stalkGroups, 1, 1); 
 
         int leafSegGroups = Mathf.Max(1, Mathf.CeilToInt(totalLeafSegments / 64f));
         kelpComputeShader.Dispatch(leafVerletKernel, leafSegGroups, 1, 1);
-        for (int i = 0; i < 20; i++) kelpComputeShader.Dispatch(leafConstraintKernel, leafSegGroups, 1, 1);
+        for (int i = 0; i < 15; i++) kelpComputeShader.Dispatch(leafConstraintKernel, leafSegGroups, 1, 1);
 
         int leafGroups = Mathf.Max(1, Mathf.CeilToInt(totalLeafObjects / 64f));
         kelpComputeShader.Dispatch(updateLeavesKernel, leafGroups, 1, 1);
