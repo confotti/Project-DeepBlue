@@ -22,6 +22,7 @@
             #pragma multi_compile_instancing
             #pragma multi_compile _ _ADDITIONAL_LIGHTS
             #pragma multi_compile _ _SHADOWS_SCREEN
+            #pragma multi_compile_fog
             #pragma target 4.5
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
@@ -70,6 +71,7 @@
                 float4 color      : COLOR;
                 float2 uv         : TEXCOORD3;
                 float4 shadowCoord: TEXCOORD2; 
+                float fogFactor   : TEXCOORD4;
             };
 
             float3 RotateByQuaternion(float3 v, float4 q)
@@ -128,6 +130,9 @@
                 OUT.uv = IN.uv;
                 OUT.shadowCoord = TransformWorldToShadowCoord(worldPos);
 
+                // Fog
+                OUT.fogFactor = ComputeFogFactor(OUT.positionCS.z);
+
                 return OUT;
             } 
 
@@ -135,30 +140,31 @@
             {
                 half3 N = normalize(i.normalWS);
 
-                // Flip normals if needed
-                half3 N_forLighting = (dot(N, GetMainLight().direction) < 0) ? -N : N; 
-
                 Light mainLight = GetMainLight();
                 half3 L = normalize(mainLight.direction);
                 half NdotL = max(0, dot(N, L));
                 half shadowAtten = MainLightRealtimeShadow(i.shadowCoord);
 
                 half3 ambient = SampleSH(N);
-
-                // Sample leaf texture
                 half4 texColor = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, i.uv);
 
-                half3 col = i.color.rgb * texColor.rgb * (ambient + mainLight.color * NdotL * shadowAtten);
+                // Use only .rgb from light colors
+                half3 col = i.color.rgb * texColor.rgb * (ambient + mainLight.color.rgb * NdotL * shadowAtten);
 
                 uint addCount = GetAdditionalLightsCount();
                 for (uint li = 0; li < addCount; ++li)
                 {
                     Light l2 = GetAdditionalLight(li, i.positionWS);
                     half3 L2 = normalize(l2.direction);
-                    col += i.color.rgb * texColor.rgb * l2.color * max(0, dot(N, L2)) * l2.distanceAttenuation * l2.shadowAttenuation;
+                    col += i.color.rgb * texColor.rgb * l2.color.rgb * max(0, dot(N, L2)) * l2.distanceAttenuation * l2.shadowAttenuation;
                 }
 
-                return half4(saturate(col), texColor.a * i.color.a);
+                half4 finalColor = half4(saturate(col), texColor.a * i.color.a);
+
+                // Apply fog
+                finalColor.rgb = MixFog(finalColor.rgb, i.fogFactor); 
+
+                return finalColor;
             }
 
             ENDHLSL

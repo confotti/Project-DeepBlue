@@ -17,9 +17,9 @@ RenderSettings:
   m_Fog: 1
   m_FogColor: {r: 0.047058824, g: 0.19607843, b: 0.21568628, a: 1}
   m_FogMode: 1
-  m_FogDensity: 0.01
+  m_FogDensity: 0.12
   m_LinearFogStart: 0
-  m_LinearFogEnd: 100
+  m_LinearFogEnd: 50
   m_AmbientSkyColor: {r: 0.212, g: 0.227, b: 0.259, a: 1}
   m_AmbientEquatorColor: {r: 0.114, g: 0.125, b: 0.133, a: 1}
   m_AmbientGroundColor: {r: 0.047, g: 0.043, b: 0.035, a: 1}
@@ -42,8 +42,7 @@ RenderSettings:
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
-  serializedVersion: 13
-  m_BakeOnSceneLoad: 0
+  serializedVersion: 12
   m_GISettings:
     serializedVersion: 2
     m_BounceScale: 1
@@ -197,7 +196,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9152030572945405791, guid: 934dc2a3ddcbab241ab7aa15b5c96f71, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -552,10 +551,6 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1471794301}
     - target: {fileID: 1977535405019423568, guid: a1b798d06422de14abf4b907f94b548a, type: 3}
-      propertyPath: spreadRadius
-      value: 22
-      objectReference: {fileID: 0}
-    - target: {fileID: 1977535405019423568, guid: a1b798d06422de14abf4b907f94b548a, type: 3}
       propertyPath: targetCamera
       value: 
       objectReference: {fileID: 330585545}
@@ -781,6 +776,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: TimeManager
       objectReference: {fileID: 0}
+    - target: {fileID: 4126031456763104974, guid: 213a44a036db8fd42865e0f0a667a5b7, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8157297926691827304, guid: 213a44a036db8fd42865e0f0a667a5b7, type: 3}
+      propertyPath: dayFogEnd
+      value: 35
+      objectReference: {fileID: 0}
     - target: {fileID: 8157297926691827304, guid: 213a44a036db8fd42865e0f0a667a5b7, type: 3}
       propertyPath: timeScale
       value: 1
@@ -790,9 +793,37 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 330585545}
     - target: {fileID: 8157297926691827304, guid: 213a44a036db8fd42865e0f0a667a5b7, type: 3}
+      propertyPath: nightFogEnd
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 8157297926691827304, guid: 213a44a036db8fd42865e0f0a667a5b7, type: 3}
       propertyPath: sunTransform
       value: 
       objectReference: {fileID: 2031226582}
+    - target: {fileID: 8157297926691827304, guid: 213a44a036db8fd42865e0f0a667a5b7, type: 3}
+      propertyPath: dayFogColor.b
+      value: 0.1937354
+      objectReference: {fileID: 0}
+    - target: {fileID: 8157297926691827304, guid: 213a44a036db8fd42865e0f0a667a5b7, type: 3}
+      propertyPath: dayFogColor.g
+      value: 0.20754719
+      objectReference: {fileID: 0}
+    - target: {fileID: 8157297926691827304, guid: 213a44a036db8fd42865e0f0a667a5b7, type: 3}
+      propertyPath: dayFogColor.r
+      value: 0.12237452
+      objectReference: {fileID: 0}
+    - target: {fileID: 8157297926691827304, guid: 213a44a036db8fd42865e0f0a667a5b7, type: 3}
+      propertyPath: dayBackgroundColor.b
+      value: 0.19215687
+      objectReference: {fileID: 0}
+    - target: {fileID: 8157297926691827304, guid: 213a44a036db8fd42865e0f0a667a5b7, type: 3}
+      propertyPath: dayBackgroundColor.g
+      value: 0.20784314
+      objectReference: {fileID: 0}
+    - target: {fileID: 8157297926691827304, guid: 213a44a036db8fd42865e0f0a667a5b7, type: 3}
+      propertyPath: dayBackgroundColor.r
+      value: 0.12156863
+      objectReference: {fileID: 0}
     - target: {fileID: 8157297926691827304, guid: 213a44a036db8fd42865e0f0a667a5b7, type: 3}
       propertyPath: postProcessingVolume
       value: 

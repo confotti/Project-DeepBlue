@@ -1,8 +1,9 @@
-Shader "Custom/KelpSegmentInstanced"
+﻿Shader "Custom/KelpSegmentInstanced"
 {
     Properties
     {
         _BaseColor ("Base Color", Color) = (1,1,1,1)
+		_MainTex ("Leaf Texture", 2D) = "white" {} 
     }
 
     SubShader
@@ -21,11 +22,15 @@ Shader "Custom/KelpSegmentInstanced"
             #pragma multi_compile_instancing
             #pragma multi_compile _ _ADDITIONAL_LIGHTS
             #pragma multi_compile _ _SHADOWS_SCREEN
+			#pragma multi_compile_fog 
             #pragma target 4.5
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Shadows.hlsl"
+
+			TEXTURE2D(_MainTex);
+            SAMPLER(sampler_MainTex); 
 
             struct StalkNode
             {
@@ -51,6 +56,7 @@ Shader "Custom/KelpSegmentInstanced"
             {
                 float3 positionOS : POSITION;
                 float3 normalOS : NORMAL;
+				float2 uv         : TEXCOORD0; 
                 uint instanceID : SV_InstanceID;
             };
 
@@ -60,7 +66,9 @@ Shader "Custom/KelpSegmentInstanced"
                 float3 positionWS : TEXCOORD0;
                 float3 normalWS : TEXCOORD1;
                 float4 color : COLOR;
+				float2 uv         : TEXCOORD3;
                 float4 shadowCoord : TEXCOORD2;
+				float fogFactor   : TEXCOORD4;  
             };
 
             Varyings vert(Attributes input)
@@ -126,14 +134,15 @@ Shader "Custom/KelpSegmentInstanced"
 					output.positionCS = TransformWorldToHClip(worldPos);
 
 					// Compute proper tip normal
-					float3 radialDir = normalize(offset);
-					if (length(radialDir) < 0.0001) radialDir = float3(1,0,0);
 					float3 tangent = normalize(p1 - p0);
-					float3 normal = normalize(cross(tangent, cross(radialDir, tangent)));
+					float3 normal = normalize(input.normalOS); // just rotate the vertex normal along rotationMatrix 
 					output.normalWS = normal;
 
 					output.color = _BaseColor; // consistent with leaf shader
 					output.shadowCoord = TransformWorldToShadowCoord(worldPos);
+
+					output.uv = input.uv;
+					output.fogFactor = ComputeFogFactor(output.positionCS.z); 
 				}
 				// --- Regular segment ---
 				else if (_StalkNodesBuffer[input.instanceID + 1].isTip != 1)
@@ -149,6 +158,9 @@ Shader "Custom/KelpSegmentInstanced"
 
 					output.color = _BaseColor;
 					output.shadowCoord = TransformWorldToShadowCoord(worldPos);
+
+					output.uv = input.uv;
+					output.fogFactor = ComputeFogFactor(output.positionCS.z);  
 				}
 				else
 				{
@@ -156,7 +168,11 @@ Shader "Custom/KelpSegmentInstanced"
 					output.positionWS = float3(0,0,0);
 					output.normalWS = float3(0,1,0);
 					output.color = float4(0,0,0,0);
+					output.uv = input.uv; 
 					output.shadowCoord = float4(0,0,0,0);
+
+					// Fog
+					output.fogFactor = ComputeFogFactor(output.positionCS.z); 
 				}
 
 				return output;
@@ -174,20 +190,25 @@ Shader "Custom/KelpSegmentInstanced"
 
 				// Ambient via spherical harmonics 
 				half3 ambient = SampleSH(N);
+				half4 texColor = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, i.uv); 
 
 				// Base color of stalk
-				half3 col = i.color.rgb * _BaseColor.rgb * (ambient + mainLight.color * NdotL * shadowAtten);
+				half3 col = i.color.rgb * texColor.rgb * (ambient + mainLight.color.rgb * NdotL * shadowAtten); 
 
 				uint addCount = GetAdditionalLightsCount();
 				for (uint li = 0; li < addCount; ++li)
 				{
 					Light l2 = GetAdditionalLight(li, i.positionWS);
 					half3 L2 = normalize(l2.direction);
-					half NdotL2 = max(0, dot(N_forLighting, L2));
-					col += i.color.rgb * _BaseColor.rgb * l2.color * NdotL2 * l2.distanceAttenuation * l2.shadowAttenuation;
+					col += i.color.rgb * texColor.rgb * l2.color.rgb * max(0, dot(N_forLighting, L2)) * l2.distanceAttenuation * l2.shadowAttenuation;
 				}
 
-				return half4(saturate(col), i.color.a);
+				half4 finalColor = half4(saturate(col), texColor.a * i.color.a);
+
+				// Apply fog properly
+				finalColor.rgb = MixFog(finalColor.rgb, i.fogFactor);
+
+				return finalColor;
 			}
 
             ENDHLSL
