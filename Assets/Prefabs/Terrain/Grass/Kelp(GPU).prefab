@@ -44,9 +44,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 09366c6e2f502674d8e54f9bc436801d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  totalStalkNodes: 100000
-  totalLeafObjects: 250000
-  totalKelpObjects: 1000
+  totalStalkNodes: 500000
+  totalLeafObjects: 1250000
+  totalKelpObjects: 5000
   gravityForce: {x: 0, y: 0.47, z: 0}
   damping: 0.75
   kelpComputeShader: {fileID: 7200000, guid: eb9d1596b85f42545ad66e37d6f71457, type: 3}
@@ -57,14 +57,15 @@ MonoBehaviour:
   targetCamera: {fileID: 0}
   maxObstacles: 10
   currentObstacleCount: 0
-  segmentSpacing: 1
+  segmentSpacing: 0.98
   kelpColor: {r: 0.12415449, g: 0.16981131, b: 0.13240041, a: 1}
-  windStrength: 0.12
-  windFrequency: 0.16
+  windStrength: 0.5
+  windFrequency: 0.2
   leafNodesPerLeaf: 3
   terrain: {fileID: 0}
   groundMask:
     serializedVersion: 2
     m_Bits: 8
-  spreadRadius: 85
+  spreadRadius: 255
   raycastHeight: 50
+  constraintIterations: 4
