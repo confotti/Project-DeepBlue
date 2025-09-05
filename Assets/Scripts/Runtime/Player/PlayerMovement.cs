@@ -48,13 +48,8 @@ public class PlayerMovement : MonoBehaviour
     private void FixedUpdate()
     {
         Movement();
-
-        rotation.x += inputHandler.Look.x * mouseSensitivity;
-        rotation.y += inputHandler.Look.y * mouseSensitivity;
-        rotation.y = Mathf.Clamp(rotation.y, -lookYMax, lookYMax);
-        var xQuat = Quaternion.AngleAxis(rotation.x, Vector3.up);
-        var yQuat = Quaternion.AngleAxis(rotation.y, Vector3.left);
-        transform.rotation = xQuat * yQuat;
+        CameraMovement();
+        
     }
 
     private void Movement()
@@ -72,6 +67,16 @@ public class PlayerMovement : MonoBehaviour
             rb.linearVelocity = move;
         }
 
+    }
+
+    private void CameraMovement()
+    {
+        rotation.x += inputHandler.Look.x * mouseSensitivity;
+        rotation.y += inputHandler.Look.y * mouseSensitivity;
+        rotation.y = Mathf.Clamp(rotation.y, -lookYMax, lookYMax);
+        var xQuat = Quaternion.AngleAxis(rotation.x, Vector3.up);
+        var yQuat = Quaternion.AngleAxis(rotation.y, Vector3.left);
+        transform.rotation = xQuat * yQuat;
     }
 
     private void OnJump()
