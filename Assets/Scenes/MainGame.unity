@@ -14,7 +14,7 @@ OcclusionCullingSettings:
 RenderSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 10
-  m_Fog: 1
+  m_Fog: 0
   m_FogColor: {r: 0.047058824, g: 0.19607843, b: 0.21568628, a: 1}
   m_FogMode: 1
   m_FogDensity: 0.01
@@ -14067,12 +14067,44 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1709925209}
     - target: {fileID: 1977535405019423568, guid: a1b798d06422de14abf4b907f94b548a, type: 3}
+      propertyPath: spreadRadius
+      value: 300
+      objectReference: {fileID: 0}
+    - target: {fileID: 1977535405019423568, guid: a1b798d06422de14abf4b907f94b548a, type: 3}
       propertyPath: targetCamera
       value: 
       objectReference: {fileID: 307323280}
+    - target: {fileID: 1977535405019423568, guid: a1b798d06422de14abf4b907f94b548a, type: 3}
+      propertyPath: totalStalkNodes
+      value: 700000
+      objectReference: {fileID: 0}
+    - target: {fileID: 1977535405019423568, guid: a1b798d06422de14abf4b907f94b548a, type: 3}
+      propertyPath: maxRandomHeightOffset
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 1977535405019423568, guid: a1b798d06422de14abf4b907f94b548a, type: 3}
+      propertyPath: minRandomHeightOffset
+      value: -10
+      objectReference: {fileID: 0}
+    - target: {fileID: 1977535405019423568, guid: a1b798d06422de14abf4b907f94b548a, type: 3}
+      propertyPath: 'leafLODDistances.Array.data[0]'
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 1977535405019423568, guid: a1b798d06422de14abf4b907f94b548a, type: 3}
+      propertyPath: 'leafLODDistances.Array.data[1]'
+      value: 250
+      objectReference: {fileID: 0}
+    - target: {fileID: 1977535405019423568, guid: a1b798d06422de14abf4b907f94b548a, type: 3}
+      propertyPath: 'leafLODDistances.Array.data[2]'
+      value: 350
+      objectReference: {fileID: 0}
     - target: {fileID: 6188249482795173138, guid: a1b798d06422de14abf4b907f94b548a, type: 3}
       propertyPath: m_Name
       value: Kelp(GPU)
+      objectReference: {fileID: 0}
+    - target: {fileID: 6188249482795173138, guid: a1b798d06422de14abf4b907f94b548a, type: 3}
+      propertyPath: m_TagString
+      value: Kelp
       objectReference: {fileID: 0}
     - target: {fileID: 7111760373504356558, guid: a1b798d06422de14abf4b907f94b548a, type: 3}
       propertyPath: m_LocalPosition.x

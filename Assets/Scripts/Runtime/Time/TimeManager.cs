@@ -121,7 +121,6 @@ public class TimeManager : MonoBehaviour
         //sunTransform.eulerAngles = new Vector3(sunAngle, 0, 0); 
         this.sunAngle = new Vector3(sunAngle, 0, 0);
 
-        int totalDayMinutes = 20 * 60; 
         int currentMinutes = timeInMinutes;
 
         // Convert to game hour
