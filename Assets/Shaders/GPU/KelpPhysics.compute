@@ -183,10 +183,10 @@ void CS_LeafUpdate(uint leafID : SV_DispatchThreadID)
     int n0 = lo.stalkNodeIndex;
     if (n0 < 0 || n0 >= _StalkNodesBuffer.Length) return;
 
-    int minStartNode = 2; // 0-indexed, so 2 = third node
+    int minStartNode = 5; // 0-indexed, so 2 = third node
 	int startNode = max(n0 + minStartNode, minStartNode);
-	int endNode   = int(n0 + _NodesPerStalk - 1);
-	int stalkRange = max(1, endNode - startNode);
+	int endNode = int(n0 + _NodesPerStalk - 1);
+	int stalkRange = max(n0, endNode - startNode);
 
 	// Map leaf index proportionally along stalk
 	int leafStalkNode = startNode + int( ((float)leafID / (float)_TotalLeafObjects) * stalkRange );

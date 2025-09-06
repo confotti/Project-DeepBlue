@@ -215,38 +215,45 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
                 int li = kelpObjectsCPU[k].startLeafIndex + l;
                 if (li >= totalLeafObjects) break;
 
-                int randSegLocal = Random.Range(3, nodesPerStalk - 2);
-                int n0 = kelpObjectsCPU[k].startStalkNodeIndex + randSegLocal;
-                leafObjs[li].stalkNodeIndex = n0;
+                // --- Updated leaf placement to match shader ---
+                int minStartNode = 2; // matches shader minStartNode
+                int maxEndNode = nodesPerStalk - 1;
+                int stalkRange = Mathf.Max(1, maxEndNode - minStartNode);
+
+                // Map leaf index proportionally along the stalk
+                int leafStalkNode = minStartNode + Mathf.FloorToInt(((float)l / Mathf.Max(1, leavesPerStalk - 1)) * stalkRange);
+                leafStalkNode = Mathf.Clamp(leafStalkNode, minStartNode, maxEndNode);
+
+                leafObjs[li].stalkNodeIndex = kelpObjectsCPU[k].startStalkNodeIndex + leafStalkNode;
                 leafObjs[li].angleAroundStem = Random.Range(0f, Mathf.PI * 2f);
                 leafObjs[li].orientation = new Vector4(0, 0, 0, 1);
                 leafObjs[li].bendAxis = new Vector3(0, 0, 1);
                 leafObjs[li].bendAngle = 0f;
                 leafObjs[li].pad = Vector2.zero;
 
-                Vector3 n0Pos = stalkNodes[n0].currentPos;
+                Vector3 n0Pos = stalkNodes[leafObjs[li].stalkNodeIndex].currentPos;
                 Vector3 stalkDir = Vector3.up;
-                if (randSegLocal + 1 < nodesPerStalk)
+                if (leafObjs[li].stalkNodeIndex + 1 < kelpObjectsCPU[k].startStalkNodeIndex + nodesPerStalk)
                 {
-                    stalkDir = (stalkNodes[n0 + 1].currentPos - n0Pos).normalized;
+                    stalkDir = (stalkNodes[leafObjs[li].stalkNodeIndex + 1].currentPos - n0Pos).normalized;
                 }
                 if (stalkDir == Vector3.zero) stalkDir = Vector3.up;
 
-                float stalkTwist = Random.Range(0f, Mathf.PI * 2f); 
+                float stalkTwist = Random.Range(0f, Mathf.PI * 2f);
                 Vector3 tmpUp = Mathf.Abs(stalkDir.y) > 0.95f ? Vector3.right : Vector3.up;
                 Vector3 side = Vector3.Normalize(Vector3.Cross(tmpUp, stalkDir));
                 Vector3 bin = Vector3.Normalize(Vector3.Cross(stalkDir, side));
                 float ct = Mathf.Cos(stalkTwist);
                 float st = Mathf.Sin(stalkTwist);
                 Vector3 rotatedSide = side * ct + bin * st;
-                Vector3 rotatedBin = -side * st + bin * ct; 
+                Vector3 rotatedBin = -side * st + bin * ct;
 
                 float ca = Mathf.Cos(leafObjs[li].angleAroundStem);
                 float sa = Mathf.Sin(leafObjs[li].angleAroundStem);
                 Vector3 around = (side * ca + bin * sa).normalized;
                 Vector3 outward = around * 0.02f;
 
-                float step = leafLength / (leafNodesPerLeaf - 1); 
+                float step = leafLength / (leafNodesPerLeaf - 1);
                 for (int n = 0; n < leafNodesPerLeaf; n++)
                 {
                     int segIndex = li * leafNodesPerLeaf + n;
@@ -256,7 +263,7 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
                     leafSegments[segIndex].previousPos = p;
                     leafSegments[segIndex].color = new Vector4(0.2f, 0.8f, 0.2f, 1f);
                 }
-            } 
+            }
         }
 
         stalkNodesBuffer.SetData(stalkNodes);
