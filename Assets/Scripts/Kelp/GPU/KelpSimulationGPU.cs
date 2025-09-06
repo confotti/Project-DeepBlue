@@ -21,33 +21,33 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
     public Camera targetCamera;
 
     [Header("Obstacle Settings")]
-    public int maxObstacles = 10;  // maximum number of obstacles you want to support
-    public int currentObstacleCount = 0; // how many obstacles are active this frame
+    public int maxObstacles = 10;
+    public int currentObstacleCount = 0;
 
     [Header("Visual Tuning")]
-    public float segmentSpacing = 1f; 
+    public float segmentSpacing = 1f;
     public Color kelpColor = Color.white;
     public float windStrength = 0.5f;
-    public float windFrequency = 1f; 
+    public float windFrequency = 1f;
 
     [Range(2, 6)]
     public int leafNodesPerLeaf = 3;
 
     [Header("Placement")]
     public Terrain terrain;
-    public LayerMask groundMask; // set to your seabed/rock layer
+    public LayerMask groundMask;
     public float spreadRadius = 5f;
-    public float raycastHeight = 50f; // how high above to cast rays from
+    public float raycastHeight = 50f;
 
     [Header("Simulation")]
     [Range(1, 8)]
-    public int constraintIterations = 4; // how many times we relax stalk constraints per frame 
+    public int constraintIterations = 4;
 
-    float leafLength = 7f; 
+    float leafLength = 7f;
 
     // compute buffers
     ComputeBuffer stalkNodesBuffer;
-    ComputeBuffer leafSegmentsBuffer;   
+    ComputeBuffer leafSegmentsBuffer;
     ComputeBuffer leafObjectsBuffer;
     ComputeBuffer kelpObjectsBuffer;
     ComputeBuffer initialRootPositionsBuffer;
@@ -55,7 +55,7 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
 
     // kernels
     int stalkKernel;
-    int leafKernel; 
+    int leafKernel;
 
     KelpObject[] kelpObjectsCPU;
 
@@ -81,12 +81,12 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
     [StructLayout(LayoutKind.Sequential)]
     struct LeafObject
     {
-        public Vector4 orientation;     
-        public Vector3 bendAxis;        
-        public float bendAngle;         
-        public int stalkNodeIndex;      
-        public float angleAroundStem;   
-        public Vector2 pad;             
+        public Vector4 orientation;
+        public Vector3 bendAxis;
+        public float bendAngle;
+        public int stalkNodeIndex;
+        public float angleAroundStem;
+        public Vector2 pad;
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -94,7 +94,7 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
     {
         public int startStalkNodeIndex;
         public int stalkNodeCount;
-        public int startLeafIndex;      
+        public int startLeafIndex;
         public int leafCount;
         public Vector3 boundsCenter; private float pad0;
         public Vector3 boundsExtents; private float pad1;
@@ -106,16 +106,15 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
         public Vector3 position;
         public Vector3 size; // radius for sphere/capsule, extents for box
         public Vector3 end;  // capsule second point
-    } 
+    }
 
     void Start()
     {
         InitializeBuffers();
         InitializeData();
 
-        // Find kernels
         stalkKernel = kelpComputeShader.FindKernel("CS_StalkUpdate");
-        leafKernel = kelpComputeShader.FindKernel("CS_LeafUpdate"); 
+        leafKernel = kelpComputeShader.FindKernel("CS_LeafUpdate");
 
         if (targetCamera == null) targetCamera = Camera.main;
     }
@@ -126,7 +125,7 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
         leafSegmentsBuffer?.Release();
         leafObjectsBuffer?.Release();
         kelpObjectsBuffer?.Release();
-        obstacleBuffer?.Release(); 
+        obstacleBuffer?.Release();
 
         stalkNodesBuffer = new ComputeBuffer(totalStalkNodes, Marshal.SizeOf(typeof(StalkNode)));
         int totalLeafSegments = Mathf.Max(1, totalLeafObjects * Mathf.Max(2, leafNodesPerLeaf));
@@ -149,59 +148,60 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
         var leafObjs = new LeafObject[totalLeafObjects];
 
         Vector3[] rootPositions = new Vector3[totalKelpObjects];
+
         for (int i = 0; i < totalKelpObjects; i++)
         {
-            float angle = Random.Range(0f, Mathf.PI * 2f);
-            float radius = spreadRadius * Mathf.Sqrt(Random.value); 
-            float x = Mathf.Cos(angle) * radius;
-            float z = Mathf.Sin(angle) * radius; 
+            // --- Natural patch spawn using Perlin noise ---
+            float nx = Random.Range(-1f, 1f);
+            float nz = Random.Range(-1f, 1f);
 
-            Vector3 jitter = new Vector3(Random.Range(-0.1f, 0.1f), 0f, Random.Range(-0.1f, 0.1f));
-            x += jitter.x;
-            z += jitter.z; 
+            float noiseScale = 0.5f;
+            float offsetX = (Mathf.PerlinNoise(nx * 1.5f, nz * 1.5f) - 0.5f) * spreadRadius * noiseScale;
+            float offsetZ = (Mathf.PerlinNoise(nx * 2.0f, nz * 2.0f) - 0.5f) * spreadRadius * noiseScale;
+
+            float x = nx * spreadRadius + offsetX + Random.Range(-0.1f, 0.1f);
+            float z = nz * spreadRadius + offsetZ + Random.Range(-0.1f, 0.1f);
 
             float worldX = transform.position.x + x;
             float worldZ = transform.position.z + z;
 
             float y = 0f;
-            bool foundGround = false;
-
             Vector3 rayOrigin = new Vector3(worldX, raycastHeight, worldZ);
+
+            // Raycast to terrain
             if (Physics.Raycast(rayOrigin, Vector3.down, out RaycastHit hit, Mathf.Infinity, groundMask))
             {
                 y = hit.point.y;
-                foundGround = true;
             }
-
-            if (!foundGround && terrain != null)
+            else if (terrain != null)
             {
                 y = terrain.SampleHeight(new Vector3(worldX, 0, worldZ)) + terrain.GetPosition().y;
             }
 
             float yLocal = y - transform.position.y - 0.8f;
-            rootPositions[i] = new Vector3(x, yLocal, z); 
-        } 
+            rootPositions[i] = new Vector3(x, yLocal, z);
+        }
 
         for (int k = 0; k < totalKelpObjects; k++)
         {
-            Vector3 baseLocal = rootPositions[k] + transform.position; 
+            Vector3 baseLocal = rootPositions[k] + transform.position;
 
             kelpObjectsCPU[k].startStalkNodeIndex = k * nodesPerStalk;
-            kelpObjectsCPU[k].stalkNodeCount = nodesPerStalk; 
+            kelpObjectsCPU[k].stalkNodeCount = nodesPerStalk;
             kelpObjectsCPU[k].startLeafIndex = k * leavesPerStalk;
             kelpObjectsCPU[k].leafCount = leavesPerStalk;
 
-            Vector3 centerLocal = baseLocal + Vector3.up * (nodesPerStalk * segmentSpacing * 0.5f);
-            Vector3 extents = new Vector3(0.5f, nodesPerStalk * segmentSpacing * 0.5f, 0.5f);
-            kelpObjectsCPU[k].boundsCenter = centerLocal;
-            kelpObjectsCPU[k].boundsExtents = extents;
+            kelpObjectsCPU[k].boundsCenter = baseLocal + Vector3.up * (nodesPerStalk * segmentSpacing * 0.5f);
+            kelpObjectsCPU[k].boundsExtents = new Vector3(0.5f, nodesPerStalk * segmentSpacing * 0.5f, 0.5f);
+
+            if (float.IsNaN(rootPositions[k].y)) continue;
 
             for (int i = 0; i < nodesPerStalk; i++)
             {
                 int nodeIndex = kelpObjectsCPU[k].startStalkNodeIndex + i;
                 if (nodeIndex >= totalStalkNodes) break;
 
-                Vector3 nodePosLocal = rootPositions[k] + Vector3.up * (i * segmentSpacing); 
+                Vector3 nodePosLocal = rootPositions[k] + Vector3.up * (i * segmentSpacing);
                 stalkNodes[nodeIndex].currentPos = nodePosLocal;
                 stalkNodes[nodeIndex].previousPos = nodePosLocal;
                 stalkNodes[nodeIndex].direction = Vector3.up;
@@ -215,12 +215,9 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
                 int li = kelpObjectsCPU[k].startLeafIndex + l;
                 if (li >= totalLeafObjects) break;
 
-                // --- Updated leaf placement to match shader ---
-                int minStartNode = 2; // matches shader minStartNode
+                int minStartNode = 2;
                 int maxEndNode = nodesPerStalk - 1;
                 int stalkRange = Mathf.Max(1, maxEndNode - minStartNode);
-
-                // Map leaf index proportionally along the stalk
                 int leafStalkNode = minStartNode + Mathf.FloorToInt(((float)l / Mathf.Max(1, leavesPerStalk - 1)) * stalkRange);
                 leafStalkNode = Mathf.Clamp(leafStalkNode, minStartNode, maxEndNode);
 
@@ -257,8 +254,7 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
                 for (int n = 0; n < leafNodesPerLeaf; n++)
                 {
                     int segIndex = li * leafNodesPerLeaf + n;
-                    float yOffset = step * n;
-                    Vector3 p = n0Pos + outward + stalkDir * yOffset;
+                    Vector3 p = n0Pos + outward + stalkDir * step * n;
                     leafSegments[segIndex].currentPos = p;
                     leafSegments[segIndex].previousPos = p;
                     leafSegments[segIndex].color = new Vector4(0.2f, 0.8f, 0.2f, 1f);
@@ -280,7 +276,6 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
     {
         if (targetCamera == null) targetCamera = Camera.main;
 
-        // common params
         kelpComputeShader.SetFloat("_DeltaTime", Time.deltaTime);
         kelpComputeShader.SetVector("_Gravity", gravityForce);
         kelpComputeShader.SetFloat("_Damping", damping);
@@ -295,7 +290,6 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
         kelpComputeShader.SetInt("_LeafNodesPerLeaf", Mathf.Max(2, leafNodesPerLeaf));
         kelpComputeShader.SetInt("_TotalLeafObjects", totalLeafObjects);
 
-        // bind buffers
         kelpComputeShader.SetBuffer(stalkKernel, "_StalkNodesBuffer", stalkNodesBuffer);
         kelpComputeShader.SetBuffer(stalkKernel, "initialRootPositions", initialRootPositionsBuffer);
         kelpComputeShader.SetBuffer(stalkKernel, "_Obstacles", obstacleBuffer);
@@ -310,13 +304,10 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
         int stalkGroups = Mathf.Max(1, Mathf.CeilToInt(totalStalkNodes / 64f));
         int leafGroups = Mathf.Max(1, Mathf.CeilToInt(totalLeafObjects / 64f));
 
-        // 🔑 Multiple passes for stalk constraint relaxation
         for (int i = 0; i < constraintIterations; i++)
-        {
             kelpComputeShader.Dispatch(stalkKernel, stalkGroups, 1, 1);
-        }
 
-        kelpComputeShader.Dispatch(leafKernel, leafGroups, 1, 1); 
+        kelpComputeShader.Dispatch(leafKernel, leafGroups, 1, 1);
 
         kelpRenderMaterial.SetVector("_WorldOffset", transform.position);
         kelpRenderMaterial.SetBuffer("_StalkNodesBuffer", stalkNodesBuffer);
@@ -334,60 +325,7 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
 
         Graphics.DrawMeshInstancedProcedural(kelpSegmentMesh, 0, kelpRenderMaterial, drawBounds, totalStalkNodes);
         Graphics.DrawMeshInstancedProcedural(kelpLeafMesh, 0, leafRenderMaterial, drawBounds, totalLeafObjects);
-    } 
-
-    /*void OnDrawGizmos() 
-    {
-        if (stalkNodesBuffer == null || leafSegmentsBuffer == null)
-            return;
-
-        StalkNode[] stalkNodes = new StalkNode[totalStalkNodes];
-        stalkNodesBuffer.GetData(stalkNodes);
-
-        Gizmos.color = Color.yellow;
-        int nodesPerStalk = Mathf.Max(1, totalStalkNodes / totalKelpObjects);
-
-        for (int i = 0; i < totalStalkNodes; i++)
-        {
-            Vector3 pos = transform.position + stalkNodes[i].currentPos; // <-- add transform.position
-            Gizmos.DrawSphere(pos, 0.015f);
-
-            // Draw line to next stalk node in same kelp
-            if (i < totalStalkNodes - 1 && (i + 1) / nodesPerStalk == i / nodesPerStalk)
-            {
-                Vector3 nextPos = transform.position + stalkNodes[i + 1].currentPos; // <-- add transform.position
-                Gizmos.DrawLine(pos, nextPos);
-            }
-        }
-
-        // --- Draw leaf nodes ---
-        int nodesPerLeaf = Mathf.Max(2, leafNodesPerLeaf);
-        int totalLeafSegs = totalLeafObjects * nodesPerLeaf;
-
-        LeafSegment[] leafSegs = new LeafSegment[totalLeafSegs];
-        leafSegmentsBuffer.GetData(leafSegs);
-
-        Gizmos.color = Color.green;
-
-        for (int leafIndex = 0; leafIndex < totalLeafObjects; leafIndex++)
-        {
-            int baseIndex = leafIndex * nodesPerLeaf;
-
-            for (int i = 0; i < nodesPerLeaf; i++)
-            {
-                if (baseIndex + i >= leafSegs.Length) break;
-
-                Vector3 pos = transform.position + leafSegs[baseIndex + i].currentPos; // <-- add transform.position
-                Gizmos.DrawSphere(pos, 0.01f);
-
-                if (i < nodesPerLeaf - 1 && baseIndex + i + 1 < leafSegs.Length)
-                {
-                    Vector3 nextPos = transform.position + leafSegs[baseIndex + i + 1].currentPos; // <-- add transform.position
-                    Gizmos.DrawLine(pos, nextPos);
-                }
-            }
-        }
-    } */
+    }
 
     void OnDestroy()
     {
@@ -396,6 +334,6 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
         leafObjectsBuffer?.Release();
         kelpObjectsBuffer?.Release();
         initialRootPositionsBuffer?.Release();
-        obstacleBuffer?.Release(); 
+        obstacleBuffer?.Release();
     }
 } 

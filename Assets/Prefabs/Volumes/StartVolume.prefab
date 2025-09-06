@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 1149203405894771828}
   - component: {fileID: 7277702510899182412}
   - component: {fileID: 8549254093843493545}
-  - component: {fileID: 8521181968593896197}
   m_Layer: 0
   m_Name: StartVolume
   m_TagString: Untagged
@@ -48,9 +47,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_IsGlobal: 0
   priority: 0
-  blendDistance: 5
+  blendDistance: 15
   weight: 1
-  sharedProfile: {fileID: 11400000, guid: 0c250572e72825d4b9d8a99d286cfb32, type: 2}
+  sharedProfile: {fileID: 11400000, guid: 934bc76a0db59844abfa049c75535cda, type: 2}
 --- !u!65 &8549254093843493545
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -70,20 +69,5 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 3500, y: 500, z: 2500}
-  m_Center: {x: 4.955414, y: 4.2575417, z: 77.21939}
---- !u!114 &8521181968593896197
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8851311179396804949}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e78d35e60f919324d9cc5b828ca9f4da, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  volume: {fileID: 7277702510899182412}
-  transitionSpeed: 1
-  targetWeight: 1
+  m_Size: {x: 3500, y: 613.1209, z: 4512.024}
+  m_Center: {x: 4.9554443, y: 60.818024, z: 1083.2317}
