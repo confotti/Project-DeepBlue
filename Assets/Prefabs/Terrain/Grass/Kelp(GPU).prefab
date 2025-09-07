@@ -66,4 +66,8 @@ MonoBehaviour:
     m_Bits: 8
   spreadRadius: 280
   raycastHeight: 100
-  constraintIterations: 4
+  constraintIterations: 8
+  dynamicColliders:
+  - {fileID: 0}
+  dynamicCollidersRadius:
+  - 4

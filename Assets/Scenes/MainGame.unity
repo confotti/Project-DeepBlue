@@ -6482,6 +6482,11 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 5187094344022091997, guid: e946b643662f89e49850e80ba00d49f1, type: 3}
   m_PrefabInstance: {fileID: 1441557108}
   m_PrefabAsset: {fileID: 0}
+--- !u!4 &1460226616 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4525852725061259153, guid: cbc1e87d3d2a2f4448067cbbd6e3cb4b, type: 3}
+  m_PrefabInstance: {fileID: 886641679}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1479885732
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -14070,6 +14075,10 @@ PrefabInstance:
       propertyPath: targetCamera
       value: 
       objectReference: {fileID: 307323280}
+    - target: {fileID: 1977535405019423568, guid: a1b798d06422de14abf4b907f94b548a, type: 3}
+      propertyPath: 'dynamicColliders.Array.data[0]'
+      value: 
+      objectReference: {fileID: 1460226616}
     - target: {fileID: 6188249482795173138, guid: a1b798d06422de14abf4b907f94b548a, type: 3}
       propertyPath: m_Name
       value: Kelp(GPU)

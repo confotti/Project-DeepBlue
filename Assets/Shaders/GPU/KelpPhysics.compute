@@ -28,12 +28,21 @@ struct LeafObject
     float2 pad;
 };
 
+struct GPUSphereCollider
+{
+    float3 position;
+    float radius;
+};
+
 // ---------- Buffers ----------
 RWStructuredBuffer<StalkNode>   _StalkNodesBuffer;
-StructuredBuffer<float3>        initialRootPositions;
+StructuredBuffer<float3>         initialRootPositions;
 
 RWStructuredBuffer<LeafSegment> _LeafSegmentsBuffer;  
 RWStructuredBuffer<LeafObject>  _LeafObjectsBuffer;
+
+StructuredBuffer<GPUSphereCollider> _SphereColliders;
+uint _ColliderCount;
 
 // ---------- Params ----------
 float  _DeltaTime;
@@ -144,6 +153,18 @@ void CS_StalkUpdate(uint id : SV_DispatchThreadID)
     // seabed collision
     if (node.currentPos.y < 0) node.currentPos.y = 0;
 
+    // ---------- SPHERE COLLISION ----------
+    for(uint c=0; c<_ColliderCount; c++)
+    {
+        GPUSphereCollider col = _SphereColliders[c];
+        float3 dir = node.currentPos - col.position;
+        float len = length(dir);
+        if(len < col.radius && len > 1e-5)
+        {
+            node.currentPos = col.position + normalize(dir) * col.radius;
+        }
+    }
+
     // constraints: only move *this node*, read neighbors
     int prevId = int(id) - 1;
     int nextId = int(id) + 1;
@@ -161,6 +182,10 @@ void CS_StalkUpdate(uint id : SV_DispatchThreadID)
         float dist = length(d);
         if(dist > 1e-6) correction += (d / dist) * ((dist - _SegmentSpacing) * 0.5);
     }
+
+	// Clamp the correction to avoid explosive movement
+	float maxMove = 0.05; // adjust based on your scale
+	correction = clamp(correction, -maxMove, maxMove); 
 
     node.currentPos += correction;
 
@@ -183,19 +208,17 @@ void CS_LeafUpdate(uint leafID : SV_DispatchThreadID)
     int n0 = lo.stalkNodeIndex;
     if (n0 < 0 || n0 >= _StalkNodesBuffer.Length) return;
 
-    int minStartNode = 5; // 0-indexed, so 2 = third node
+    int minStartNode = 5;
 	int startNode = max(n0 + minStartNode, minStartNode);
 	int endNode = int(n0 + _NodesPerStalk - 2);
 	int stalkRange = max(n0, endNode - startNode);
 
-	// Map leaf index proportionally along stalk
 	int leafStalkNode = startNode + int( ((float)leafID / (float)_TotalLeafObjects) * stalkRange );
 	leafStalkNode = clamp(leafStalkNode, startNode, endNode);
 	float3 p0 = _StalkNodesBuffer[lo.stalkNodeIndex].currentPos; 
 
     uint baseSeg = leafID * _LeafNodesPerLeaf;
 
-    // integrate segments
     for(uint j=0;j<_LeafNodesPerLeaf;j++)
     {
         uint idx = baseSeg + j;
@@ -216,7 +239,6 @@ void CS_LeafUpdate(uint leafID : SV_DispatchThreadID)
         _LeafSegmentsBuffer[idx] = seg;
     }
 
-    // iterative spacing / root attach
     float rest = _SegmentSpacing * 1.2;
     int iters = 1;
     for(int it=0; it<iters; it++)
@@ -225,8 +247,6 @@ void CS_LeafUpdate(uint leafID : SV_DispatchThreadID)
         if(rootIdx < _LeafSegmentsBuffer.Length)
         {
             LeafSegment rootSeg = _LeafSegmentsBuffer[rootIdx];
-
-            // attach around stalk with small radius
             float3 attachOffset = float3(cos(lo.angleAroundStem), 0, sin(lo.angleAroundStem)) * 0.02;
             rootSeg.currentPos = lerp(rootSeg.currentPos, p0 + attachOffset, 0.5);
             _LeafSegmentsBuffer[rootIdx] = rootSeg;
@@ -253,7 +273,6 @@ void CS_LeafUpdate(uint leafID : SV_DispatchThreadID)
         }
     }
 
-    // compute leaf orientation
     float3 curPos = p0;
     float3 curDir = float3(0,1,0);
     for(uint j=1;j<_LeafNodesPerLeaf;j++)
