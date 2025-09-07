@@ -180,7 +180,7 @@ void CS_StalkUpdate(uint id : SV_DispatchThreadID)
     {
         float3 d = _StalkNodesBuffer[nextId].currentPos - node.currentPos;
         float dist = length(d);
-        if(dist > 1e-6) correction += (d / dist) * ((dist - _SegmentSpacing) * 0.5);
+        if(dist > 1e-6) correction += (d / dist) * ((dist - _SegmentSpacing) * 0.15);
     }
 
 	// Clamp the correction to avoid explosive movement
