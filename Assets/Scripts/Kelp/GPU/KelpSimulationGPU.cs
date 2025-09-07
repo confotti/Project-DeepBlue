@@ -20,10 +20,6 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
     public Mesh kelpLeafMesh;
     public Camera targetCamera;
 
-    [Header("Obstacle Settings")]
-    public int maxObstacles = 10;
-    public int currentObstacleCount = 0;
-
     [Header("Visual Tuning")]
     public float segmentSpacing = 1f;
     public Color kelpColor = Color.white;
@@ -51,7 +47,6 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
     ComputeBuffer leafObjectsBuffer;
     ComputeBuffer kelpObjectsBuffer;
     ComputeBuffer initialRootPositionsBuffer;
-    ComputeBuffer obstacleBuffer;
 
     // kernels
     int stalkKernel;
@@ -125,14 +120,12 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
         leafSegmentsBuffer?.Release();
         leafObjectsBuffer?.Release();
         kelpObjectsBuffer?.Release();
-        obstacleBuffer?.Release();
 
         stalkNodesBuffer = new ComputeBuffer(totalStalkNodes, Marshal.SizeOf(typeof(StalkNode)));
         int totalLeafSegments = Mathf.Max(1, totalLeafObjects * Mathf.Max(2, leafNodesPerLeaf));
         leafSegmentsBuffer = new ComputeBuffer(totalLeafSegments, Marshal.SizeOf(typeof(LeafSegment)));
         leafObjectsBuffer = new ComputeBuffer(totalLeafObjects, Marshal.SizeOf(typeof(LeafObject)));
         kelpObjectsBuffer = new ComputeBuffer(totalKelpObjects, Marshal.SizeOf(typeof(KelpObject)));
-        obstacleBuffer = new ComputeBuffer(maxObstacles, Marshal.SizeOf(typeof(SDFObstacle)));
 
         kelpObjectsCPU = new KelpObject[totalKelpObjects];
     }
@@ -215,18 +208,20 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
                 int li = kelpObjectsCPU[k].startLeafIndex + l;
                 if (li >= totalLeafObjects) break;
 
-                int minStartNode = 2;
-                int maxEndNode = nodesPerStalk - 1;
+                int minStartNode = 5; // skip the first 5 nodes
+                int maxEndNode = nodesPerStalk - 2; // skip the tip (last node)
+
                 int stalkRange = Mathf.Max(1, maxEndNode - minStartNode);
                 int leafStalkNode = minStartNode + Mathf.FloorToInt(((float)l / Mathf.Max(1, leavesPerStalk - 1)) * stalkRange);
                 leafStalkNode = Mathf.Clamp(leafStalkNode, minStartNode, maxEndNode);
 
+                // Assign leaf object to chosen node
                 leafObjs[li].stalkNodeIndex = kelpObjectsCPU[k].startStalkNodeIndex + leafStalkNode;
                 leafObjs[li].angleAroundStem = Random.Range(0f, Mathf.PI * 2f);
                 leafObjs[li].orientation = new Vector4(0, 0, 0, 1);
                 leafObjs[li].bendAxis = new Vector3(0, 0, 1);
                 leafObjs[li].bendAngle = 0f;
-                leafObjs[li].pad = Vector2.zero;
+                leafObjs[li].pad = Vector2.zero; 
 
                 Vector3 n0Pos = stalkNodes[leafObjs[li].stalkNodeIndex].currentPos;
                 Vector3 stalkDir = Vector3.up;
@@ -292,14 +287,10 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
 
         kelpComputeShader.SetBuffer(stalkKernel, "_StalkNodesBuffer", stalkNodesBuffer);
         kelpComputeShader.SetBuffer(stalkKernel, "initialRootPositions", initialRootPositionsBuffer);
-        kelpComputeShader.SetBuffer(stalkKernel, "_Obstacles", obstacleBuffer);
-        kelpComputeShader.SetInt("_NumObstacles", currentObstacleCount);
 
         kelpComputeShader.SetBuffer(leafKernel, "_StalkNodesBuffer", stalkNodesBuffer);
         kelpComputeShader.SetBuffer(leafKernel, "_LeafSegmentsBuffer", leafSegmentsBuffer);
         kelpComputeShader.SetBuffer(leafKernel, "_LeafObjectsBuffer", leafObjectsBuffer);
-        kelpComputeShader.SetBuffer(leafKernel, "_Obstacles", obstacleBuffer);
-        kelpComputeShader.SetInt("_NumObstacles", currentObstacleCount);
 
         int stalkGroups = Mathf.Max(1, Mathf.CeilToInt(totalStalkNodes / 64f));
         int leafGroups = Mathf.Max(1, Mathf.CeilToInt(totalLeafObjects / 64f));
@@ -334,6 +325,5 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
         leafObjectsBuffer?.Release();
         kelpObjectsBuffer?.Release();
         initialRootPositionsBuffer?.Release();
-        obstacleBuffer?.Release();
     }
 } 
