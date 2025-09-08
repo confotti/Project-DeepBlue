@@ -45,10 +45,15 @@ public class PlayerMovement : MonoBehaviour
         inputHandler.OnJump -= OnJump;
     }
 
+    private void Update()
+    {
+        CameraMovement();
+    }
+
     private void FixedUpdate()
     {
         Movement();
-        CameraMovement();
+        
         
     }
 
