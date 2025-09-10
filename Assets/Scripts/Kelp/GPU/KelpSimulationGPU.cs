@@ -158,15 +158,13 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
 
         for (int i = 0; i < totalKelpObjects; i++)
         {
-            float nx = Random.Range(-1f, 1f);
-            float nz = Random.Range(-1f, 1f);
+            // Instead of random, distribute evenly in a spiral (Fermat spiral works well)
+            float t = i + 0.5f;
+            float angle = t * 137.508f * Mathf.Deg2Rad; // golden angle
+            float r = Mathf.Sqrt(t / totalKelpObjects) * spreadRadius; // scale radius outward
 
-            float noiseScale = 0.5f;
-            float offsetX = (Mathf.PerlinNoise(nx * 1.5f, nz * 1.5f) - 0.5f) * spreadRadius * noiseScale;
-            float offsetZ = (Mathf.PerlinNoise(nx * 2.0f, nz * 2.0f) - 0.5f) * spreadRadius * noiseScale;
-
-            float x = nx * spreadRadius + offsetX + Random.Range(-0.1f, 0.1f);
-            float z = nz * spreadRadius + offsetZ + Random.Range(-0.1f, 0.1f);
+            float x = Mathf.Cos(angle) * r;
+            float z = Mathf.Sin(angle) * r;
 
             float y = 0f;
             Vector3 rayOrigin = new Vector3(x + transform.position.x, raycastHeight, z + transform.position.z);
@@ -174,11 +172,11 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
             if (Physics.Raycast(rayOrigin, Vector3.down, out RaycastHit hit, Mathf.Infinity, groundMask))
                 y = hit.point.y;
             else if (terrain != null)
-                y = terrain.SampleHeight(new Vector3(x + transform.position.x, 0, z + transform.position.z)) + terrain.GetPosition().y;
+                y = terrain.SampleHeight(new Vector3(x + transform.position.x, 0, z + transform.position.z)) + terrain.GetPosition().y;  
 
             float yLocal = y - transform.position.y - 0.8f;
             rootPositions[i] = new Vector3(x, yLocal, z);
-        }
+        } 
 
         for (int k = 0; k < totalKelpObjects; k++)
         {
