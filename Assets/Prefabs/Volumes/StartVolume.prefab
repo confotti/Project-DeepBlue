@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 1149203405894771828}
   - component: {fileID: 7277702510899182412}
   - component: {fileID: 8549254093843493545}
+  - component: {fileID: 8467036848337362820}
   m_Layer: 0
   m_Name: StartVolume
   m_TagString: Untagged
@@ -71,3 +72,26 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 3500, y: 613.1209, z: 4512.024}
   m_Center: {x: 4.9554443, y: 60.818024, z: 1083.2317}
+--- !u!114 &8467036848337362820
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8851311179396804949}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d609fa301fc580f499e21bf6cf400463, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  collider: {fileID: 8549254093843493545}
+  dayFogStart: 0
+  dayFogEnd: 150
+  nightFogStart: 0
+  nightFogEnd: 50
+  dayFogColor: {r: 0.047058824, g: 0.19607843, b: 0.21568628, a: 1}
+  nightFogColor: {r: 0, g: 0, b: 0, a: 1}
+  dayBackgroundColor: {r: 0.09019608, g: 0.16078432, b: 0.27450982, a: 1}
+  nightBackgroundColor: {r: 0, g: 0, b: 0.1, a: 1}
+  mainCamera: {fileID: 0}
+  fogTransitionSpeed: 1

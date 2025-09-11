@@ -14,7 +14,6 @@
         {
             Name "ForwardLit"
             Tags { "LightMode"="UniversalForward" }
-			Cull off 
 
             HLSLPROGRAM
             #pragma vertex vert
