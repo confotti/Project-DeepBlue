@@ -84,14 +84,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d609fa301fc580f499e21bf6cf400463, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  collider: {fileID: 8549254093843493545}
   dayFogStart: 0
   dayFogEnd: 150
   nightFogStart: 0
-  nightFogEnd: 50
+  nightFogEnd: 60
   dayFogColor: {r: 0.047058824, g: 0.19607843, b: 0.21568628, a: 1}
   nightFogColor: {r: 0, g: 0, b: 0, a: 1}
   dayBackgroundColor: {r: 0.09019608, g: 0.16078432, b: 0.27450982, a: 1}
   nightBackgroundColor: {r: 0, g: 0, b: 0.1, a: 1}
-  mainCamera: {fileID: 0}
-  fogTransitionSpeed: 1

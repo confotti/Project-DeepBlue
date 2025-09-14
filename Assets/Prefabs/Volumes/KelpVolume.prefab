@@ -85,12 +85,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dayFogStart: 0
-  dayFogEnd: 50
+  dayFogEnd: 75
   nightFogStart: 0
-  nightFogEnd: 25
+  nightFogEnd: 45
   dayFogColor: {r: 0.047058817, g: 0.21568628, b: 0.15230167, a: 1}
   nightFogColor: {r: 0, g: 0, b: 0, a: 1}
   dayBackgroundColor: {r: 0.047058824, g: 0.21568628, b: 0.15294118, a: 1}
-  nightBackgroundColor: {r: 0, g: 0, b: 0.1, a: 1}
-  mainCamera: {fileID: 0}
-  fogTransitionSpeed: 1
+  nightBackgroundColor: {r: 0, g: 0, b: 0, a: 1}

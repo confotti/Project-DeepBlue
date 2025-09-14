@@ -42,7 +42,8 @@ RenderSettings:
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
-  serializedVersion: 12
+  serializedVersion: 13
+  m_BakeOnSceneLoad: 0
   m_GISettings:
     serializedVersion: 2
     m_BounceScale: 1
@@ -5127,10 +5128,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 4330960868910350596, guid: cbc1e87d3d2a2f4448067cbbd6e3cb4b, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 4525852725061259153, guid: cbc1e87d3d2a2f4448067cbbd6e3cb4b, type: 3}
       propertyPath: m_LocalPosition.x
       value: 822.7
@@ -5174,14 +5171,6 @@ PrefabInstance:
     - target: {fileID: 5083573799768335632, guid: cbc1e87d3d2a2f4448067cbbd6e3cb4b, type: 3}
       propertyPath: m_Name
       value: Player
-      objectReference: {fileID: 0}
-    - target: {fileID: 5083573799768335632, guid: cbc1e87d3d2a2f4448067cbbd6e3cb4b, type: 3}
-      propertyPath: m_TagString
-      value: Player
-      objectReference: {fileID: 0}
-    - target: {fileID: 6289777660212436288, guid: cbc1e87d3d2a2f4448067cbbd6e3cb4b, type: 3}
-      propertyPath: m_IsActive
-      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -15574,10 +15563,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 8467036848337362820, guid: 6bb58f4521c6a8b4280f6350eedd24fc, type: 3}
-      propertyPath: mainCamera
-      value: 
-      objectReference: {fileID: 307323280}
     - target: {fileID: 8851311179396804949, guid: 6bb58f4521c6a8b4280f6350eedd24fc, type: 3}
       propertyPath: m_Name
       value: StartVolume
@@ -15595,10 +15580,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1181932566}
     m_Modifications:
-    - target: {fileID: 1162272625094532396, guid: 934dc2a3ddcbab241ab7aa15b5c96f71, type: 3}
-      propertyPath: mainCamera
-      value: 
-      objectReference: {fileID: 307323280}
     - target: {fileID: 3198067904402057989, guid: 934dc2a3ddcbab241ab7aa15b5c96f71, type: 3}
       propertyPath: m_LocalPosition.x
       value: 2330
