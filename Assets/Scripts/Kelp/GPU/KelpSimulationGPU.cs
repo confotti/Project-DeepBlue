@@ -345,6 +345,88 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
         Graphics.DrawMeshInstancedProcedural(kelpLeafMesh, 0, leafRenderMaterial, drawBounds, totalLeafObjects);
     }
 
+    void OnDrawGizmos()
+    {
+        // Check if the buffers are initialized to avoid errors in the editor
+        if (stalkNodesBuffer == null || kelpObjectsBuffer == null || !enabled)
+        {
+            return;
+        }
+
+        // Get the data from the GPU to the CPU for drawing
+        StalkNode[] stalkNodes = new StalkNode[totalStalkNodes];
+        stalkNodesBuffer.GetData(stalkNodes);
+
+        KelpObject[] kelpObjects = new KelpObject[totalKelpObjects];
+        kelpObjectsBuffer.GetData(kelpObjects);
+
+        // --- Draw Kelp Stems ---
+        Gizmos.color = Color.green;
+        foreach (var kelp in kelpObjects)
+        {
+            int start = kelp.startStalkNodeIndex;
+            int end = start + kelp.stalkNodeCount;
+
+            for (int i = start; i < end - 1; i++)
+            {
+                if (i >= stalkNodes.Length || i + 1 >= stalkNodes.Length) continue;
+
+                Vector3 p0 = stalkNodes[i].currentPos + transform.position;
+                Vector3 p1 = stalkNodes[i + 1].currentPos + transform.position;
+
+                Gizmos.DrawLine(p0, p1);
+                Gizmos.DrawSphere(p0, 0.015f);
+            }
+            // Draw the last node's sphere
+            if (end - 1 < stalkNodes.Length)
+            {
+                Gizmos.DrawSphere(stalkNodes[end - 1].currentPos + transform.position, 0.015f);
+            }
+        }
+
+        // --- Draw Kelp Leaves ---
+        if (leafSegmentsBuffer != null)
+        {
+            LeafSegment[] leafSegments = new LeafSegment[leafSegmentsBuffer.count];
+            leafSegmentsBuffer.GetData(leafSegments);
+
+            LeafObject[] leafObjects = new LeafObject[leafObjectsBuffer.count];
+            leafObjectsBuffer.GetData(leafObjects);
+
+            Gizmos.color = new Color(0.2f, 0.8f, 0.2f, 1f); // Leaf color
+            int leafNodesPerLeafActual = Mathf.Max(2, leafNodesPerLeaf);
+            for (int i = 0; i < leafObjects.Length; i++)
+            {
+                int startSegment = i * leafNodesPerLeafActual;
+                for (int j = 0; j < leafNodesPerLeafActual - 1; j++)
+                {
+                    int segIndex1 = startSegment + j;
+                    int segIndex2 = startSegment + j + 1;
+
+                    if (segIndex2 < leafSegments.Length)
+                    {
+                        Vector3 p0 = leafSegments[segIndex1].currentPos + transform.position;
+                        Vector3 p1 = leafSegments[segIndex2].currentPos + transform.position;
+                        Gizmos.DrawLine(p0, p1);
+                    }
+                }
+            }
+        }
+
+        // --- Draw Dynamic Colliders ---
+        if (dynamicColliders != null && dynamicCollidersRadius != null)
+        {
+            Gizmos.color = Color.cyan;
+            for (int i = 0; i < dynamicColliders.Length; i++)
+            {
+                if (dynamicColliders[i] != null)
+                {
+                    Gizmos.DrawSphere(dynamicColliders[i].position, dynamicCollidersRadius[i]);
+                }
+            }
+        }
+    } 
+
     void OnDestroy()
     {
         stalkNodesBuffer?.Release();
