@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Runtime.InteropServices;
 
-public class KelpSimulationGPU_Advanced : MonoBehaviour
+public class KelpSimulationGPU_HDRP : MonoBehaviour
 {
     [Header("Kelp Settings")]
     public int totalStalkNodes = 1000;
@@ -14,15 +14,15 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
 
     [Header("References")]
     public ComputeShader kelpComputeShader;
-    public Material kelpRenderMaterial;
+    public Material kelpRenderMaterial; // HDRP Lit material
     public Mesh kelpSegmentMesh;
-    public Material leafRenderMaterial;
+    public Material leafRenderMaterial; // HDRP Lit material
     public Mesh kelpLeafMesh;
     public Camera targetCamera;
 
     [Header("Visual Tuning")]
     public float segmentSpacing = 1f;
-    public Color kelpColor = Color.white;
+    public Color kelpColor = Color.green;
     public float windStrength = 0.5f;
     public float windFrequency = 1f;
 
@@ -41,20 +41,20 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
 
     float leafLength = 7f;
 
-    // compute buffers
+    // Compute buffers
     ComputeBuffer stalkNodesBuffer;
     ComputeBuffer leafSegmentsBuffer;
     ComputeBuffer leafObjectsBuffer;
     ComputeBuffer kelpObjectsBuffer;
     ComputeBuffer initialRootPositionsBuffer;
 
-    // dynamic colliders
+    // Dynamic colliders
     ComputeBuffer sphereCollidersBuffer;
-    public Transform[] dynamicColliders; // moving objects like player
-    public float[] dynamicCollidersRadius; // radius per object
+    public Transform[] dynamicColliders;
+    public float[] dynamicCollidersRadius;
     GPUSphereCollider[] collidersCPU;
 
-    // kernels
+    // Kernels
     int stalkKernel;
     int leafKernel;
 
@@ -110,10 +110,10 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
 
     struct SDFObstacle
     {
-        public int type; // 0 = sphere, 1 = box, 2 = capsule
+        public int type;
         public Vector3 position;
-        public Vector3 size; // radius for sphere/capsule, extents for box
-        public Vector3 end;  // capsule second point
+        public Vector3 size;
+        public Vector3 end;
     }
 
     void Start()
@@ -126,6 +126,10 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
         leafKernel = kelpComputeShader.FindKernel("CS_LeafUpdate");
 
         if (targetCamera == null) targetCamera = Camera.main;
+
+        // HDRP adjustments
+        kelpRenderMaterial.enableInstancing = true;
+        leafRenderMaterial.enableInstancing = true;
     }
 
     void InitializeBuffers()
@@ -158,10 +162,9 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
 
         for (int i = 0; i < totalKelpObjects; i++)
         {
-            // Instead of random, distribute evenly in a spiral (Fermat spiral works well)
             float t = i + 0.5f;
-            float angle = t * 137.508f * Mathf.Deg2Rad; // golden angle
-            float r = Mathf.Sqrt(t / totalKelpObjects) * spreadRadius; // scale radius outward
+            float angle = t * 137.508f * Mathf.Deg2Rad;
+            float r = Mathf.Sqrt(t / totalKelpObjects) * spreadRadius;
 
             float x = Mathf.Cos(angle) * r;
             float z = Mathf.Sin(angle) * r;
@@ -172,11 +175,11 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
             if (Physics.Raycast(rayOrigin, Vector3.down, out RaycastHit hit, Mathf.Infinity, groundMask))
                 y = hit.point.y;
             else if (terrain != null)
-                y = terrain.SampleHeight(new Vector3(x + transform.position.x, 0, z + transform.position.z)) + terrain.GetPosition().y;  
+                y = terrain.SampleHeight(new Vector3(x + transform.position.x, 0, z + transform.position.z)) + terrain.GetPosition().y;
 
             float yLocal = y - transform.position.y - 0.8f;
             rootPositions[i] = new Vector3(x, yLocal, z);
-        } 
+        }
 
         for (int k = 0; k < totalKelpObjects; k++)
         {
@@ -201,7 +204,7 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
                 stalkNodes[nodeIndex].currentPos = nodePosLocal;
                 stalkNodes[nodeIndex].previousPos = nodePosLocal;
                 stalkNodes[nodeIndex].direction = Vector3.up;
-                stalkNodes[nodeIndex].color = kelpColor;
+                stalkNodes[nodeIndex].color = new Vector4(kelpColor.linear.r, kelpColor.linear.g, kelpColor.linear.b, kelpColor.linear.a); 
                 stalkNodes[nodeIndex].bendAmount = 0f;
                 stalkNodes[nodeIndex].isTip = (i == nodesPerStalk - 1) ? 1 : 0;
             }
@@ -252,7 +255,8 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
                     Vector3 p = n0Pos + outward + stalkDir * step * n;
                     leafSegments[segIndex].currentPos = p;
                     leafSegments[segIndex].previousPos = p;
-                    leafSegments[segIndex].color = new Vector4(0.2f, 0.8f, 0.2f, 1f);
+                    Color leafCol = new Color(0.2f, 0.8f, 0.2f, 1f).linear;
+                    leafSegments[segIndex].color = new Vector4(leafCol.r, leafCol.g, leafCol.b, leafCol.a); 
                 }
             }
         }
@@ -302,7 +306,7 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
         kelpComputeShader.SetBuffer(leafKernel, "_LeafSegmentsBuffer", leafSegmentsBuffer);
         kelpComputeShader.SetBuffer(leafKernel, "_LeafObjectsBuffer", leafObjectsBuffer);
 
-        // --- Update dynamic colliders ---
+        // Update dynamic colliders
         if (dynamicColliders != null && dynamicColliders.Length > 0)
         {
             for (int i = 0; i < dynamicColliders.Length; i++)
@@ -327,23 +331,30 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
 
         kelpComputeShader.Dispatch(leafKernel, leafGroups, 1, 1);
 
+        // HDRP material updates
+        kelpRenderMaterial.SetColor("_BaseColor", kelpColor.linear);
         kelpRenderMaterial.SetVector("_WorldOffset", transform.position);
         kelpRenderMaterial.SetBuffer("_StalkNodesBuffer", stalkNodesBuffer);
         kelpRenderMaterial.SetBuffer("_KelpObjectsBuffer", kelpObjectsBuffer);
 
+        leafRenderMaterial.SetColor("_BaseColor", new Color(0.2f, 0.8f, 0.2f, 1f).linear);
         leafRenderMaterial.SetVector("_WorldOffset", transform.position);
         leafRenderMaterial.SetInt("_LeafNodesPerLeaf", Mathf.Max(2, leafNodesPerLeaf));
         leafRenderMaterial.SetBuffer("_LeafSegmentsBuffer", leafSegmentsBuffer);
         leafRenderMaterial.SetBuffer("_LeafObjectsBuffer", leafObjectsBuffer);
 
-        Bounds drawBounds = new Bounds(
-            transform.position + Vector3.up * (totalStalkNodes * segmentSpacing * 0.5f),
-            new Vector3(spreadRadius * 2f + 10f, totalStalkNodes * segmentSpacing + 10f, spreadRadius * 2f + 10f)
-        );
-
+        Bounds drawBounds = GetDrawBounds();
         Graphics.DrawMeshInstancedProcedural(kelpSegmentMesh, 0, kelpRenderMaterial, drawBounds, totalStalkNodes);
         Graphics.DrawMeshInstancedProcedural(kelpLeafMesh, 0, leafRenderMaterial, drawBounds, totalLeafObjects);
     }
+
+    Bounds GetDrawBounds()
+    {
+        return new Bounds(
+            transform.position + Vector3.up * (totalStalkNodes * segmentSpacing * 0.5f),
+            new Vector3(spreadRadius * 2f + 10f, totalStalkNodes * segmentSpacing + 10f, spreadRadius * 2f + 10f)
+        );
+    } 
 
     void OnDrawGizmos()
     {
@@ -409,19 +420,6 @@ public class KelpSimulationGPU_Advanced : MonoBehaviour
                         Vector3 p1 = leafSegments[segIndex2].currentPos + transform.position;
                         Gizmos.DrawLine(p0, p1);
                     }
-                }
-            }
-        }
-
-        // --- Draw Dynamic Colliders ---
-        if (dynamicColliders != null && dynamicCollidersRadius != null)
-        {
-            Gizmos.color = Color.cyan;
-            for (int i = 0; i < dynamicColliders.Length; i++)
-            {
-                if (dynamicColliders[i] != null)
-                {
-                    Gizmos.DrawSphere(dynamicColliders[i].position, dynamicCollidersRadius[i]);
                 }
             }
         }
