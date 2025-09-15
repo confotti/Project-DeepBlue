@@ -124,13 +124,14 @@ void CS_StalkUpdate(uint id : SV_DispatchThreadID)
     if (id >= _StalkNodesBuffer.Length) return;
     StalkNode node = _StalkNodesBuffer[id];
 
+    uint stalkIndex = id / _NodesPerStalk;
+    float3 rootPos = initialRootPositions[stalkIndex];
+
     // pinned root
     if (id % _NodesPerStalk == 0)
     {
-        uint stalkIndex = id / _NodesPerStalk;
-        float3 rootPos = initialRootPositions[stalkIndex];
-        node.currentPos = lerp(node.currentPos, rootPos, 0.9);
-        node.previousPos = lerp(node.previousPos, node.currentPos, 0.5);
+        node.currentPos = rootPos;
+        node.previousPos = rootPos;
         node.direction = float3(0,1,0);
         node.bendAmount = 0;
         _StalkNodesBuffer[id] = node;
@@ -140,17 +141,19 @@ void CS_StalkUpdate(uint id : SV_DispatchThreadID)
     // Verlet integration
     float3 vel = (node.currentPos - node.previousPos) * _Damping;
     node.previousPos = node.currentPos;
-    float timeWind = _Time * (_WindFrequency * 0.1);
-    float3 np = float3(id * 0.1, 0, 0) + float3(0, timeWind, 0);
+
+    // wind based on world position
+    float3 np = node.currentPos * 0.1 + float3(0, _Time * (_WindFrequency * 0.1), 0);
     float3 wind = float3(
         gradNoise3D(np),
         gradNoise3D(np + float3(20,20,20)),
         gradNoise3D(np + float3(100,100,100))
     ) * _WindStrength;
+
     node.currentPos += vel + (_Gravity * _DeltaTime) + wind * _DeltaTime;
 
-    // seabed collision
-    node.currentPos.y = max(node.currentPos.y, 0);
+    // seabed collision using root Y
+    node.currentPos.y = max(node.currentPos.y, rootPos.y);
 
     // ---------- SPHERE COLLISION ----------
     for(uint c=0; c<_ColliderCount; c++)
@@ -164,7 +167,7 @@ void CS_StalkUpdate(uint id : SV_DispatchThreadID)
         }
     }
 
-    // constraints: only move *this node*, read neighbors
+    // constraints
     int prevId = int(id) - 1;
     int nextId = int(id) + 1;
     float3 correction = float3(0,0,0);
@@ -184,7 +187,6 @@ void CS_StalkUpdate(uint id : SV_DispatchThreadID)
 
     float maxMove = 0.05;
     correction = clamp(correction, -maxMove, maxMove); 
-
     node.currentPos += correction;
 
     // update direction + bend
@@ -194,7 +196,7 @@ void CS_StalkUpdate(uint id : SV_DispatchThreadID)
     node.bendAmount = length(nextDir - prevDir) * 5.0;
 
     _StalkNodesBuffer[id] = node;
-} 
+}
 
 // ---------------- LEAF UPDATE ----------------
 [numthreads(64,1,1)]
@@ -206,12 +208,7 @@ void CS_LeafUpdate(uint leafID : SV_DispatchThreadID)
     int n0 = lo.stalkNodeIndex;
     if (n0 < 0 || n0 >= _StalkNodesBuffer.Length) return;
 
-    int minStartNode = 5;
-    int startNode = max(n0 + minStartNode, minStartNode);
-    int endNode = int(n0 + _NodesPerStalk - 2);
-    int stalkRange = max(n0, endNode - startNode);
-
-    float3 p0 = _StalkNodesBuffer[lo.stalkNodeIndex].currentPos; 
+    float3 p0 = _StalkNodesBuffer[n0].currentPos; 
     uint baseSeg = leafID * _LeafNodesPerLeaf;
 
     for(uint j=0;j<_LeafNodesPerLeaf;j++)
@@ -219,11 +216,11 @@ void CS_LeafUpdate(uint leafID : SV_DispatchThreadID)
         uint idx = baseSeg + j;
         if(idx >= _LeafSegmentsBuffer.Length) break;
         LeafSegment seg = _LeafSegmentsBuffer[idx];
+
         float3 vel = (seg.currentPos - seg.previousPos) * _Damping;
         seg.previousPos = seg.currentPos;
 
-        float timeWind = _Time * (_WindFrequency * 0.1);
-        float3 np = float3(idx * 0.07, 0, 0) + float3(0, timeWind, 0);
+        float3 np = seg.currentPos * 0.1 + float3(0,_Time*(_WindFrequency*0.1),0);
         float3 wind = float3(
             gradNoise3D(np),
             gradNoise3D(np+float3(20,20,20)),
@@ -234,17 +231,17 @@ void CS_LeafUpdate(uint leafID : SV_DispatchThreadID)
         _LeafSegmentsBuffer[idx] = seg;
     }
 
-    // Leaf constraints
-    float rest = _SegmentSpacing * 1.2;
-    uint rootIdx = baseSeg;
-    if(rootIdx < _LeafSegmentsBuffer.Length)
+    // root attachment
+    if(baseSeg < _LeafSegmentsBuffer.Length)
     {
-        LeafSegment rootSeg = _LeafSegmentsBuffer[rootIdx];
+        LeafSegment rootSeg = _LeafSegmentsBuffer[baseSeg];
         float3 attachOffset = float3(cos(lo.angleAroundStem), 0, sin(lo.angleAroundStem)) * 0.02;
         rootSeg.currentPos = lerp(rootSeg.currentPos, p0 + attachOffset, 0.5);
-        _LeafSegmentsBuffer[rootIdx] = rootSeg;
+        _LeafSegmentsBuffer[baseSeg] = rootSeg;
     }
 
+    // segment constraints
+    float rest = _SegmentSpacing * 1.2;
     for(uint j=1;j<_LeafNodesPerLeaf;j++)
     {
         uint idx = baseSeg+j;
@@ -252,7 +249,6 @@ void CS_LeafUpdate(uint leafID : SV_DispatchThreadID)
         if(idx >= _LeafSegmentsBuffer.Length) break;
         LeafSegment seg = _LeafSegmentsBuffer[idx];
         LeafSegment prevSeg = _LeafSegmentsBuffer[prevIdx];
-
         float3 d = seg.currentPos - prevSeg.currentPos;
         float dist = length(d);
         if(dist > 1e-6)
@@ -265,7 +261,7 @@ void CS_LeafUpdate(uint leafID : SV_DispatchThreadID)
         _LeafSegmentsBuffer[idx] = seg;
     }
 
-    // Update leaf orientation
+    // orientation update
     float3 curPos = p0;
     float3 curDir = float3(0,1,0);
     for(uint j=1;j<_LeafNodesPerLeaf;j++)
