@@ -23,8 +23,9 @@ public class KelpSimulationGPU_HDRP : MonoBehaviour
     [Header("Visual Tuning")]
     public float segmentSpacing = 1f;
     public Color kelpColor = Color.green;
+    public Color leafColor = new Color(0.2f, 0.8f, 0.2f, 1f);
     public float windStrength = 0.5f;
-    public float windFrequency = 1f;
+    public float windFrequency = 1f; 
 
     [Range(2, 6)]
     public int leafNodesPerLeaf = 3;
@@ -40,6 +41,8 @@ public class KelpSimulationGPU_HDRP : MonoBehaviour
     public int constraintIterations = 4;
 
     float leafLength = 7f;
+
+    [SerializeField] private bool debugMode = false; // Toggle in inspector 
 
     // Compute buffers
     ComputeBuffer stalkNodesBuffer;
@@ -240,7 +243,7 @@ public class KelpSimulationGPU_HDRP : MonoBehaviour
                     Vector3 p = n0Pos + outward + stalkDir * step * n;
                     leafSegments[segIndex].currentPos = p;
                     leafSegments[segIndex].previousPos = p;
-                    leafSegments[segIndex].color = new Color(0.2f, 0.8f, 0.2f, 1f).linear;
+                    leafSegments[segIndex].color = leafColor.linear; 
                 }
             }
         }
@@ -269,6 +272,7 @@ public class KelpSimulationGPU_HDRP : MonoBehaviour
     {
         if (targetCamera == null) targetCamera = Camera.main;
 
+        // --- Set globals ---
         kelpComputeShader.SetFloat("_DeltaTime", Time.deltaTime);
         kelpComputeShader.SetVector("_Gravity", gravityForce);
         kelpComputeShader.SetFloat("_Damping", damping);
@@ -283,29 +287,28 @@ public class KelpSimulationGPU_HDRP : MonoBehaviour
         kelpComputeShader.SetInt("_LeafNodesPerLeaf", Mathf.Max(2, leafNodesPerLeaf));
         kelpComputeShader.SetInt("_TotalLeafObjects", totalLeafObjects);
 
-        kelpComputeShader.SetBuffer(stalkKernel, "_StalkNodesBuffer", stalkNodesBuffer);
-        kelpComputeShader.SetBuffer(stalkKernel, "initialRootPositions", initialRootPositionsBuffer);
-
-        kelpComputeShader.SetBuffer(leafKernel, "_StalkNodesBuffer", stalkNodesBuffer);
-        kelpComputeShader.SetBuffer(leafKernel, "_LeafSegmentsBuffer", leafSegmentsBuffer);
-        kelpComputeShader.SetBuffer(leafKernel, "_LeafObjectsBuffer", leafObjectsBuffer);
-
+        // --- Collider updates (only if present) ---
         if (dynamicColliders != null && dynamicColliders.Length > 0)
         {
             for (int i = 0; i < dynamicColliders.Length; i++)
             {
                 if (dynamicColliders[i] == null) continue;
-
                 collidersCPU[i].position = dynamicColliders[i].position - transform.position;
                 collidersCPU[i].radius = dynamicCollidersRadius[i];
             }
-
             sphereCollidersBuffer.SetData(collidersCPU);
         }
 
+        kelpComputeShader.SetBuffer(stalkKernel, "_StalkNodesBuffer", stalkNodesBuffer);
+        kelpComputeShader.SetBuffer(stalkKernel, "initialRootPositions", initialRootPositionsBuffer);
         kelpComputeShader.SetBuffer(stalkKernel, "_SphereColliders", sphereCollidersBuffer);
         kelpComputeShader.SetInt("_ColliderCount", dynamicColliders != null ? dynamicColliders.Length : 0);
 
+        kelpComputeShader.SetBuffer(leafKernel, "_StalkNodesBuffer", stalkNodesBuffer);
+        kelpComputeShader.SetBuffer(leafKernel, "_LeafSegmentsBuffer", leafSegmentsBuffer);
+        kelpComputeShader.SetBuffer(leafKernel, "_LeafObjectsBuffer", leafObjectsBuffer);
+
+        // --- Dispatch compute ---
         int stalkGroups = Mathf.Max(1, Mathf.CeilToInt(totalStalkNodes / 64f));
         int leafGroups = Mathf.Max(1, Mathf.CeilToInt(totalLeafObjects / 64f));
 
@@ -314,40 +317,44 @@ public class KelpSimulationGPU_HDRP : MonoBehaviour
 
         kelpComputeShader.Dispatch(leafKernel, leafGroups, 1, 1);
 
-        // --- DEBUG LOGS ---
-        Debug.Log($"Total stalk nodes being instanced: {stalkNodesBuffer?.count ?? 0}");
-        Debug.Log($"Total leaf objects being instanced: {leafObjectsBuffer?.count ?? 0}");
+        // --- Debug mode (optional) ---
+#if UNITY_EDITOR
+        if (debugMode)
+        {
+            Debug.Log($"Total stalk nodes: {stalkNodesBuffer?.count ?? 0}");
+            Debug.Log($"Total leaf objects: {leafObjectsBuffer?.count ?? 0}");
 
-        for (int i = 0; i < kelpObjectsCPU.Length; i++)
-            Debug.Log($"Kelp {i}: Stalk nodes = {kelpObjectsCPU[i].stalkNodeCount}, Leaves = {kelpObjectsCPU[i].leafCount}");
+            StalkNode[] stalkSample = new StalkNode[Mathf.Min(5, stalkNodesBuffer.count)];
+            stalkNodesBuffer.GetData(stalkSample, 0, 0, stalkSample.Length);
+            for (int i = 0; i < stalkSample.Length; i++)
+                Debug.Log($"Stalk node {i}: {stalkSample[i].currentPos}");
 
-        // Sample first few positions
-        StalkNode[] stalkSample = new StalkNode[Mathf.Min(5, stalkNodesBuffer.count)];
-        stalkNodesBuffer.GetData(stalkSample, 0, 0, stalkSample.Length);
-        for (int i = 0; i < stalkSample.Length; i++)
-            Debug.Log($"Stalk node {i} position: {stalkSample[i].currentPos}");
+            LeafSegment[] leafSample = new LeafSegment[Mathf.Min(5, leafSegmentsBuffer.count)];
+            leafSegmentsBuffer.GetData(leafSample, 0, 0, leafSample.Length);
+            for (int i = 0; i < leafSample.Length; i++)
+                Debug.Log($"Leaf segment {i}: {leafSample[i].currentPos}");
+        }
+#endif
 
-        LeafSegment[] leafSample = new LeafSegment[Mathf.Min(5, leafSegmentsBuffer.count)];
-        leafSegmentsBuffer.GetData(leafSample, 0, 0, leafSample.Length);
-        for (int i = 0; i < leafSample.Length; i++)
-            Debug.Log($"Leaf segment {i} position: {leafSample[i].currentPos}");
-
-        // --- DRAW ---
+        // --- Draw call ---
         kelpRenderMaterial.SetColor("_BaseColor", kelpColor.linear);
         kelpRenderMaterial.SetVector("_WorldOffset", transform.position);
         kelpRenderMaterial.SetBuffer("_StalkNodesBuffer", stalkNodesBuffer);
         kelpRenderMaterial.SetBuffer("_KelpObjectsBuffer", kelpObjectsBuffer);
 
-        leafRenderMaterial.SetColor("_BaseColor", new Color(0.2f, 0.8f, 0.2f, 1f).linear);
+        leafRenderMaterial.SetColor("_BaseColor", leafColor.linear); 
         leafRenderMaterial.SetVector("_WorldOffset", transform.position);
         leafRenderMaterial.SetInt("_LeafNodesPerLeaf", Mathf.Max(2, leafNodesPerLeaf));
         leafRenderMaterial.SetBuffer("_LeafSegmentsBuffer", leafSegmentsBuffer);
         leafRenderMaterial.SetBuffer("_LeafObjectsBuffer", leafObjectsBuffer);
 
-        Bounds drawBounds = GetDrawBounds();
-        Graphics.DrawMeshInstancedProcedural(kelpSegmentMesh, 0, kelpRenderMaterial, drawBounds, totalStalkNodes);
-        Graphics.DrawMeshInstancedProcedural(kelpLeafMesh, 0, leafRenderMaterial, drawBounds, totalLeafObjects);
-    }
+        Graphics.DrawMeshInstancedProcedural(
+            kelpSegmentMesh, 0, kelpRenderMaterial, GetDrawBounds(), totalStalkNodes
+        );
+        Graphics.DrawMeshInstancedProcedural(
+            kelpLeafMesh, 0, leafRenderMaterial, GetDrawBounds(), totalLeafObjects
+        );
+    } 
 
     Bounds GetDrawBounds()
     {
@@ -355,66 +362,6 @@ public class KelpSimulationGPU_HDRP : MonoBehaviour
             transform.position + Vector3.up * (totalStalkNodes * segmentSpacing * 0.5f),
             new Vector3(spreadRadius * 2f + 10f, totalStalkNodes * segmentSpacing + 10f, spreadRadius * 2f + 10f)
         );
-    }
-
-    void OnDrawGizmos()
-    {
-        if (stalkNodesBuffer == null || kelpObjectsBuffer == null || !enabled)
-            return;
-
-        StalkNode[] stalkNodes = new StalkNode[totalStalkNodes];
-        stalkNodesBuffer.GetData(stalkNodes);
-
-        KelpObject[] kelpObjects = new KelpObject[totalKelpObjects];
-        kelpObjectsBuffer.GetData(kelpObjects);
-
-        Gizmos.color = Color.green;
-        foreach (var kelp in kelpObjects)
-        {
-            int start = kelp.startStalkNodeIndex;
-            int end = start + kelp.stalkNodeCount;
-
-            for (int i = start; i < end - 1; i++)
-            {
-                if (i >= stalkNodes.Length || i + 1 >= stalkNodes.Length) continue;
-
-                Vector3 p0 = stalkNodes[i].currentPos + transform.position;
-                Vector3 p1 = stalkNodes[i + 1].currentPos + transform.position;
-
-                Gizmos.DrawLine(p0, p1);
-                Gizmos.DrawSphere(p0, 0.015f);
-            }
-            if (end - 1 < stalkNodes.Length)
-                Gizmos.DrawSphere(stalkNodes[end - 1].currentPos + transform.position, 0.015f);
-        }
-
-        if (leafSegmentsBuffer != null)
-        {
-            LeafSegment[] leafSegments = new LeafSegment[leafSegmentsBuffer.count];
-            leafSegmentsBuffer.GetData(leafSegments);
-
-            LeafObject[] leafObjects = new LeafObject[leafObjectsBuffer.count];
-            leafObjectsBuffer.GetData(leafObjects);
-
-            Gizmos.color = new Color(0.2f, 0.8f, 0.2f, 1f);
-            int leafNodesPerLeafActual = Mathf.Max(2, leafNodesPerLeaf);
-            for (int i = 0; i < leafObjects.Length; i++)
-            {
-                int startSegment = i * leafNodesPerLeafActual;
-                for (int j = 0; j < leafNodesPerLeafActual - 1; j++)
-                {
-                    int segIndex1 = startSegment + j;
-                    int segIndex2 = startSegment + j + 1;
-
-                    if (segIndex2 < leafSegments.Length)
-                    {
-                        Vector3 p0 = leafSegments[segIndex1].currentPos + transform.position;
-                        Vector3 p1 = leafSegments[segIndex2].currentPos + transform.position;
-                        Gizmos.DrawLine(p0, p1);
-                    }
-                }
-            }
-        }
     }
 
     void OnDestroy()
