@@ -354,13 +354,15 @@ public class KelpSimulationGPU_HDRP : MonoBehaviour
         Graphics.DrawMeshInstancedProcedural(
             kelpLeafMesh, 0, leafRenderMaterial, GetDrawBounds(), totalLeafObjects
         );
-    } 
+    }
 
     Bounds GetDrawBounds()
     {
+        float maxHeight = totalStalkNodes * segmentSpacing + leafLength; // include leaf extension
+        float radius = spreadRadius + 2f; // margin
         return new Bounds(
-            transform.position + Vector3.up * (totalStalkNodes * segmentSpacing * 0.5f),
-            new Vector3(spreadRadius * 2f + 10f, totalStalkNodes * segmentSpacing + 10f, spreadRadius * 2f + 10f)
+            transform.position + Vector3.up * maxHeight * 0.5f,
+            new Vector3(radius * 2f, maxHeight, radius * 2f)
         );
     }
 
