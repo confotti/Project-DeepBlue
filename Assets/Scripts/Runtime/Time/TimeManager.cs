@@ -57,10 +57,15 @@ public class TimeManager : MonoBehaviour
 
     void UpdateSunMovement()
     {
-        int timeInMinutes = GameTimeStamp.HoursToMinutes(timestamp.hour) + timestamp.minute;
-        float angle = timeInMinutes <= 15 * 60 ? 0.2f * timeInMinutes : 180f + 0.6f * (timeInMinutes - 15 * 60);
+        // Game time in minutes, scaled by timeScale
+        float timeInMinutes = (Time.time * timeScale) % (24f * 60f);
+
+        float angle = timeInMinutes <= 15 * 60
+            ? 0.2f * timeInMinutes
+            : 180f + 0.6f * (timeInMinutes - 15 * 60);
+
         sunAngle = new Vector3(angle, 0, 0);
-        sunTransform.rotation = Quaternion.Slerp(sunTransform.rotation, Quaternion.Euler(sunAngle), 1f * Time.deltaTime);
+        sunTransform.rotation = Quaternion.Euler(sunAngle); 
     }
 
     // Returns a value 0 → 1 representing day/night blend
