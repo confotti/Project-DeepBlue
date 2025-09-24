@@ -8,12 +8,17 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float gravity = 20;
     [SerializeField] private float jumpPower = 20;
 
+    [SerializeField] private float rideHeight = 3;
+    [SerializeField] private float rideSpringStrength = 500;
+    [SerializeField] private float rideSpringDamper = 40;
+
     private Vector2 rotation;
     private float lookYMax = 90;
 
     //References
     private PlayerInputHandler inputHandler;
     private Rigidbody rb;
+    private Collider collider;
 
     [SerializeField] private States currentState = States.standing;
 
@@ -30,6 +35,7 @@ public class PlayerMovement : MonoBehaviour
 
         inputHandler = GetComponent<PlayerInputHandler>();
         rb = GetComponent<Rigidbody>();
+        collider = GetComponent<Collider>();
     }
 
     private void OnEnable()
@@ -70,6 +76,12 @@ public class PlayerMovement : MonoBehaviour
             move = move.normalized * speed;
             move.y = rb.linearVelocity.y - gravity * Time.fixedDeltaTime;
             rb.linearVelocity = move;
+
+            RaycastHit hit;
+            var a = collider.bounds.center;
+            a.y = collider.bounds.min.y;
+            if (Physics.Raycast(a, Vector3.down, out hit, rideHeight*2, ~0))
+                springThing(hit);
         }
 
     }
@@ -110,11 +122,11 @@ public class PlayerMovement : MonoBehaviour
 
         float relVel = rayDirVel - otherDirVel;
 
-        float x = hit.distance; //- RideHeight;
+        float x = hit.distance - rideHeight;
 
-        //float springForce = (x * RideSpringStrength) - (relVel * RideSpringDamper);
+        float springForce = (x * rideSpringStrength) - (relVel * rideSpringDamper);
 
-        //rb.AddForce(rayDir * springForce);
+        rb.AddForce(rayDir * springForce);
 
         /*
         if(hitBody != null)
@@ -124,4 +136,13 @@ public class PlayerMovement : MonoBehaviour
         */
     }
 
+    private void OnDrawGizmosSelected()
+    {
+        collider = GetComponent<Collider>();
+        var a = collider.bounds.center;
+        a.y = collider.bounds.min.y;
+
+        Gizmos.color = Color.green;
+        Gizmos.DrawLine(a, a + Vector3.down * rideHeight * 2);
+    }
 }

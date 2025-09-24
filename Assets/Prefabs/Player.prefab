@@ -9787,11 +9787,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e2ad28bfab3c02a498f2854d197a4d8d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 10
-  mouseSensitivity: 0.5
+  speed: 18
+  mouseSensitivity: 0.25
   gravity: 20
   jumpPower: 12
-  currentState: 1
+  rideHeight: 5
+  rideSpringStrength: 500
+  rideSpringDamper: 40
+  currentState: 0
 --- !u!114 &903199630935089767
 MonoBehaviour:
   m_ObjectHideFlags: 0
