@@ -93,4 +93,35 @@ public class PlayerMovement : MonoBehaviour
         rb.linearVelocity = move;
     }
 
+    private void springThing(RaycastHit hit)
+    {
+        Vector3 vel = rb.linearVelocity;
+        Vector3 rayDir = Vector3.down;
+
+        Vector3 otherVel = Vector3.zero;
+        Rigidbody hitBody = hit.rigidbody;
+        if (hitBody != null)
+        {
+            otherVel = hitBody.linearVelocity;
+        }
+
+        float rayDirVel = Vector3.Dot(rayDir, vel);
+        float otherDirVel = Vector3.Dot(rayDir, otherVel);
+
+        float relVel = rayDirVel - otherDirVel;
+
+        float x = hit.distance; //- RideHeight;
+
+        //float springForce = (x * RideSpringStrength) - (relVel * RideSpringDamper);
+
+        //rb.AddForce(rayDir * springForce);
+
+        /*
+        if(hitBody != null)
+        {
+            hitBody.AddForceAtPosition(rayDir * -springForce, hit.point);
+        }
+        */
+    }
+
 }

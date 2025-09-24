@@ -7,6 +7,7 @@ public class PlayerInteract : MonoBehaviour
 
     //References
     private PlayerInputHandler inputHandler;
+    private IInteractable interactable;
 
     void Awake()
     {
@@ -25,16 +26,33 @@ public class PlayerInteract : MonoBehaviour
 
     void Update()
     {
-        
+        RaycastHit hit;
+        if (Physics.Raycast(transform.position, transform.forward, out hit, range, interactLayer))
+        {
+            interactable = hit.transform.GetComponent<IInteractable>();
+        }
+        else
+        {
+            interactable = null;
+        }
+
+        UpdateUI();
     }
 
     private void Interact()
     {
-        RaycastHit hit;
-        if (Physics.Raycast(transform.position, transform.forward, out hit, range, interactLayer))
+        if(interactable != null) interactable.Interact();
+    }
+
+    private void UpdateUI()
+    {
+        if (interactable == null)
         {
-            var interactable = hit.transform.GetComponent<IInteractable>();
-            interactable.Interact();
+            //Hide UI
+        }
+        else
+        {
+            //Show UI
         }
     }
 
