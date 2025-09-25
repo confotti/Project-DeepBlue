@@ -8,7 +8,6 @@ public class SubmarineController : MonoBehaviour
 
     [SerializeField] private float velocity = 2f;
     [SerializeField] private float brake = 2f;
-    [SerializeField] private float maxSpeed = 4.5f;
     private float currentSpeed = 0f;
 
     void Awake()
