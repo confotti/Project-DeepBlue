@@ -9794,7 +9794,7 @@ MonoBehaviour:
   rideHeight: 5
   rideSpringStrength: 500
   rideSpringDamper: 40
-  currentState: 0
+  currentState: 1
 --- !u!114 &903199630935089767
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9857,10 +9857,10 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.337237
-  m_Height: 0.674474
+  m_Radius: 0.25
+  m_Height: 1.48
   m_Direction: 1
-  m_Center: {x: -0.003894043, y: -0.05817047, z: -0.05782075}
+  m_Center: {x: -0.003894043, y: -0.68, z: -0.05782075}
 --- !u!1 &7406444666751744701
 GameObject:
   m_ObjectHideFlags: 0

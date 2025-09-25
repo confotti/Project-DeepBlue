@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using UnityEngine.Splines; 
+using UnityEngine.Splines;
 
 public class SubmarineController : MonoBehaviour
 {
@@ -13,34 +13,23 @@ public class SubmarineController : MonoBehaviour
     void Awake()
     {
         splineAnimate = GetComponent<SplineAnimate>();
-        splineAnimate.Pause();  // starta avstängd 
+        splineAnimate.Pause();  // startas avstängd
     }
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Q))
-        {
-            StartSub();
-        }
-
-        if (Input.GetKeyDown(KeyCode.E))
-        {
-            StopSub();
-        }
-
-        //Mathf.MoveTowards(a, b, c) is a Unity function that: Moves a value A toward a target value B By a maximum step size of C(per frame). 
-        //VET INTE OM DESSA FUNGERAR ENS?? 
         if (isRunning)
         {
-            currentSpeed = Mathf.MoveTowards(
+            currentSpeed = Mathf.Lerp(
                 currentSpeed, splineAnimate.MaxSpeed, velocity * Time.deltaTime); 
-            Debug.Log(currentSpeed); 
         }
         else
         {
-            currentSpeed = Mathf.MoveTowards(
+            currentSpeed = Mathf.Lerp( 
                 currentSpeed, 0f, brake * Time.deltaTime);
-            Debug.Log(currentSpeed);
+
+            if (currentSpeed <= 0.01f)
+                splineAnimate.Pause();
         }
     }
 
@@ -52,14 +41,17 @@ public class SubmarineController : MonoBehaviour
             splineAnimate.Play();
         }
     }
-    //den stannar inte efter ett klick, måste klicka igen när currentSpeed <= 0.01f för att den ska stanna?? 
+
     public void StopSub()
     {
         isRunning = false;
+    }
 
-        if (currentSpeed <= 0.01f)
-        {
-            splineAnimate.Pause();
-        }
+    public void ToggleSub()
+    {
+        if (isRunning)
+            StopSub();
+        else
+            StartSub();
     }
 }

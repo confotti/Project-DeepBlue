@@ -6,14 +6,17 @@ public class MeshCombiner : MonoBehaviour
     private void Start()
     {
         //samla alla child meshfilters
-        MeshFilter[] meshfilters = GetComponentsInChildren<MeshFilter>();
-        CombineInstance[] combine = new CombineInstance[meshfilters.Length]; 
+        MeshFilter[] meshFilters = GetComponentsInChildren<MeshFilter>();
+        CombineInstance[] combine = new CombineInstance[meshFilters.Length];
 
-        for (int i = 0; i < meshfilters.Length; i++)
+        Transform parentTransform = transform;
+
+        for (int i = 0; i < meshFilters.Length; i++)
         {
-            combine[i].mesh = meshfilters[i].sharedMesh;
-            combine[i].transform = meshfilters[i].transform.localToWorldMatrix;
-            meshfilters[i].gameObject.SetActive(false); //stänger av the children (vet inte om är bäst?)
+            combine[i].mesh = meshFilters[i].sharedMesh;
+            // Transform vertices relative to parent
+            combine[i].transform = parentTransform.worldToLocalMatrix * meshFilters[i].transform.localToWorldMatrix;
+            meshFilters[i].gameObject.SetActive(false);
         }
 
         //Skapar nya meshen
@@ -25,11 +28,12 @@ public class MeshCombiner : MonoBehaviour
         mf.mesh = combinedMesh;
 
         MeshRenderer mr = gameObject.AddComponent<MeshRenderer>();
-        mr.sharedMaterial = meshfilters[0].GetComponent<MeshRenderer>().sharedMaterial;
+        mr.sharedMaterial = meshFilters[0].GetComponent<MeshRenderer>().sharedMaterial;
 
         //lägger till en ny meshcollider
         MeshCollider mc = gameObject.AddComponent<MeshCollider>();
         mc.sharedMesh = combinedMesh;
+        mc.convex = false; 
 
         gameObject.SetActive(true); 
     }
