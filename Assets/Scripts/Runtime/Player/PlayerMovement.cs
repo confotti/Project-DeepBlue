@@ -1,9 +1,11 @@
+using System.Diagnostics;
 using Unity.VisualScripting;
 using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
-    [SerializeField] private float speed = 10;
+    [SerializeField] private float swimmingSpeed = 10;
+    [SerializeField] private float walkingSpeed = 10;
     [SerializeField] private float mouseSensitivity = 1;
     [SerializeField] private float gravity = 20;
     [SerializeField] private float jumpPower = 20;
@@ -18,9 +20,11 @@ public class PlayerMovement : MonoBehaviour
     //References
     private PlayerInputHandler inputHandler;
     private Rigidbody rb;
-    private Collider collider;
+    private CapsuleCollider collider;
+    [SerializeField] GameObject cameraHead;
 
     [SerializeField] private States currentState = States.standing;
+    private Vector3 hitPosition = Vector3.zero;
 
     //TODO: Fix real statemachine
     public enum States
@@ -35,15 +39,15 @@ public class PlayerMovement : MonoBehaviour
 
         inputHandler = GetComponent<PlayerInputHandler>();
         rb = GetComponent<Rigidbody>();
-        collider = GetComponent<Collider>();
+        collider = GetComponent<CapsuleCollider>();
     }
 
     private void OnEnable()
     {
         inputHandler.OnJump += OnJump;
 
-        rotation.x = transform.rotation.eulerAngles.y;
-        rotation.y = transform.rotation.eulerAngles.x;
+        rotation.x = cameraHead.transform.rotation.eulerAngles.y;
+        rotation.y = cameraHead.transform.rotation.eulerAngles.x;
     }
 
     private void OnDisable()
@@ -67,21 +71,23 @@ public class PlayerMovement : MonoBehaviour
     {
         if (currentState == States.swimming)
         {
-            rb.linearVelocity = (transform.rotation * new Vector3(inputHandler.Move.x, 0, inputHandler.Move.y)).normalized * speed;
+            rb.linearVelocity = (cameraHead.transform.rotation * new Vector3(inputHandler.Move.x, 0, inputHandler.Move.y)).normalized * swimmingSpeed;
         }
         else if (currentState == States.standing)
         {
             var move = transform.rotation * new Vector3(inputHandler.Move.x, 0, inputHandler.Move.y);
             move.y = 0;
-            move = move.normalized * speed;
+            move = move.normalized * walkingSpeed;
             move.y = rb.linearVelocity.y - gravity * Time.fixedDeltaTime;
             rb.linearVelocity = move;
 
             RaycastHit hit;
             var a = collider.bounds.center;
-            a.y = collider.bounds.min.y;
-            if (Physics.Raycast(a, Vector3.down, out hit, rideHeight*2, ~0))
+            a.y = collider.bounds.min.y + collider.radius * transform.lossyScale.y;
+            if(Physics.SphereCast(a, collider.radius * transform.lossyScale.y, Vector3.down, out hit, rideHeight * 2, ~0))
                 springThing(hit);
+            //if (Physics.Raycast(a, Vector3.down, out hit, rideHeight*2, ~0))
+
         }
 
     }
@@ -93,7 +99,9 @@ public class PlayerMovement : MonoBehaviour
         rotation.y = Mathf.Clamp(rotation.y, -lookYMax, lookYMax);
         var xQuat = Quaternion.AngleAxis(rotation.x, Vector3.up);
         var yQuat = Quaternion.AngleAxis(rotation.y, Vector3.left);
-        transform.rotation = xQuat * yQuat;
+        cameraHead.transform.rotation = xQuat * yQuat;
+
+        transform.rotation = xQuat;
     }
 
     private void OnJump()
@@ -107,6 +115,10 @@ public class PlayerMovement : MonoBehaviour
 
     private void springThing(RaycastHit hit)
     {
+#if UNITY_EDITOR
+        hitPosition = hit.point;
+#endif
+
         Vector3 vel = rb.linearVelocity;
         Vector3 rayDir = Vector3.down;
 
@@ -128,6 +140,7 @@ public class PlayerMovement : MonoBehaviour
 
         rb.AddForce(rayDir * springForce);
 
+        //If we want to impact what we're standing on
         /*
         if(hitBody != null)
         {
@@ -136,13 +149,19 @@ public class PlayerMovement : MonoBehaviour
         */
     }
 
+    [Conditional("UNITY_EDITOR")]
     private void OnDrawGizmosSelected()
     {
-        collider = GetComponent<Collider>();
+        collider = GetComponent<CapsuleCollider>();
         var a = collider.bounds.center;
         a.y = collider.bounds.min.y;
 
-        Gizmos.color = Color.green;
-        Gizmos.DrawLine(a, a + Vector3.down * rideHeight * 2);
+        Gizmos.color = Color.blue;
+        Gizmos.DrawLine(a, a + Vector3.down * rideHeight);
+        Gizmos.color = Color.red;
+        Gizmos.DrawLine(a + Vector3.down * rideHeight, a + Vector3.down * rideHeight * 2);
+
+        Gizmos.color = Color.magenta;
+        Gizmos.DrawSphere(hitPosition, 0.5f);
     }
 }
