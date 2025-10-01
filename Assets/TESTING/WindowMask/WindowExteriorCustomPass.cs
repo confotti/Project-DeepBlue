@@ -1,24 +1,34 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.HighDefinition;
 
 class WindowExteriorCustomPass : CustomPass
 {
-    // Assign these in the inspector:
-    public Camera exteriorCamera;           // disabled camera you created
-    public LayerMask exteriorLayerMask;     // layer mask for Exterior
-    public LayerMask windowMaskLayer;       // layer mask for WindowMask
-    public Material maskOverrideMaterial;   // simple white unlit material
-    public Material compositeMaterial;      // shader "Hidden/WindowComposite"
+    [Header("Assign in Inspector")]
+    public Camera exteriorCamera;           // Exterior camera rendering the world
+    public LayerMask exteriorLayerMask;     // Layer mask for exterior objects
+    public LayerMask windowLayerMask;       // Layer mask for windows
+    public Material maskOverrideMaterial;   // Simple white unlit material for window mask
+    public Material compositeMaterial;      // Shader "Hidden/WindowComposite"
 
-    RTHandle m_ExteriorRT;
-    RTHandle m_MaskRT;
+    private RTHandle m_ExteriorRT;
+    private RTHandle m_MaskRT;
 
     protected override void Setup(ScriptableRenderContext renderContext, CommandBuffer cmd)
     {
-        // Allocate two RTHandles that scale with screen size
+        // Allocate dynamic RTs that scale with screen resolution
         m_ExteriorRT = RTHandles.Alloc(Vector2.one, name: "ExteriorRT", useDynamicScale: true);
-        m_MaskRT = RTHandles.Alloc(Vector2.one, name: "WindowMaskRT", colorFormat: UnityEngine.Experimental.Rendering.GraphicsFormat.R8_UNorm, useDynamicScale: true);
+        m_MaskRT = RTHandles.Alloc(Vector2.one, name: "WindowMaskRT",
+            colorFormat: UnityEngine.Experimental.Rendering.GraphicsFormat.R8_UNorm,
+            useDynamicScale: true);
+
+        if (exteriorCamera != null)
+        {
+            // Make sure camera is enabled, but hidden from screen
+            exteriorCamera.enabled = true;
+            exteriorCamera.targetTexture = null; // we override target via Custom Pass
+            exteriorCamera.cullingMask = exteriorLayerMask;
+        }
     }
 
     protected override void Execute(CustomPassContext ctx)
@@ -26,26 +36,29 @@ class WindowExteriorCustomPass : CustomPass
         if (exteriorCamera == null || compositeMaterial == null || maskOverrideMaterial == null)
             return;
 
-        // 1) Sync the exterior camera transform/projection with the main camera for correct parallax
         Camera mainCam = ctx.hdCamera.camera;
-        exteriorCamera.transform.position = mainCam.transform.position;
-        exteriorCamera.transform.rotation = mainCam.transform.rotation;
+
+        // 🔄 Sync exterior camera with main camera
+        exteriorCamera.transform.SetPositionAndRotation(mainCam.transform.position, mainCam.transform.rotation);
         exteriorCamera.fieldOfView = mainCam.fieldOfView;
         exteriorCamera.aspect = mainCam.aspect;
+        exteriorCamera.nearClipPlane = mainCam.nearClipPlane;
+        exteriorCamera.farClipPlane = mainCam.farClipPlane;
 
-        // 2) Render the exterior (the world) from the exteriorCamera into m_ExteriorRT.
-        //    This uses the exteriorCamera's Volume Layer Mask and postprocess settings, so it will get the global underwater look.
-        CustomPassUtils.RenderFromCamera(ctx, exteriorCamera, m_ExteriorRT, ClearFlag.Color, exteriorLayerMask, CustomPass.RenderQueueType.All, null);
+        // 1️⃣ Render exterior scene into exterior RT
+        CustomPassUtils.RenderFromCamera(ctx, exteriorCamera, m_ExteriorRT,
+            ClearFlag.Color, exteriorLayerMask, CustomPass.RenderQueueType.All, null);
 
-        // 3) Render the window geometry into the mask RT using the override material (white)
-        CustomPassUtils.RenderFromCamera(ctx, exteriorCamera, m_MaskRT, ClearFlag.Color, windowMaskLayer, CustomPass.RenderQueueType.All, maskOverrideMaterial);
+        // 2️⃣ Render window mask from main camera into mask RT
+        CoreUtils.SetRenderTarget(ctx.cmd, m_MaskRT, ClearFlag.Color, Color.black);
+        CustomPassUtils.RenderFromCamera(ctx, mainCam, m_MaskRT,
+            ClearFlag.Color, windowLayerMask, CustomPass.RenderQueueType.All, maskOverrideMaterial);
 
-        // 4) Composite: set material textures and draw fullscreen into the camera color buffer
+        // 3️⃣ Composite exterior over interior using mask
         compositeMaterial.SetTexture("_ExteriorTex", m_ExteriorRT);
         compositeMaterial.SetTexture("_MaskTex", m_MaskRT);
 
-        // Draw to the active camera color buffer (main camera). This replaces pixel where mask > 0.
-        // HDUtils.DrawFullScreen is convenient for this. (It respects viewport automatically.)
+        // Apply fullscreen composite into the interior camera's color buffer
         HDUtils.DrawFullScreen(ctx.cmd, compositeMaterial, ctx.cameraColorBuffer);
     }
 

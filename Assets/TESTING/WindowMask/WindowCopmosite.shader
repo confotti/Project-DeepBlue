@@ -2,8 +2,8 @@ Shader "Hidden/WindowComposite"
 {
     Properties
     {
-        _ExteriorTex ("ExteriorTex", 2D) = "white" {}
-        _MaskTex     ("MaskTex", 2D) = "black" {}
+        _ExteriorTex ("Exterior Texture", 2D) = "white" {}
+        _MaskTex     ("Window Mask", 2D) = "black" {}
     }
 
     SubShader
@@ -14,44 +14,40 @@ Shader "Hidden/WindowComposite"
         Pass
         {
             HLSLPROGRAM
-            #pragma vertex Vert
-            #pragma fragment Frag
+            #pragma vertex vert
+            #pragma fragment frag
+            #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Common.hlsl"
 
-            struct Attributes
-            {
-                float4 vertex : POSITION;
-                float2 uv     : TEXCOORD0;
-            };
+            struct Attributes { float4 vertex : POSITION; float2 uv : TEXCOORD0; };
+            struct Varyings { float2 uv : TEXCOORD0; };
 
-            struct Varyings
-            {
-                float4 pos : SV_POSITION;
-                float2 uv  : TEXCOORD0;
-            };
-
-            Varyings Vert(Attributes v)
+            // Vertex shader is a simple pass-through for UVs; HDUtils.DrawFullScreen provides positions
+            Varyings vert(Attributes v)
             {
                 Varyings o;
-                // Directly pass clip-space position
-                o.pos = float4(v.vertex.xy, 0.0, 1.0);
-                o.uv  = v.uv;
+                o.uv = v.uv;
                 return o;
             }
 
             sampler2D _ExteriorTex;
             sampler2D _MaskTex;
+            sampler2D _CameraColorTexture; // automatically bound by HDUtils.DrawFullScreen
 
-            float4 Frag(Varyings i) : SV_Target
+            float4 frag(Varyings i) : SV_Target
             {
+                // Sample window mask (white = window, black = interior)
                 float mask = tex2D(_MaskTex, i.uv).r;
 
-                // keep interior pixels
-                if (mask < 0.5)
-                    discard;
+                // Sample current interior framebuffer
+                float4 interior = tex2D(_CameraColorTexture, i.uv);
 
+                // Sample exterior render texture
                 float4 exterior = tex2D(_ExteriorTex, i.uv);
-                return exterior;
+
+                // Blend exterior over interior only where mask > 0
+                return lerp(interior, exterior, mask);
             }
+
             ENDHLSL
         }
     }
