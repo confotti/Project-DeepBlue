@@ -3,61 +3,71 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [System.Serializable]
-
-public class GameTimeStamp 
+public class GameTimeStamp
 {
     public int day;
     public int hour;
-    public int minute; 
+    public int minute;
+    public int second;
 
-    //class constructor - stes up the class
-    public GameTimeStamp (int day, int hour, int minute)
+    // Constructor
+    public GameTimeStamp(int day, int hour, int minute, int second)
     {
         this.day = day;
         this.hour = hour;
-        this.minute = minute; 
+        this.minute = minute;
+        this.second = second;
     }
 
-    //create a new timestamp from an existing one
+    // Copy constructor
     public GameTimeStamp(GameTimeStamp timeStamp)
     {
         this.day = timeStamp.day;
         this.hour = timeStamp.hour;
-        this.minute = timeStamp.minute; 
+        this.minute = timeStamp.minute;
+        this.second = timeStamp.second;
     }
 
-    //function to incrrese the time correctly
+    // Update the clock (1 tick = 1 second)
     public void UpdateClock()
     {
-        minute++; 
+        second++;
 
-        //60 minute in one hour
-        if(minute >= 60)
+        if (second >= 60)
         {
-            //reset minutes
-            minute = 0;
-            hour++; 
+            second = 0;
+            minute++;
         }
 
-        //20 hours in 1 day
+        if (minute >= 60)
+        {
+            minute = 0;
+            hour++;
+        }
+
+        // 20-hour days in your world
         if (hour >= 20)
         {
-            //reset hours
             hour = 0;
-            day++; 
+            day++;
         }
     }
 
-    //converts hours to minutes 
-    public static int HoursToMinutes(int hour)
+    // Convert whole timestamp to seconds
+    public static int TimeStampInSeconds(GameTimeStamp ts)
     {
-        //60 minutes = 1 hour
-        return hour * 60; 
+        // 1 day = 20 hours
+        int seconds = 0;
+        seconds += ts.day * 20 * 60 * 60;
+        seconds += ts.hour * 60 * 60;
+        seconds += ts.minute * 60;
+        seconds += ts.second;
+        return seconds;
     }
 
-    //returns the current timestamp in minutes
-    public static int TimeStampInMinutes(GameTimeStamp timeStamp)
+    // Optional: total hours (useful for sun rotation)
+    public static float TimeStampInHours(GameTimeStamp ts)
     {
-        return (HoursToMinutes(timeStamp.day * 20)+ HoursToMinutes(timeStamp.hour) + timeStamp.minute); 
+        return ts.day * 20f + ts.hour + (ts.minute / 60f) + (ts.second / 3600f);
     }
 }

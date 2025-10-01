@@ -1,8 +1,7 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
-using UnityEngine.Rendering.HighDefinition; 
+using UnityEngine.Rendering.HighDefinition;
 
 public class TimeManager : MonoBehaviour
 {
@@ -11,93 +10,90 @@ public class TimeManager : MonoBehaviour
     [Header("Internal Clock")]
     [SerializeField]
     GameTimeStamp timestamp;
-    public float timeScale = 1.0f;
+
+    [Tooltip("Length of a full game day in real-time minutes")]
+    public float realMinutesPerDay = 25f;
 
     [Header("Day and Night Cycle")]
-    //transform the directional light
     public Transform sunTransform;
     Vector3 sunAngle;
 
+    // One game day = 20 in-game hours = 72,000 seconds
+    private const float SecondsPerGameDay = 20f * 3600f;
+
+    // Store total game time in seconds
+    private float totalGameSeconds;
+
+    private float timeScale; // computed from realMinutesPerDay
+
     private void Awake()
     {
-        //if there is more than one instance, destroy the extra
         if (Instance != null && Instance != this)
         {
-            Destroy(this); 
+            Destroy(this);
         }
         else
         {
-            //set the static instance to this instance 
-            Instance = this; 
+            Instance = this;
         }
     }
 
     private void Start()
     {
-        timestamp = new GameTimeStamp(1, 6, 0);
+        // Start at Day 1, 6:00:00 AM
+        timestamp = new GameTimeStamp(1, 6, 0, 0);
 
-        StartCoroutine(TimeUpdate());
+        // Initialize absolute seconds
+        totalGameSeconds = GameTimeStamp.TimeStampInSeconds(timestamp);
+
+        // Compute timescale so that one full day = desired real-time length
+        float realSecondsPerDay = realMinutesPerDay * 60f;
+        timeScale = SecondsPerGameDay / realSecondsPerDay;
     }
 
-    IEnumerator TimeUpdate()
+    private void Update()
     {
-        while (true)
-        {
-            Tick(); 
+        // Advance the absolute time smoothly
+        totalGameSeconds += Time.deltaTime * timeScale;
 
-            yield return new WaitForSeconds(1 / timeScale); 
-        }
-    }
+        // Rebuild timestamp from total seconds
+        timestamp = SecondsToTimeStamp((int)totalGameSeconds);
 
-    void Tick()
-    {
-        timestamp.UpdateClock();
-        UpdateSunMovement(); 
+        // Update the sun every frame (smoothly)
+        UpdateSunMovement();
     }
 
     void UpdateSunMovement()
     {
-        // Game time in minutes, scaled by timeScale
-        float timeInMinutes = (Time.time * timeScale) % (24f * 60f);
+        // Convert current time of day into a 0–1 range
+        float dayProgress = (totalGameSeconds % SecondsPerGameDay) / SecondsPerGameDay;
 
-        float angle = timeInMinutes <= 15 * 60
-            ? 0.2f * timeInMinutes
-            : 180f + 0.6f * (timeInMinutes - 15 * 60);
+        // Full 360° rotation in one 20-hour day
+        float sunRotation = dayProgress * 360f;
 
-        sunAngle = new Vector3(angle, 0, 0);
-        sunTransform.rotation = Quaternion.Euler(sunAngle); 
+        // Rotate around X (straight up at noon)
+        sunAngle = new Vector3(sunRotation - 90f, 170f, 0f);
+        sunTransform.rotation = Quaternion.Euler(sunAngle);
     }
 
-    // Returns a value 0 → 1 representing day/night blend
+    private GameTimeStamp SecondsToTimeStamp(int totalSeconds)
+    {
+        int day = totalSeconds / (20 * 3600);
+        int hour = (totalSeconds / 3600) % 20;
+        int minute = (totalSeconds / 60) % 60;
+        int second = totalSeconds % 60;
+        return new GameTimeStamp(day, hour, minute, second);
+    }
+
     public float GetDayFactor()
     {
-        int currentMinutes = GameTimeStamp.HoursToMinutes(timestamp.hour) + timestamp.minute;
-        float gameHour = currentMinutes / 60f;
-        float dayFactor = 1f;
-
-        if (gameHour >= 15f && gameHour <= 20f)
-        {
-            if (gameHour <= 16f)
-            {
-                float t = Mathf.InverseLerp(15f, 16f, gameHour);
-                dayFactor = 1f - Mathf.SmoothStep(0f, 1f, t);
-            }
-            else
-            {
-                float t = Mathf.InverseLerp(19f, 20f, gameHour);
-                dayFactor = Mathf.SmoothStep(0f, 1f, t);
-            }
-        }
-        else
-        {
-            dayFactor = 1f;
-        }
-
-        return dayFactor;
+        float hours = GameTimeStamp.TimeStampInHours(timestamp) % 20f;
+        float factor = Mathf.Cos((hours / 20f) * Mathf.PI * 2f) * 0.5f + 0.5f;
+        return factor;
     }
 
     public GameTimeStamp GetGameTimeStamp()
     {
         return new GameTimeStamp(timestamp);
     }
-} 
+}
