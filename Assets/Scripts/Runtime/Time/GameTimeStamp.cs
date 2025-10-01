@@ -10,7 +10,6 @@ public class GameTimeStamp
     public int minute;
     public int second;
 
-    // Constructor
     public GameTimeStamp(int day, int hour, int minute, int second)
     {
         this.day = day;
@@ -19,7 +18,6 @@ public class GameTimeStamp
         this.second = second;
     }
 
-    // Copy constructor
     public GameTimeStamp(GameTimeStamp timeStamp)
     {
         this.day = timeStamp.day;
@@ -28,7 +26,7 @@ public class GameTimeStamp
         this.second = timeStamp.second;
     }
 
-    // Update the clock (1 tick = 1 second)
+    // Uppdatera klockan
     public void UpdateClock()
     {
         second++;
@@ -45,7 +43,7 @@ public class GameTimeStamp
             hour++;
         }
 
-        // 20-hour days in your world
+        // 20-hour days 
         if (hour >= 20)
         {
             hour = 0;
@@ -53,7 +51,7 @@ public class GameTimeStamp
         }
     }
 
-    // Convert whole timestamp to seconds
+    // Convert to seconds
     public static int TimeStampInSeconds(GameTimeStamp ts)
     {
         // 1 day = 20 hours
@@ -65,7 +63,6 @@ public class GameTimeStamp
         return seconds;
     }
 
-    // Optional: total hours (useful for sun rotation)
     public static float TimeStampInHours(GameTimeStamp ts)
     {
         return ts.day * 20f + ts.hour + (ts.minute / 60f) + (ts.second / 3600f);

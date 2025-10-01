@@ -24,7 +24,7 @@ public class TimeManager : MonoBehaviour
     // Store total game time in seconds
     private float totalGameSeconds;
 
-    private float timeScale; // computed from realMinutesPerDay
+    private float timeScale; 
 
     private void Awake()
     {
@@ -43,35 +43,31 @@ public class TimeManager : MonoBehaviour
         // Start at Day 1, 6:00:00 AM
         timestamp = new GameTimeStamp(1, 6, 0, 0);
 
-        // Initialize absolute seconds
         totalGameSeconds = GameTimeStamp.TimeStampInSeconds(timestamp);
 
-        // Compute timescale so that one full day = desired real-time length
         float realSecondsPerDay = realMinutesPerDay * 60f;
         timeScale = SecondsPerGameDay / realSecondsPerDay;
     }
 
     private void Update()
     {
-        // Advance the absolute time smoothly
+        // smooth
         totalGameSeconds += Time.deltaTime * timeScale;
 
-        // Rebuild timestamp from total seconds
         timestamp = SecondsToTimeStamp((int)totalGameSeconds);
 
-        // Update the sun every frame (smoothly)
+        // Update sun every frame 
         UpdateSunMovement();
     }
 
     void UpdateSunMovement()
     {
-        // Convert current time of day into a 0–1 range
         float dayProgress = (totalGameSeconds % SecondsPerGameDay) / SecondsPerGameDay;
 
         // Full 360° rotation in one 20-hour day
         float sunRotation = dayProgress * 360f;
 
-        // Rotate around X (straight up at noon)
+        // Rotate around X, står rakt upp vid 12
         sunAngle = new Vector3(sunRotation - 90f, 170f, 0f);
         sunTransform.rotation = Quaternion.Euler(sunAngle);
     }
