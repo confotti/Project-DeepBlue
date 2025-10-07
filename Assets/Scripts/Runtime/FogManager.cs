@@ -1,88 +1,109 @@
-﻿using System.Collections.Generic;
+﻿using UnityEngine.Rendering.HighDefinition;
+using System.Collections.Generic;
+using UnityEngine.Rendering;
 using UnityEngine;
 
+[ExecuteAlways]
 public class FogManager : MonoBehaviour
 {
-    public static FogManager Instance { get; private set; }
+    [Header("Fog Settings")]
+    [Tooltip("The fog color during night (lerps toward this color at night).")]
+    public Color nightFogColor = new Color(0.5f, 0.05f, 0.1f);
 
-    [Header("Transition Settings")]
-    public float transitionTime = 2f; // How long the transition should roughly take
-    public Camera mainCamera;
+    [Tooltip("Time (in hours) when day starts.")]
+    public float dayStartHour = 6f;
+    [Tooltip("Time (in hours) when night starts.")]
+    public float nightStartHour = 20f;
+    [Tooltip("Time (in hours) when dusk starts (transition to night).")]
+    public float duskStartHour = 16f;
+    [Tooltip("Lerp speed for color transitions.")]
+    public float fogLerpSpeed = 0.5f;
 
-    private List<FogTrigger> activeTriggers = new List<FogTrigger>();
+    public List<Volume> fogVolume = new List<Volume>();
 
-    private float currentFogStart;
-    private float currentFogEnd;
-    private Color currentFogColor;
-    private Color currentBackgroundColor;
-
-    // Velocities for SmoothDamp
-    private float fogStartVel;
-    private float fogEndVel;
-    private Color fogColorVel;
-    private Color bgColorVel;
-
-    private void Awake()
-    {
-        if (Instance != null && Instance != this) Destroy(this);
-        else Instance = this;
-    }
+    // Store each fog's base color and attenuation distance
+    private readonly List<Fog> fogOverrides = new List<Fog>();
+    private readonly List<Color> originalFogColors = new List<Color>();
+    private readonly List<float> originalAttenuation = new List<float>();
 
     private void Start()
     {
-        currentFogStart = RenderSettings.fogStartDistance;
-        currentFogEnd = RenderSettings.fogEndDistance;
-        currentFogColor = RenderSettings.fogColor;
-        if (mainCamera != null) currentBackgroundColor = mainCamera.backgroundColor;
+        RefreshFogVolumes();
     }
 
     private void Update()
     {
         if (TimeManager.Instance == null) return;
 
-        float dayFactor = TimeManager.Instance.GetDayFactor();
+        GameTimeStamp time = TimeManager.Instance.GetGameTimeStamp();
+        float hours = time.hour + time.minute / 60f;
 
-        // Default fog (outside any triggers)
-        float targetFogStart = 50f;
-        float targetFogEnd = 150f;
-        Color targetFogColor = Color.gray;
-        Color targetBackgroundColor = mainCamera != null ? mainCamera.backgroundColor : Color.black;
+        // Compute fogFactor (0 = night, 1 = day)
+        float fogFactor = GetFogBlendFactor(hours);
 
-        if (activeTriggers.Count > 0)
+        // Apply to all fog volumes
+        for (int i = 0; i < fogOverrides.Count; i++)
         {
-            // Use the last trigger entered as priority
-            FogTrigger activeTrigger = activeTriggers[activeTriggers.Count - 1];
-            activeTrigger.GetTargetSettings(dayFactor, out targetFogStart, out targetFogEnd, out targetFogColor, out targetBackgroundColor);
-        }
+            if (fogOverrides[i] == null) continue;
 
-        float smoothTime = transitionTime;
+            Fog fog = fogOverrides[i];
 
-        // SmoothDamp for float values
-        currentFogStart = Mathf.SmoothDamp(currentFogStart, targetFogStart, ref fogStartVel, smoothTime);
-        currentFogEnd = Mathf.SmoothDamp(currentFogEnd, targetFogEnd, ref fogEndVel, smoothTime);
+            // Lerp from nightFogColor (at night) to original color (at day)
+            Color targetFogColor = Color.Lerp(nightFogColor, originalFogColors[i], fogFactor);
+            fog.albedo.value = Color.Lerp(fog.albedo.value, targetFogColor, Time.deltaTime * fogLerpSpeed);
 
-        // Approximate SmoothDamp for colors
-        currentFogColor = Color.Lerp(currentFogColor, targetFogColor, Time.deltaTime / smoothTime);
-        currentBackgroundColor = Color.Lerp(currentBackgroundColor, targetBackgroundColor, Time.deltaTime / smoothTime);
-
-        // Apply to scene
-        RenderSettings.fogStartDistance = currentFogStart;
-        RenderSettings.fogEndDistance = currentFogEnd;
-        RenderSettings.fogColor = currentFogColor;
-
-        if (mainCamera != null && mainCamera.clearFlags == CameraClearFlags.SolidColor)
-        {
-            mainCamera.backgroundColor = currentBackgroundColor;
+            // Keep the manually set attenuation distance
+            fog.meanFreePath.value = originalAttenuation[i];
         }
     }
 
-    public void RegisterTrigger(FogTrigger trigger)
+    private float GetFogBlendFactor(float hours)
     {
-        if (!activeTriggers.Contains(trigger)) activeTriggers.Add(trigger);
+        // Returns 1 during full day, 0 during full night, and smoothly blends between
+        if (hours >= duskStartHour && hours <= nightStartHour)
+        {
+            // Dusk: 1 → 0
+            return Mathf.InverseLerp(nightStartHour, duskStartHour, hours);
+        }
+        else if (hours >= nightStartHour || hours < dayStartHour)
+        {
+            // Night
+            return 0f;
+        }
+        else if (hours >= dayStartHour && hours < duskStartHour)
+        {
+            // Day
+            return 1f;
+        }
+        else
+        {
+            return 1f;
+        }
     }
 
-    public void UnregisterTrigger(FogTrigger trigger)
+    [ContextMenu("Refresh Fog Volumes")]
+    public void RefreshFogVolumes()
     {
-        if (activeTriggers.Contains(trigger)) activeTriggers.Remove(trigger);
+        fogVolume.Clear();
+        fogOverrides.Clear();
+        originalFogColors.Clear();
+        originalAttenuation.Clear();
+
+        Volume[] allVolumes = FindObjectsOfType<Volume>();
+        foreach (var vol in allVolumes)
+        {
+            if (vol.profile != null && vol.profile.TryGet<Fog>(out Fog fog))
+            {
+                fogVolume.Add(vol);
+                fogOverrides.Add(fog);
+
+                // Save each fog's current color & attenuation
+                originalFogColors.Add(fog.albedo.value);
+                originalAttenuation.Add(fog.meanFreePath.value);
+
+                fog.albedo.overrideState = true;
+                fog.meanFreePath.overrideState = true;
+            }
+        }
     }
 }
