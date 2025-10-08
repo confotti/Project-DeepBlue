@@ -349,7 +349,7 @@ MonoBehaviour:
   interCascadeBorders: 1
   maxShadowDistance:
     m_OverrideState: 1
-    m_Value: 100
+    m_Value: 500
   directionalTransmissionMultiplier:
     m_OverrideState: 0
     m_Value: 1
@@ -941,30 +941,30 @@ MonoBehaviour:
   active: 1
   quality:
     m_OverrideState: 1
-    m_Value: 1
+    m_Value: 3
   enabled:
     m_OverrideState: 1
     m_Value: 1
   colorMode:
-    m_OverrideState: 0
+    m_OverrideState: 1
     m_Value: 1
   color:
     m_OverrideState: 0
     m_Value: {r: 0.5, g: 0.5, b: 0.5, a: 1}
   tint:
-    m_OverrideState: 0
-    m_Value: {r: 1, g: 1, b: 1, a: 1}
+    m_OverrideState: 1
+    m_Value: {r: 0, g: 0.37735835, b: 0.4716981, a: 1}
   maxFogDistance:
     m_OverrideState: 0
     m_Value: 5000
   mipFogMaxMip:
-    m_OverrideState: 1
+    m_OverrideState: 0
     m_Value: 0.75
   mipFogNear:
     m_OverrideState: 0
     m_Value: 0
   mipFogFar:
-    m_OverrideState: 1
+    m_OverrideState: 0
     m_Value: 100
   baseHeight:
     m_OverrideState: 1
@@ -980,7 +980,7 @@ MonoBehaviour:
     m_Value: 1
   albedo:
     m_OverrideState: 1
-    m_Value: {r: 0.81761, g: 0.9246877, b: 1, a: 1}
+    m_Value: {r: 0.03893734, g: 0.3301887, b: 0.32180536, a: 1}
   globalLightProbeDimmer:
     m_OverrideState: 0
     m_Value: 1
@@ -991,7 +991,7 @@ MonoBehaviour:
     m_OverrideState: 0
     m_Value: 2
   anisotropy:
-    m_OverrideState: 1
+    m_OverrideState: 0
     m_Value: 0
   sliceDistributionUniformity:
     m_OverrideState: 0
