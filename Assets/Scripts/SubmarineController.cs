@@ -33,6 +33,14 @@ public class SubmarineController : MonoBehaviour
         }
     }
 
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            Debug.Log("Player Has Exit SUB"); 
+        }
+    }
+
     public void StartSub()
     {
         if (!isRunning)
@@ -53,5 +61,5 @@ public class SubmarineController : MonoBehaviour
             StopSub();
         else
             StartSub();
-    }
+    } 
 }
