@@ -37,6 +37,7 @@ public class SubmarineController : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
+            isRunning = false; 
             Debug.Log("Player Has Exit SUB"); 
         }
     }
