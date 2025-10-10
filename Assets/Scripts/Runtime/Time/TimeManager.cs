@@ -40,7 +40,7 @@ public class TimeManager : MonoBehaviour
 
     private void Start()
     {
-        // Start at Day 1, 6:00:00 AM
+        // Start at Day 1, 6:00:00 
         timestamp = new GameTimeStamp(1, 6, 0, 0);
 
         totalGameSeconds = GameTimeStamp.TimeStampInSeconds(timestamp);
@@ -51,12 +51,10 @@ public class TimeManager : MonoBehaviour
 
     private void Update()
     {
-        // smooth
         totalGameSeconds += Time.deltaTime * timeScale;
 
         timestamp = SecondsToTimeStamp((int)totalGameSeconds);
 
-        // Update sun every frame 
         UpdateSunMovement();
     }
 

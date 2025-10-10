@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1903962203611364450}
   - component: {fileID: 8157297926691827304}
+  - component: {fileID: 2565490484661556428}
   m_Layer: 0
   m_Name: TimeManager
   m_TagString: Untagged
@@ -51,3 +52,23 @@ MonoBehaviour:
     second: 0
   realMinutesPerDay: 25
   sunTransform: {fileID: 0}
+--- !u!114 &2565490484661556428
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4126031456763104974}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2b707a23493292243b7de1b94d031475, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  nightFogColor: {r: 0, g: 0, b: 0, a: 1}
+  dayStartHour: 1
+  nightStartHour: 16
+  duskStartHour: 15
+  fogLerpSpeed: 0.5
+  fogVolume:
+  - {fileID: 0}
+  - {fileID: 0}
