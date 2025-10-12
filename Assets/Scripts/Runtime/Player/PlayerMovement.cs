@@ -20,7 +20,7 @@ public class PlayerMovement : MonoBehaviour
     //References
     private PlayerInputHandler inputHandler;
     private Rigidbody rb;
-    private CapsuleCollider collider;
+    private CapsuleCollider col;
     [SerializeField] GameObject cameraHead;
 
     [SerializeField] private States currentState = States.standing;
@@ -39,7 +39,7 @@ public class PlayerMovement : MonoBehaviour
 
         inputHandler = GetComponent<PlayerInputHandler>();
         rb = GetComponent<Rigidbody>();
-        collider = GetComponent<CapsuleCollider>();
+        col = GetComponent<CapsuleCollider>();
     }
 
     private void OnEnable()
@@ -82,9 +82,9 @@ public class PlayerMovement : MonoBehaviour
             rb.linearVelocity = move;
 
             RaycastHit hit;
-            var a = collider.bounds.center;
-            a.y = collider.bounds.min.y + collider.radius * transform.lossyScale.y;
-            if(Physics.SphereCast(a, collider.radius * transform.lossyScale.y, Vector3.down, out hit, rideHeight * 2, ~0))
+            var a = col.bounds.center;
+            a.y = col.bounds.min.y + col.radius * transform.lossyScale.y;
+            if(Physics.SphereCast(a, col.radius * transform.lossyScale.y, Vector3.down, out hit, rideHeight * 2, ~0))
                 springThing(hit);
             //if (Physics.Raycast(a, Vector3.down, out hit, rideHeight*2, ~0))
 
@@ -152,9 +152,9 @@ public class PlayerMovement : MonoBehaviour
     [Conditional("UNITY_EDITOR")]
     private void OnDrawGizmosSelected()
     {
-        collider = GetComponent<CapsuleCollider>();
-        var a = collider.bounds.center;
-        a.y = collider.bounds.min.y;
+        col = GetComponent<CapsuleCollider>();
+        var a = col.bounds.center;
+        a.y = col.bounds.min.y;
 
         Gizmos.color = Color.blue;
         Gizmos.DrawLine(a, a + Vector3.down * rideHeight);

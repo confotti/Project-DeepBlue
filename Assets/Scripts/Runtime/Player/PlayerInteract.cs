@@ -41,7 +41,7 @@ public class PlayerInteract : MonoBehaviour
 
     private void Interact()
     {
-        if(interactable != null) interactable.Interact();
+        if(interactable != null) interactable.Interact(gameObject);
     }
 
     private void UpdateUI()
