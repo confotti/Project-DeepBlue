@@ -4,8 +4,11 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
-    [SerializeField] private float swimmingSpeed = 10;
-    [SerializeField] private float walkingSpeed = 10;
+    [SerializeField] private float swimmingSpeed = 20;
+    [SerializeField] private float swimmingFastSpeed = 40;
+    [SerializeField] private float walkingSpeed = 20;
+    [SerializeField] private float runningSpeed = 40;
+
     [SerializeField] private float mouseSensitivity = 1;
     [SerializeField] private float gravity = 20;
     [SerializeField] private float jumpPower = 20;
@@ -62,8 +65,9 @@ public class PlayerMovement : MonoBehaviour
 
     private void FixedUpdate()
     {
+        UnityEngine.Debug.Log(inputHandler.Run);
+
         Movement();
-        
         
     }
 
@@ -71,13 +75,15 @@ public class PlayerMovement : MonoBehaviour
     {
         if (currentState == States.swimming)
         {
-            rb.linearVelocity = (cameraHead.transform.rotation * new Vector3(inputHandler.Move.x, 0, inputHandler.Move.y)).normalized * swimmingSpeed;
+            rb.linearVelocity = (cameraHead.transform.rotation * new Vector3(inputHandler.Move.x, 0, inputHandler.Move.y)).normalized * 
+                (inputHandler.Run ? swimmingFastSpeed : swimmingSpeed);
         }
+
         else if (currentState == States.standing)
         {
             var move = transform.rotation * new Vector3(inputHandler.Move.x, 0, inputHandler.Move.y);
             move.y = 0;
-            move = move.normalized * walkingSpeed;
+            move = move.normalized * (inputHandler.Run ? runningSpeed : walkingSpeed);
             move.y = rb.linearVelocity.y - gravity * Time.fixedDeltaTime;
             rb.linearVelocity = move;
 
