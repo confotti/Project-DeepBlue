@@ -69,7 +69,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BlendTexture:
-        m_Texture: {fileID: 2800000, guid: 1e82e1db4e659bd45910e7881c2e8c3b, type: 3}
+        m_Texture: {fileID: 2800000, guid: dd0842cab6e56e6499f39564a314259e, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _CoatMaskMap:
@@ -116,6 +116,10 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _NormalTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _SampleTexture2D_65ab2843054f4254bcf7898248169a8d_Texture_1_Texture2D:
         m_Texture: {fileID: 2800000, guid: a76a6e12dfd7bcf45949ae249bef2e65, type: 3}
         m_Scale: {x: 1, y: 1}
@@ -126,6 +130,10 @@ Material:
         m_Offset: {x: 0, y: 0}
     - _SampleTexture2D_bf7924d1a08b4b358d84a252e422103f_Texture_1_Texture2D:
         m_Texture: {fileID: 2800000, guid: ab0859c8d0f07fe4fa1196c0e83d8737, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SecondTex:
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SpecularColorMap:
@@ -145,7 +153,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _TerrainHeightMap:
-        m_Texture: {fileID: 2800000, guid: a76a6e12dfd7bcf45949ae249bef2e65, type: 3}
+        m_Texture: {fileID: 2800000, guid: ab0859c8d0f07fe4fa1196c0e83d8737, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _ThicknessMap:
@@ -236,6 +244,7 @@ Material:
     - _IridescenceMask: 1
     - _IridescenceThickness: 1
     - _LinkDetailsWithBase: 1
+    - _MainSmoothness: 0
     - _MaterialID: 1
     - _MaterialTypeMask: 2
     - _Metallic: 0
@@ -243,7 +252,7 @@ Material:
     - _MetallicRemapMin: 0
     - _NormalMapSpace: 0
     - _NormalScale: 1
-    - _NormalStrength: 2
+    - _NormalStrength: 0.1
     - _ObjectSpaceUVMapping: 0
     - _ObjectSpaceUVMappingEmissive: 0
     - _OpaqueCullMode: 2
@@ -259,6 +268,9 @@ Material:
     - _RefractionModel: 0
     - _RenderQueueType: 1
     - _RequireSplitLighting: 0
+    - _SecondSmoothness: 0
+    - _SecondTexHeight: 0.65
+    - _SecondTexThreshold: 0.5
     - _Smoothness: 0.1
     - _SmoothnessRemapMax: 1
     - _SmoothnessRemapMin: 0
@@ -279,7 +291,7 @@ Material:
     - _SubsurfaceMask: 1
     - _SupportDecals: 1
     - _SurfaceType: 0
-    - _TerrainHeight: 4871.59
+    - _TerrainHeight: -0.6
     - _TexWorldScale: 1
     - _TexWorldScaleEmissive: 1
     - _Thickness: 1

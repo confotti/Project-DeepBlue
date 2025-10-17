@@ -23,7 +23,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Stone_Spike_2
+  m_Name: Cliff_small
   m_Shader: {fileID: -6465566751694194690, guid: b4857cd9ee4f05040b29508fcd7c7b5a, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
@@ -39,11 +39,11 @@ Material:
   stringTagMap:
     MotionVector: User
   disabledShaderPasses:
-  - TransparentDepthPrepass
+  - MOTIONVECTORS
   - TransparentDepthPostpass
   - TransparentBackface
   - RayTracingPrepass
-  - MOTIONVECTORS
+  - TransparentDepthPrepass
   m_LockedProperties: _TerrainSizeOffset
   m_SavedProperties:
     serializedVersion: 3
@@ -105,11 +105,15 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _NormalMap:
-        m_Texture: {fileID: 2800000, guid: a0b3539b0701ba44fbf3b8f6dde8ec61, type: 3}
+        m_Texture: {fileID: 2800000, guid: d41669a5a67077241ab60b0e5ddc065a, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _NormalMapOS:
         m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _NormalTex:
+        m_Texture: {fileID: 2800000, guid: f7bad047d1afab448bbe97d0e28b7d2c, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SampleTexture2D_65ab2843054f4254bcf7898248169a8d_Texture_1_Texture2D:
@@ -122,6 +126,10 @@ Material:
         m_Offset: {x: 0, y: 0}
     - _SampleTexture2D_bf7924d1a08b4b358d84a252e422103f_Texture_1_Texture2D:
         m_Texture: {fileID: 2800000, guid: ab0859c8d0f07fe4fa1196c0e83d8737, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SecondTex:
+        m_Texture: {fileID: 2800000, guid: 1e82e1db4e659bd45910e7881c2e8c3b, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SpecularColorMap:
@@ -141,7 +149,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _TerrainHeightMap:
-        m_Texture: {fileID: 2800000, guid: a76a6e12dfd7bcf45949ae249bef2e65, type: 3}
+        m_Texture: {fileID: 2800000, guid: ab0859c8d0f07fe4fa1196c0e83d8737, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _ThicknessMap:
@@ -185,11 +193,11 @@ Material:
     - _AlphaRemapMin: 0
     - _AlphaSrcBlend: 1
     - _Anisotropy: 0
-    - _BlendDistance: 6
+    - _BlendDistance: 15
     - _BlendMode: 0
-    - _BlendNoiseScale: 246
-    - _BlendNosieStrength: 15
-    - _BlendTiling: 0.31
+    - _BlendNoiseScale: 241.5
+    - _BlendNosieStrength: 20
+    - _BlendTiling: 20
     - _CoatMask: 0
     - _ConservativeDepthOffsetEnable: 0
     - _CullMode: 2
@@ -232,6 +240,7 @@ Material:
     - _IridescenceMask: 1
     - _IridescenceThickness: 1
     - _LinkDetailsWithBase: 1
+    - _MainSmoothness: 0.4
     - _MaterialID: 1
     - _MaterialTypeMask: 2
     - _Metallic: 0
@@ -239,7 +248,7 @@ Material:
     - _MetallicRemapMin: 0
     - _NormalMapSpace: 0
     - _NormalScale: 1
-    - _NormalStrength: 0.5
+    - _NormalStrength: 0.1
     - _ObjectSpaceUVMapping: 0
     - _ObjectSpaceUVMappingEmissive: 0
     - _OpaqueCullMode: 2
@@ -255,7 +264,10 @@ Material:
     - _RefractionModel: 0
     - _RenderQueueType: 1
     - _RequireSplitLighting: 0
-    - _Smoothness: 0
+    - _SecondSmoothness: 0.5
+    - _SecondTexHeight: 255.1
+    - _SecondTexThreshold: 0.849
+    - _Smoothness: 0.1
     - _SmoothnessRemapMax: 1
     - _SmoothnessRemapMin: 0
     - _SpecularAAScreenSpaceVariance: 0.1
@@ -275,7 +287,7 @@ Material:
     - _SubsurfaceMask: 1
     - _SupportDecals: 1
     - _SurfaceType: 0
-    - _TerrainHeight: 3778
+    - _TerrainHeight: 12
     - _TexWorldScale: 1
     - _TexWorldScaleEmissive: 1
     - _Thickness: 1

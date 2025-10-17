@@ -35,7 +35,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _NormalTex:
-        m_Texture: {fileID: 2800000, guid: f7bad047d1afab448bbe97d0e28b7d2c, type: 3}
+        m_Texture: {fileID: 2800000, guid: 649510042dc10144e9d9f06e52047b4c, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SecondTex:
@@ -73,7 +73,7 @@ Material:
     - _EnableBlendModePreserveSpecularLighting: 1
     - _EnableFogOnTransparent: 1
     - _ExcludeFromTUAndAA: 0
-    - _MainSmoothness: 0.4
+    - _MainSmoothness: -1
     - _MaterialID: 1
     - _MaterialTypeMask: 2
     - _OpaqueCullMode: 2
@@ -84,9 +84,9 @@ Material:
     - _RefractionModel: 0
     - _RenderQueueType: 1
     - _RequireSplitLighting: 0
-    - _SecondSmoothness: 0.5
-    - _SecondTexHeight: 254.96
-    - _SecondTexThreshold: 0.5
+    - _SecondSmoothness: 0.1
+    - _SecondTexHeight: 251.9
+    - _SecondTexThreshold: 0
     - _SrcBlend: 1
     - _StencilRef: 0
     - _StencilRefDepth: 8
