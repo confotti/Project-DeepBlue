@@ -60,6 +60,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void Update()
     {
+        Shader.SetGlobalVector("_Player", transform.position); 
         CameraMovement();
     }
 
