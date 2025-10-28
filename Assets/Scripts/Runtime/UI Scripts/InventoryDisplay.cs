@@ -7,8 +7,11 @@ using System;
 public abstract class InventoryDisplay : MonoBehaviour
 {
     [SerializeField] MouseItemData mouseInventoryItem;
+
     protected InventorySystem inventorySystem;
-    protected Dictionary<InventorySlot_UI, InventorySlot> slotDictionary;
+
+    //Pair up UI slots with the system slots. 
+    protected Dictionary<InventorySlot_UI, InventorySlot> slotDictionary; 
 
     public InventorySystem InventorySystem => inventorySystem;
     public Dictionary<InventorySlot_UI, InventorySlot> SlotDictionary => slotDictionary;
@@ -18,7 +21,8 @@ public abstract class InventoryDisplay : MonoBehaviour
 
     }
 
-    public abstract void AssignSlot(InventorySystem invToDisplay);
+    //Implemented in child classes. 
+    public abstract void AssignSlots(InventorySystem invToDisplay);
 
     protected virtual void UpdateSlot(InventorySlot updatedSlot)
     {
@@ -37,18 +41,18 @@ public abstract class InventoryDisplay : MonoBehaviour
         // Also, maybe swap it so it's a rightclick thing and not a shift thing, but IDK
         bool isShiftPressed = Keyboard.current.leftShiftKey.isPressed;
 
-        // Clicked slot has an item, mouse doesnt - pick up that item
+        // Clicked slot has an item and mouse doesn't have an item. 
         if (clickedUISlot.AssignedInventorySlot.ItemData != null && 
             mouseInventoryItem.AssignedInventorySlot.ItemData == null)
         {
-            //If player is holding shift key - split the stack
+            //If player is holding shift key, try to split the stack and put half on mouse. 
             if (isShiftPressed && clickedUISlot.AssignedInventorySlot.SplitStack(out InventorySlot halfStackSlot)) //split stack
             {
                 mouseInventoryItem.UpdateMouseSlot(halfStackSlot);
                 clickedUISlot.UpdateUISlot();
                 return;
             }
-            else
+            else //Picks up if player is not trying to split or it is to few to split
             {
                 mouseInventoryItem.UpdateMouseSlot(clickedUISlot.AssignedInventorySlot);
                 clickedUISlot.ClearSlot();
@@ -87,10 +91,8 @@ public abstract class InventoryDisplay : MonoBehaviour
                 if (leftInStack < 1) SwapSlots(clickedUISlot); //Stack is full, so swap them
                 else //Slot is not at max, so take what's needed from the mouse inventory
                 {
-                    int remainingOnMouse = mouseInventoryItem.AssignedInventorySlot.StackSize - leftInStack;
                     clickedUISlot.AssignedInventorySlot.AddToStack(leftInStack);
                     clickedUISlot.UpdateUISlot();
-
 
                     mouseInventoryItem.AssignedInventorySlot.RemoveFromStack(leftInStack);
                     mouseInventoryItem.UpdateMouseSlotUI();
@@ -107,6 +109,7 @@ public abstract class InventoryDisplay : MonoBehaviour
         }
     }
 
+    //Swaps what is on the mouse and what is on the clicked slot. 
     private void SwapSlots(InventorySlot_UI clickedUISlot)
     {
         var clonedSlot = new InventorySlot(mouseInventoryItem.AssignedInventorySlot.ItemData,

@@ -4,8 +4,8 @@ using TMPro;
 
 public class InventorySlot_UI : MonoBehaviour
 {
-    [SerializeField] private Image itemSprite;
-    [SerializeField] private TextMeshProUGUI itemCount;
+    public Image itemSprite;
+    public TextMeshProUGUI itemCount;
     [SerializeField] private InventorySlot assignedInventorySlot;
 
     private Button button;
@@ -26,6 +26,11 @@ public class InventorySlot_UI : MonoBehaviour
         button?.onClick.AddListener(OnUISlotClick);
 
         ParentDisplay = transform.parent.GetComponent<InventoryDisplay>();
+    }
+
+    private void OnDestroy()
+    {
+        button?.onClick.RemoveListener(OnUISlotClick);
     }
 
     public void Init(InventorySlot slot)
@@ -56,6 +61,7 @@ public class InventorySlot_UI : MonoBehaviour
         else ClearSlot();
     }
 
+    //Clears out the slot and updates UI. 
     public void ClearSlot()
     {
         assignedInventorySlot.ClearSlot();

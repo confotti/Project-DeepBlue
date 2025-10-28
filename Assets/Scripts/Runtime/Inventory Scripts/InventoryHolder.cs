@@ -11,6 +11,7 @@ public class InventoryHolder : MonoBehaviour
 
     public static UnityAction<InventorySystem> OnDynamicInventoryDisplayRequested;
 
+    //Updates the UI if we change anything in the holder. 
     private void OnValidate()
     {
         foreach (var slot in inventorySystem.InventorySlots)

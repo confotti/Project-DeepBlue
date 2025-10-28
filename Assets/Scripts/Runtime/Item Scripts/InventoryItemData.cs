@@ -1,5 +1,10 @@
 using UnityEngine;
 
+/// <summary>
+/// This is the items in the form of a scriptable object. 
+/// It could be inherited from to have branched items, for example equipment, consumables, etc
+/// </summary>
+
 [CreateAssetMenu(menuName = "Inventory System/Inventory Item")]
 public class InventoryItemData : ScriptableObject
 {

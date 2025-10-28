@@ -3,6 +3,7 @@ using UnityEngine;
 public class ItemPickUp : MonoBehaviour, IInteractable
 {
     public InventoryItemData itemData;
+    [SerializeField] private int amountOfItem = 1;
 
     public void Interact(GameObject player)
     {
@@ -10,9 +11,10 @@ public class ItemPickUp : MonoBehaviour, IInteractable
 
         if (!inventory) return;
 
-        if (inventory.InventorySystem.AddToInventory(itemData, 1))
+        if (inventory.InventorySystem.AddToInventory(itemData, amountOfItem, out int remainingAmount))
         {
-            Destroy(this.gameObject);
+            if(remainingAmount == 0) Destroy(gameObject);
+            else amountOfItem = remainingAmount;
         }
     }
 }

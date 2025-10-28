@@ -8,9 +8,11 @@ using System.Collections.Generic;
 
 public class MouseItemData : MonoBehaviour
 {
-    public Image itemSprite;
-    public TextMeshProUGUI itemCount;
-    public InventorySlot AssignedInventorySlot;
+    [SerializeField] public Image itemSprite;
+    [SerializeField] public TextMeshProUGUI itemCount;
+    [SerializeField] private InventorySlot assignedInventorySlot;
+
+    public InventorySlot AssignedInventorySlot => assignedInventorySlot;
 
     private void Awake()
     {
@@ -20,7 +22,7 @@ public class MouseItemData : MonoBehaviour
 
     public void UpdateMouseSlot(InventorySlot invSlot)
     {
-        AssignedInventorySlot.AssignItem(invSlot);
+        assignedInventorySlot.AssignItem(invSlot);
         itemSprite.sprite = invSlot.ItemData.icon;
         itemCount.text = invSlot.StackSize > 1 ? invSlot.StackSize.ToString() : "";
         itemSprite.color = Color.white;
@@ -28,10 +30,10 @@ public class MouseItemData : MonoBehaviour
 
     public void UpdateMouseSlotUI()
     {
-        if(AssignedInventorySlot.ItemData != null) 
+        if(assignedInventorySlot.ItemData != null) 
         {
-            itemSprite.sprite = AssignedInventorySlot.ItemData.icon;
-            itemCount.text = AssignedInventorySlot.StackSize > 1 ? AssignedInventorySlot.StackSize.ToString() : "";
+            itemSprite.sprite = assignedInventorySlot.ItemData.icon;
+            itemCount.text = assignedInventorySlot.StackSize > 1 ? assignedInventorySlot.StackSize.ToString() : "";
             itemSprite.color = Color.white;
         }
         else
@@ -44,27 +46,35 @@ public class MouseItemData : MonoBehaviour
 
     private void Update()
     {
-        if(AssignedInventorySlot != null)
+        //TODO: Add controller support
+        //Follows mouseposition if it has an item
+        if(assignedInventorySlot != null)
         {
             transform.position = Mouse.current.position.ReadValue();
 
             if(Mouse.current.leftButton.wasPressedThisFrame && !IsPointerOverUIObject())
             {
                 ClearSlot();
+                //TODO: Drop item on the ground instead of deleting it
             }
         }
     }
 
+    //Clears the slot and updates UI. 
     public void ClearSlot()
     {
-        AssignedInventorySlot.ClearSlot();
+        assignedInventorySlot.ClearSlot();
         itemCount.text = "";
         itemSprite.color = Color.clear;
         itemSprite.sprite = null;
     }
 
+    //Checks if we are mouse is over UI or not. 
     public static bool IsPointerOverUIObject()
     {
+        //TODO: Can probably make it more effective both in memory and time by using Raycast
+        //instead of RaycastAll.
+
         PointerEventData eventDataCurrentPosition = new PointerEventData(EventSystem.current);
         eventDataCurrentPosition.position = Mouse.current.position.ReadValue();
         List<RaycastResult> results = new List<RaycastResult>();

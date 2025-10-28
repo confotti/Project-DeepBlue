@@ -3,19 +3,21 @@ using UnityEngine;
 [System.Serializable]
 public class InventorySlot
 {
-    [SerializeField] private InventoryItemData itemData;
-    [SerializeField] private int stackSize;
+    [SerializeField] private InventoryItemData itemData; //Reference to the data
+    [SerializeField] private int stackSize; //Current stack size - how many we have in this slot
 
     public InventoryItemData ItemData => itemData;
     public int StackSize => stackSize;
 
-    public InventorySlot(InventoryItemData source, int amount)
+    //Constructor to make a occupied slot. 
+    public InventorySlot(InventoryItemData source, int amount) 
     {
         itemData = source;
         stackSize = amount;
     }
 
-    public InventorySlot()
+    //Constructor for an empty slot. 
+    public InventorySlot() 
     {
         ClearSlot();
     }
@@ -26,26 +28,30 @@ public class InventorySlot
         stackSize = -1;
     }
 
-    public void AssignItem(InventorySlot invSlot)
+    //Assigns an item to the slot
+    public void AssignItem(InventorySlot invSlot) 
     {
         itemData = invSlot.ItemData;
         stackSize = 0;
         AddToStack(invSlot.stackSize);
     }
 
-    public void UpdateInventorySlot(InventoryItemData data, int amount)
+    //Update slot directly, this or AssignItem may be redundant
+    public void UpdateInventorySlot(InventoryItemData data, int amount) 
     {
         itemData = data;
         stackSize = amount;
     }
 
-    public bool RoomLeftInStack(int amountToAdd, out int amountRemaining)
+    //Is there enough room in the stack for the amount we want to add, this outputs how much more fits
+    public bool RoomLeftInStack(int amountToAdd, out int remainingSpaceInStack)
     {
-        amountRemaining = ItemData.MaxStackSize - stackSize;
+        remainingSpaceInStack = ItemData.MaxStackSize - stackSize;
 
         return RoomLeftInStack(amountToAdd);
     }
 
+    //Is there enough room in the stack for the amount we want to add
     public bool RoomLeftInStack(int amountToAdd)
     {
         return stackSize + amountToAdd <= itemData.MaxStackSize;
@@ -63,16 +69,17 @@ public class InventorySlot
 
     public bool SplitStack(out InventorySlot splitStack)
     {
-        if(stackSize <= 1)
+        if(stackSize <= 1) //Is there enough to split?
         {
             splitStack = null;
             return false;
         }
         
-        int halfStack = Mathf.RoundToInt(stackSize / 2);
+        int halfStack = Mathf.RoundToInt(stackSize / 2); //Get half the stack. 
         RemoveFromStack(halfStack);
 
-        splitStack = new InventorySlot(itemData, halfStack);
+        //Creates a copy with half the stack size. 
+        splitStack = new InventorySlot(itemData, halfStack); 
         return true;
     }
 }
