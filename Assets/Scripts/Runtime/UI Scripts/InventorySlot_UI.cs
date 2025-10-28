@@ -13,6 +13,11 @@ public class InventorySlot_UI : MonoBehaviour
     public InventorySlot AssignedInventorySlot => assignedInventorySlot;
     public InventoryDisplay ParentDisplay { get; private set; }
 
+    private void OnValidate()
+    {
+        UpdateUISlot();
+    }
+
     private void Awake()
     {
         ClearSlot();
@@ -35,14 +40,14 @@ public class InventorySlot_UI : MonoBehaviour
         {
             itemSprite.sprite = slot.ItemData.icon;
             itemSprite.color = Color.white;
+
+            if (slot.StackSize > 1) itemCount.text = slot.StackSize.ToString();
+            else itemCount.text = "";
         }
         else
         {
             ClearSlot();
         }
-
-        if (slot.StackSize > 1) itemCount.text = slot.StackSize.ToString();
-        else itemCount.text = "";
     }
 
     public void UpdateUISlot()

@@ -11,6 +11,14 @@ public class InventoryHolder : MonoBehaviour
 
     public static UnityAction<InventorySystem> OnDynamicInventoryDisplayRequested;
 
+    private void OnValidate()
+    {
+        foreach (var slot in inventorySystem.InventorySlots)
+        {
+            inventorySystem.OnInventorySlotChanged?.Invoke(slot);
+        }
+    }
+
     private void Awake()
     {
         inventorySystem = new InventorySystem(inventorySize);

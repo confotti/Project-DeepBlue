@@ -43,4 +43,9 @@ public class StaticInventoryDisplay : InventoryDisplay
         }
     }
 
+    private void OnDestroy()
+    {
+        inventorySystem.OnInventorySlotChanged -= UpdateSlot;
+    }
+
 }

@@ -4,6 +4,7 @@ public class PlayerInteract : MonoBehaviour
 {
     [SerializeField] private float range = 2f;
     [SerializeField] private LayerMask interactLayer;
+    [SerializeField] private GameObject head;
 
     //References
     private PlayerInputHandler inputHandler;
@@ -26,14 +27,11 @@ public class PlayerInteract : MonoBehaviour
 
     void Update()
     {
-        RaycastHit hit;
-        if (Physics.Raycast(transform.position, transform.forward, out hit, range, interactLayer))
+        var hits = Physics.RaycastAll(transform.position, head.transform.forward, range, interactLayer);
+        interactable = null;
+        foreach (var item in hits)
         {
-            interactable = hit.transform.GetComponent<IInteractable>();
-        }
-        else
-        {
-            interactable = null;
+            if (item.transform.TryGetComponent<IInteractable>(out interactable)) break;
         }
 
         UpdateUI();
@@ -59,6 +57,6 @@ public class PlayerInteract : MonoBehaviour
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.yellow;
-        Gizmos.DrawLine(transform.position, transform.position + transform.forward * range);
+        Gizmos.DrawLine(transform.position, transform.position + head.transform.forward * range);
     }
 }

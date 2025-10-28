@@ -6,8 +6,6 @@ public class ItemPickUp : MonoBehaviour, IInteractable
 
     public void Interact(GameObject player)
     {
-        Debug.Log($"Picked up {itemData.DisplayName}");
-        
         var inventory = player.GetComponent<InventoryHolder>();
 
         if (!inventory) return;
