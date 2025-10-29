@@ -6,6 +6,8 @@ public class PlayerInteract : MonoBehaviour
     [SerializeField] private LayerMask interactLayer;
     [SerializeField] private GameObject head;
 
+    public bool IsInteracting { get; private set; }
+
     //References
     private PlayerInputHandler inputHandler;
     private IInteractable interactable;
@@ -39,7 +41,17 @@ public class PlayerInteract : MonoBehaviour
 
     private void Interact()
     {
-        if(interactable != null) interactable.Interact(gameObject);
+        if (interactable != null)
+        {
+            interactable.Interact(this, out bool interactSuccessful);
+            //IsInteracting = true;
+        }
+    }
+
+    //Fix IsInteracting if necessary
+    private void EndInteraction()
+    {
+        IsInteracting = false;
     }
 
     private void UpdateUI()
