@@ -23,8 +23,12 @@ public class InventoryUIController : MonoBehaviour
     void Update()
     {
         //TODO: Implement with input action asset
-        if(inventoryPanel.gameObject.activeInHierarchy && Keyboard.current.escapeKey.wasPressedThisFrame) 
+        if(inventoryPanel.gameObject.activeInHierarchy && Keyboard.current.escapeKey.wasPressedThisFrame)
+        {
+
             inventoryPanel.gameObject.SetActive(false);
+        }
+            
     }
 
     private void DisplayInventory(InventorySystem invToDisplay)

@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Linq;
 using System.Collections.Generic;
+using UnityEngine.InputSystem;
 
 public class DynamicInventoryDisplay : InventoryDisplay
 {
@@ -27,7 +28,9 @@ public class DynamicInventoryDisplay : InventoryDisplay
 
         for (int i = 0; i < invToDisplay.InventorySize; i++)
         {
-            var uiSlot = Instantiate(slotPrefab, transform);
+            //var uiSlot = Instantiate(slotPrefab, transform);
+            var uiSlot = ObjectPoolManager.SpawnObject(slotPrefab, transform, poolType: ObjectPoolManager.PoolType.inventorySlots);
+
             slotDictionary.Add(uiSlot, invToDisplay.InventorySlots[i]);
             uiSlot.Init(invToDisplay.InventorySlots[i]);
         }
@@ -36,11 +39,19 @@ public class DynamicInventoryDisplay : InventoryDisplay
     //TODO: Object pooling very important here
     private void ClearSlots()
     {
+        /*
         foreach (var item in transform.Cast<Transform>())
         {
-            Destroy(item.gameObject);
+            //Destroy(item.gameObject);
+            ObjectPoolManager.ReturnObjectToPool(item.gameObject, ObjectPoolManager.PoolType.inventorySlots);
+        }
+        */
+
+        for (int i = transform.childCount - 1; i >= 0; i--)
+        {
+            ObjectPoolManager.ReturnObjectToPool(transform.GetChild(i).gameObject, ObjectPoolManager.PoolType.inventorySlots);
         }
 
-        if(slotDictionary != null) slotDictionary.Clear();
+        if (slotDictionary != null) slotDictionary.Clear();
     }
 }
