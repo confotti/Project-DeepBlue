@@ -9976,7 +9976,7 @@ GameObject:
   - component: {fileID: 8447105403828906849}
   - component: {fileID: 5700871189913967699}
   - component: {fileID: 903199630935089767}
-  - component: {fileID: 7290620984351643069}
+  - component: {fileID: 4840940593215283443}
   - component: {fileID: 8279320085652908750}
   - component: {fileID: 3146864349786084419}
   m_Layer: 4
@@ -10058,7 +10058,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 4294967295
   head: {fileID: 5577114592626121966}
---- !u!114 &7290620984351643069
+--- !u!114 &4840940593215283443
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -10067,11 +10067,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 5083573799768335632}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5a9b8f4775efebd488aefde2ea0b3bf0, type: 3}
+  m_Script: {fileID: 11500000, guid: 6db4bf90615657e45bbaeb9976bfa4c4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  inventorySize: 10
-  inventorySystem:
+  primaryInventorySize: 10
+  primaryInventorySystem:
+    inventorySlots: []
+  secondaryInventorySize: 20
+  secondaryInventorySystem:
     inventorySlots: []
 --- !u!54 &8279320085652908750
 Rigidbody:

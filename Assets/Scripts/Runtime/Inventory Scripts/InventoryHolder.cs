@@ -4,24 +4,24 @@ using UnityEngine.Events;
 [System.Serializable]
 public class InventoryHolder : MonoBehaviour
 {
-    [SerializeField] private int inventorySize;
-    [SerializeField] protected InventorySystem inventorySystem;
+    [SerializeField] private int primaryInventorySize;
+    [SerializeField] protected InventorySystem primaryInventorySystem;
 
-    public InventorySystem InventorySystem => inventorySystem;
+    public InventorySystem PrimaryInventorySystem => primaryInventorySystem;
 
     public static UnityAction<InventorySystem> OnDynamicInventoryDisplayRequested;
 
     //Updates the UI if we change anything in the holder. 
     private void OnValidate()
     {
-        foreach (var slot in inventorySystem.InventorySlots)
+        foreach (var slot in primaryInventorySystem.InventorySlots)
         {
-            inventorySystem.OnInventorySlotChanged?.Invoke(slot);
+            primaryInventorySystem.OnInventorySlotChanged?.Invoke(slot);
         }
     }
 
-    private void Awake()
+    protected virtual void Awake()
     {
-        inventorySystem = new InventorySystem(inventorySize);
+        primaryInventorySystem = new InventorySystem(primaryInventorySize);
     }
 }

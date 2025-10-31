@@ -10,7 +10,7 @@ public class ItemPickUp : MonoBehaviour, IInteractable
 
     public void Interact(PlayerInteract interactor, out bool interactSuccessful)
     {
-        var inventory = interactor.GetComponent<InventoryHolder>();
+        var inventory = interactor.GetComponent<PlayerInventoryHolder>();
 
         if (!inventory)
         {
@@ -18,8 +18,9 @@ public class ItemPickUp : MonoBehaviour, IInteractable
             return;
         }
 
-        if (inventory.InventorySystem.AddToInventory(itemData, amountOfItem, out int remainingAmount))
+        if (inventory.AddToInventory(itemData, amountOfItem, out int remainingAmount))
         {
+            //TODO: Should probably pool this, but not sure at this moment. 
             if (remainingAmount == 0) Destroy(gameObject);
             else amountOfItem = remainingAmount;
         }
