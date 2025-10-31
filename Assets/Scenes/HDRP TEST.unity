@@ -22772,7 +22772,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6188249482795173138, guid: a1b798d06422de14abf4b907f94b548a, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7111760373504356558, guid: a1b798d06422de14abf4b907f94b548a, type: 3}
       propertyPath: m_LocalPosition.x
@@ -58830,25 +58830,9 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 2852946106627678301, guid: a686a032594d75d4faa77d026ced679c, type: 3}
-      propertyPath: m_ProvidesContacts
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2852946106627678301, guid: a686a032594d75d4faa77d026ced679c, type: 3}
-      propertyPath: m_ExcludeLayers.m_Bits
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2852946106627678301, guid: a686a032594d75d4faa77d026ced679c, type: 3}
-      propertyPath: m_IncludeLayers.m_Bits
-      value: 8
-      objectReference: {fileID: 0}
     - target: {fileID: 3034956160594588841, guid: a686a032594d75d4faa77d026ced679c, type: 3}
       propertyPath: m_Name
       value: Terrain
-      objectReference: {fileID: 0}
-    - target: {fileID: 3034956160594588841, guid: a686a032594d75d4faa77d026ced679c, type: 3}
-      propertyPath: m_IsActive
-      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3280968259724764966, guid: a686a032594d75d4faa77d026ced679c, type: 3}
       propertyPath: m_LocalPosition.x
@@ -58894,34 +58878,6 @@ PrefabInstance:
       propertyPath: player
       value: 
       objectReference: {fileID: 948123907}
-    - target: {fileID: 6979311244356953303, guid: a686a032594d75d4faa77d026ced679c, type: 3}
-      propertyPath: m_DrawInstanced
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6979311244356953303, guid: a686a032594d75d4faa77d026ced679c, type: 3}
-      propertyPath: m_DrawTreesAndFoliage
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 6979311244356953303, guid: a686a032594d75d4faa77d026ced679c, type: 3}
-      propertyPath: m_IgnoreQualitySettings
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6979311244356953303, guid: a686a032594d75d4faa77d026ced679c, type: 3}
-      propertyPath: m_BakeLightProbesForTrees
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 6979311244356953303, guid: a686a032594d75d4faa77d026ced679c, type: 3}
-      propertyPath: m_DeringLightProbesForTrees
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 6979311244356953303, guid: a686a032594d75d4faa77d026ced679c, type: 3}
-      propertyPath: m_PreserveTreePrototypeLayers
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6979311244356953303, guid: a686a032594d75d4faa77d026ced679c, type: 3}
-      propertyPath: m_TreeMotionVectorModeOverride
-      value: 3
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
