@@ -10,6 +10,10 @@ public class SubmarineController : MonoBehaviour
     [SerializeField] private float brake = 2f;
     private float currentSpeed = 0f;
 
+    [Header("Player Follow")] 
+    [SerializeField] string playerTag = "Player";
+    [SerializeField] Transform sub; 
+
     void Awake()
     {
         splineAnimate = GetComponent<SplineAnimate>();
@@ -33,12 +37,25 @@ public class SubmarineController : MonoBehaviour
         }
     }
 
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.tag.Equals(playerTag))
+        {
+            other.gameObject.transform.parent = sub;
+        }
+    } 
+
     private void OnTriggerExit(Collider other)
     {
         if (other.CompareTag("Player"))
         {
             isRunning = false; 
             Debug.Log("Player Has Exit SUB"); 
+        }
+
+        if (other.gameObject.tag.Equals(playerTag))
+        {
+            other.gameObject.transform.parent = null; 
         }
     }
 
