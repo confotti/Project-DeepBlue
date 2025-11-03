@@ -17,6 +17,8 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float rideSpringStrength = 500;
     [SerializeField] private float rideSpringDamper = 40;
 
+    public bool IsSwimming => currentState == States.swimming;
+
     private Vector2 rotation;
     private float lookYMax = 90;
 
