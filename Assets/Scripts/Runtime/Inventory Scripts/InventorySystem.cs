@@ -81,4 +81,26 @@ public class InventorySystem
         freeSlot = InventorySlots.FirstOrDefault(slot => slot.ItemData == null);
         return freeSlot != null;
     }
+
+    /// <summary>
+    /// Returns a dictionary of each item the inventory contains, and the count, ignoring stack size
+    /// </summary>
+    /// <returns>distinctItem</returns>
+    public Dictionary<InventoryItemData, int> GetAllItemsHeld()
+    {
+        var distinctItems = new Dictionary<InventoryItemData, int>();
+
+        foreach (var item in InventorySlots)
+        {
+            if (item.ItemData == null) continue;
+
+            if (!distinctItems.ContainsKey(item.ItemData))
+            {
+                distinctItems.Add(item.ItemData, item.StackSize);
+            }
+            else distinctItems[item.ItemData] += item.StackSize;
+        }
+
+        return distinctItems;
+    }
 }
