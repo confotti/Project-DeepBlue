@@ -19,7 +19,11 @@ public class CraftingBench : MonoBehaviour, IInteractable
 
         if (CheckIfCanCraft())
         {
-            //Stannat vid 55:00, fortsätt senare. 
+            foreach (var ingredient in activeRecipe.Ingredients)
+            {
+                //Have to create RemoveItemFromInventory() function in InventorySystem. Stopped video at 56:35. 
+                //playerInventory.PrimaryInventorySystem.RemoveItemFromInventory(ingredient.itemRequired, ingredient.amountRequired);
+            }
         }
 
         interactSuccessful = true;
@@ -30,6 +34,8 @@ public class CraftingBench : MonoBehaviour, IInteractable
         
     }
 
+    //This only checks in one of the 2 PlayerInventorys InventorySystems.
+    //TODO: Do something about that. 
     private bool CheckIfCanCraft()
     {
         var itemsHeld = playerInventory.PrimaryInventorySystem.GetAllItemsHeld();
@@ -38,7 +44,7 @@ public class CraftingBench : MonoBehaviour, IInteractable
         {
             if (!itemsHeld.TryGetValue(ingredient.itemRequired, out int amountHeld)) return false;
 
-            if(ingredient.amountRequired < amountHeld)
+            if (ingredient.amountRequired < amountHeld)
             {
                 return false;
             }

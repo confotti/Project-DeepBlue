@@ -1,5 +1,3 @@
-using System.Diagnostics;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
@@ -155,7 +153,7 @@ public class PlayerMovement : MonoBehaviour
         */
     }
 
-    [Conditional("UNITY_EDITOR")]
+    [System.Diagnostics.Conditional("UNITY_EDITOR")]
     private void OnDrawGizmosSelected()
     {
         col = GetComponent<CapsuleCollider>();
