@@ -2,10 +2,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-public class InventorySlot_UI : MonoBehaviour
+public class InventorySlot_UI : ParentItemSlot_UI
 {
-    public Image itemSprite;
-    public TextMeshProUGUI itemCount;
     [SerializeField] private InventorySlot assignedInventorySlot;
 
     private Button button;
@@ -21,6 +19,7 @@ public class InventorySlot_UI : MonoBehaviour
     private void Awake()
     {
         ClearSlot();
+        itemSprite.preserveAspect = true;
 
         button = GetComponent<Button>();
         button?.onClick.AddListener(OnUISlotClick);

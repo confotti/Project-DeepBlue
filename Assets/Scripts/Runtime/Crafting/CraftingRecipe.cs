@@ -9,7 +9,7 @@ public class CraftingRecipe : ScriptableObject
 
     [SerializeField] private List<CraftingIngredient> ingredients;
     [SerializeField] private InventoryItemData craftedItem;
-    [SerializeField, Min(1)] private int craftedAmount;
+    [SerializeField, Min(1)] private int craftedAmount = 1;
 
     public List<CraftingIngredient> Ingredients => ingredients;
     public InventoryItemData CraftedItem => craftedItem;
