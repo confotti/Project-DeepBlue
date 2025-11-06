@@ -4,11 +4,13 @@ using UnityEngine.Events;
 
 public class CraftingBench : MonoBehaviour, IInteractable
 {
+    //TODO: Make a CraftingStationParent class or similar. 
+
     [SerializeField] private List<CraftingRecipe> knownRecipes;
 
     private PlayerInventoryHolder playerInventory;
 
-    public UnityAction<IInteractable> OnInteractionComplete { get ; set ; }
+    public UnityAction<IInteractable> OnInteractionComplete { get; set; }
 
     public List<CraftingRecipe> KnownRecipes => knownRecipes;
 
@@ -19,42 +21,28 @@ public class CraftingBench : MonoBehaviour, IInteractable
         if (playerInventory != null)
         {
             CraftingDisplay.OnCraftingDisplayRequested?.Invoke(this);
-            /*
-            if (CheckIfCanCraft())
-            {
-                foreach (var ingredient in activeRecipe.Ingredients)
-                {
-                    //Have to create RemoveItemFromInventory() function in InventorySystem. Stopped video at 56:35. 
-                    //playerInventory.PrimaryInventorySystem.RemoveItemFromInventory(ingredient.itemRequired, ingredient.amountRequired);
-                }
-
-                playerInventory.AddToInventory(activeRecipe.CraftedItem, activeRecipe.CraftedAmount, out int remainingAmount, true);
-            }
 
             EndInteraction();
             interactSuccessful = true;
-        */}
+
+        }
         else
         {
             interactSuccessful = false;
         }
-        //Remove below
-        interactSuccessful = true;
+
     }
 
     public void EndInteraction()
     {
-        
+
     }
 
-    //This only checks in one of the 2 PlayerInventorys InventorySystems.
-    //TODO: Do something about that. 
-    private bool CheckIfCanCraft()
+    private bool CheckIfCanCraft(CraftingRecipe recipe)
     {
-        //TODO: Give playerInventory a GetAllItemsHeld() function so it can look through both inventories. 
-        var itemsHeld = playerInventory.PrimaryInventorySystem.GetAllItemsHeld();
-        /*
-        foreach (var ingredient in activeRecipe.Ingredients)
+        var itemsHeld = playerInventory.GetAllItemsHeld();
+
+        foreach (var ingredient in recipe.Ingredients)
         {
             if (!itemsHeld.TryGetValue(ingredient.itemRequired, out int amountHeld)) return false;
 
@@ -63,8 +51,25 @@ public class CraftingBench : MonoBehaviour, IInteractable
                 return false;
             }
         }
-        */
+
         return true;
+    }
+
+    public bool TryCraft(CraftingRecipe recipe)
+    {
+        if (CheckIfCanCraft(recipe))
+        {
+            foreach (var ingredient in recipe.Ingredients)
+            {
+                //TODO: Have to create RemoveItemFromInventory() function in InventorySystem. 
+                //playerInventory.PrimaryInventorySystem.RemoveItemFromInventory(ingredient.itemRequired, ingredient.amountRequired);
+            }
+
+            playerInventory.AddToInventory(recipe.CraftedItem, recipe.CraftedAmount, out int remainingAmount, true);
+
+            return true;
+        }
+        else return false;
     }
 
 

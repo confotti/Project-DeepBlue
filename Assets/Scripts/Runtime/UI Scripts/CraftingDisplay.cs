@@ -20,12 +20,22 @@ public class CraftingDisplay : MonoBehaviour
     [SerializeField] private TextMeshProUGUI itemPreviewName;
     [SerializeField] private TextMeshProUGUI itemPreviewDescription;
     [SerializeField] private TextMeshProUGUI itemPreviewAmount;
-    [SerializeField] private GameObject craftButton;
+    [SerializeField] private Button craftButton;
 
     private CraftingBench craftingBench;
     private CraftingRecipe chosenRecipe;
 
     public static UnityAction<CraftingBench> OnCraftingDisplayRequested;
+
+    void Awake()
+    {
+        craftButton.onClick.AddListener(OnCraftButtonPressed);
+    }
+
+    void OnDestroy()
+    {
+        craftButton.onClick.RemoveListener(OnCraftButtonPressed);
+    }
 
     public void DisplayCraftingWindow(CraftingBench craftBench)
     {
@@ -41,7 +51,7 @@ public class CraftingDisplay : MonoBehaviour
     {
         ClearSlots(recipeListPanel);
 
-        foreach(var recipe in craftingBench.KnownRecipes)
+        foreach (var recipe in craftingBench.KnownRecipes)
         {
             var recipeSlot = ObjectPoolManager.SpawnObject(craftRecipe_UI_Prefab, recipeListPanel, poolType: ObjectPoolManager.PoolType.UI);
             recipeSlot.Init(recipe, this);
@@ -64,7 +74,7 @@ public class CraftingDisplay : MonoBehaviour
         itemPreviewDescription.text = recipe.CraftedItem.Description;
         //TODO: Make below only show it if it's bigger than 1
         itemPreviewAmount.text = recipe.CraftedAmount.ToString();
-        craftButton.SetActive(true);
+        craftButton.gameObject.SetActive(true);
     }
 
     private void ClearRecipePreview()
@@ -74,7 +84,7 @@ public class CraftingDisplay : MonoBehaviour
         itemPreviewName.text = "";
         itemPreviewDescription.text = "";
         itemPreviewAmount.text = "";
-        craftButton.SetActive(false);
+        craftButton.gameObject.SetActive(false);
 
         ClearSlots(ingredientGrid);
     }
@@ -99,5 +109,12 @@ public class CraftingDisplay : MonoBehaviour
         DisplayItemPreview(chosenRecipe);
     }
 
-    //TODO: Fix so craft button actually does something!
+    private void OnCraftButtonPressed()
+    {
+        if (craftingBench == null) return;
+
+        craftingBench.TryCraft(chosenRecipe);
+
+    }
+    
 }

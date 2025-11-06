@@ -1,16 +1,9 @@
 using UnityEngine;
-
-public class SaveData : MonoBehaviour
+namespace SaveLoadSystem
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    [System.Serializable]
+    public class SaveData
     {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        //Fill with important data. 
     }
 }

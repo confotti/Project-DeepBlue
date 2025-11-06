@@ -11,7 +11,7 @@ public class UIController : MonoBehaviour
     {
         chestPanel.gameObject.SetActive(false);
         playerBackpackPanel.gameObject.SetActive(false);
-        craftingDisplay.gameObject.SetActive(false);
+        //craftingDisplay.gameObject.SetActive(false);
     }
 
     private void OnEnable()
