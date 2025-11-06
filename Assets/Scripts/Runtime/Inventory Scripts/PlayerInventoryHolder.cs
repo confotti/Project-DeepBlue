@@ -49,7 +49,6 @@ public class PlayerInventoryHolder : InventoryHolder
         }
 
 
-
         if (spawnItemOnFail)
         {
             //TODO: Drop from the player the remainingAmount here probably, 
@@ -59,11 +58,11 @@ public class PlayerInventoryHolder : InventoryHolder
         amountRemaining = remainingAmount;
         return false;
     }
-    
+
     public Dictionary<InventoryItemData, int> GetAllItemsHeld()
     {
         var d1 = primaryInventorySystem.GetAllItemsHeld();
-        
+
         foreach (var item in secondaryInventorySystem.GetAllItemsHeld())
         {
             if (!d1.ContainsKey(item.Key))
@@ -75,4 +74,10 @@ public class PlayerInventoryHolder : InventoryHolder
 
         return d1;
     }
+
+    public void RemoveItemFromInventory(InventoryItemData itemData, int amount)
+    {
+        //TODO: Have to create RemoveItemFromInventory() function in InventorySystem. 
+    }
+        
 }

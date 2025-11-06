@@ -61,8 +61,7 @@ public class CraftingBench : MonoBehaviour, IInteractable
         {
             foreach (var ingredient in recipe.Ingredients)
             {
-                //TODO: Have to create RemoveItemFromInventory() function in InventorySystem. 
-                //playerInventory.PrimaryInventorySystem.RemoveItemFromInventory(ingredient.itemRequired, ingredient.amountRequired);
+                playerInventory.RemoveItemFromInventory(ingredient.itemRequired, ingredient.amountRequired);
             }
 
             playerInventory.AddToInventory(recipe.CraftedItem, recipe.CraftedAmount, out int remainingAmount, true);
