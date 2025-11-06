@@ -19,7 +19,7 @@ public class InventorySlot_UI : ParentItemSlot_UI
     private void Awake()
     {
         ClearSlot();
-        itemSprite.preserveAspect = true;
+        //itemSprite.preserveAspect = true;
 
         button = GetComponent<Button>();
         button?.onClick.AddListener(OnUISlotClick);

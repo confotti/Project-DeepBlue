@@ -7,13 +7,14 @@ public class CraftingIngredientSlot_UI : ParentItemSlot_UI
 
     void Awake()
     {
-        itemSprite.preserveAspect = true;
+        //itemSprite.preserveAspect = true;
     }
 
-    private void UpdateUISlot(CraftingIngredient ingredient)
+    public void UpdateUISlot(CraftingIngredient ingredient)
     {
         itemSprite.sprite = ingredient.itemRequired.icon;
         itemCount.text = ingredient.amountRequired.ToString();
         itemName.text = ingredient.itemRequired.DisplayName;
     }
+
 }

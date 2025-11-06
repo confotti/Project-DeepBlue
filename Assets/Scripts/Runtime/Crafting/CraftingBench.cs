@@ -1,13 +1,16 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
 public class CraftingBench : MonoBehaviour, IInteractable
 {
-    [SerializeField] private CraftingRecipe activeRecipe;
+    [SerializeField] private List<CraftingRecipe> knownRecipes;
 
     private PlayerInventoryHolder playerInventory;
 
     public UnityAction<IInteractable> OnInteractionComplete { get ; set ; }
+
+    public List<CraftingRecipe> KnownRecipes => knownRecipes;
 
     public void Interact(PlayerInteract interactor, out bool interactSuccessful)
     {
@@ -15,6 +18,8 @@ public class CraftingBench : MonoBehaviour, IInteractable
 
         if (playerInventory != null)
         {
+            CraftingDisplay.OnCraftingDisplayRequested?.Invoke(this);
+            /*
             if (CheckIfCanCraft())
             {
                 foreach (var ingredient in activeRecipe.Ingredients)
@@ -28,12 +33,13 @@ public class CraftingBench : MonoBehaviour, IInteractable
 
             EndInteraction();
             interactSuccessful = true;
-        }
+        */}
         else
         {
             interactSuccessful = false;
         }
-        
+        //Remove below
+        interactSuccessful = true;
     }
 
     public void EndInteraction()
@@ -47,7 +53,7 @@ public class CraftingBench : MonoBehaviour, IInteractable
     {
         //TODO: Give playerInventory a GetAllItemsHeld() function so it can look through both inventories. 
         var itemsHeld = playerInventory.PrimaryInventorySystem.GetAllItemsHeld();
-
+        /*
         foreach (var ingredient in activeRecipe.Ingredients)
         {
             if (!itemsHeld.TryGetValue(ingredient.itemRequired, out int amountHeld)) return false;
@@ -57,7 +63,7 @@ public class CraftingBench : MonoBehaviour, IInteractable
                 return false;
             }
         }
-
+        */
         return true;
     }
 

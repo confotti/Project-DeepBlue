@@ -10,7 +10,7 @@ public class ObjectPoolManager : MonoBehaviour
 
     private GameObject emptyHolder;
 
-    private static GameObject inventorySlots;
+    private static GameObject UI;
     private static GameObject gameObjects;
 
     private static Dictionary<GameObject, ObjectPool<GameObject>> objectPools;
@@ -18,7 +18,7 @@ public class ObjectPoolManager : MonoBehaviour
 
     public enum PoolType
     {
-        inventorySlots,
+        UI,
         GameObjects
     }
     public static PoolType PoolingType;
@@ -35,13 +35,13 @@ public class ObjectPoolManager : MonoBehaviour
     {
         emptyHolder = new GameObject("Object pools");
 
-        inventorySlots = new GameObject("Inventory Slots");
-        inventorySlots.transform.SetParent(emptyHolder.transform);
+        UI = new GameObject("UI");
+        UI.transform.SetParent(emptyHolder.transform);
 
         gameObjects = new GameObject("Game Objects");
         gameObjects.transform.SetParent(emptyHolder.transform);
 
-        if (addToDontDestroyOnLoad) DontDestroyOnLoad(inventorySlots.transform.root);
+        if (addToDontDestroyOnLoad) DontDestroyOnLoad(UI.transform.root);
     }
 
     //For setting parent
@@ -120,8 +120,8 @@ public class ObjectPoolManager : MonoBehaviour
     {
         switch (pooltype)
         {
-            case PoolType.inventorySlots:
-                return inventorySlots;
+            case PoolType.UI:
+                return UI;
 
             case PoolType.GameObjects:
 
