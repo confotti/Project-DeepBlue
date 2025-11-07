@@ -4,6 +4,14 @@ namespace SaveLoadSystem
     [System.Serializable]
     public class SaveData
     {
-        //Fill with important data. 
+        public SerializableDictionary<string, InventorySaveData> chestDictionary;
+
+        public InventorySaveData playerInventory;
+
+        public SaveData()
+        {
+            chestDictionary = new SerializableDictionary<string, InventorySaveData>();
+            playerInventory = new InventorySaveData();
+        }
     }
 }

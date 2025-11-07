@@ -385,6 +385,7 @@ GameObject:
   - component: {fileID: 804990483}
   - component: {fileID: 804990482}
   - component: {fileID: 804990481}
+  - component: {fileID: 804990486}
   m_Layer: 0
   m_Name: Chest
   m_TagString: Untagged
@@ -496,6 +497,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &804990486
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 804990480}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6bbd1ab5ab7a259469ebd48e8967a353, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  id: bd727fb9-26f5-45d9-aea8-a36d1bf33c3b
 --- !u!1 &1366509145 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4302384891994546899, guid: 1735cfffb7976c2418760dbc0cae993e, type: 3}
@@ -1614,6 +1628,7 @@ GameObject:
   - component: {fileID: 1659337080}
   - component: {fileID: 1659337079}
   - component: {fileID: 1659337078}
+  - component: {fileID: 1659337083}
   m_Layer: 0
   m_Name: Chest (1)
   m_TagString: Untagged
@@ -1725,6 +1740,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1659337083
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1659337077}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6bbd1ab5ab7a259469ebd48e8967a353, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  id: 8923187e-25a1-43cf-b688-64208f8413e3
 --- !u!1 &1720226494
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,3 +1,4 @@
+using SaveLoadSystem;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
@@ -5,12 +6,11 @@ using UnityEngine.InputSystem;
 
 public class PlayerInventoryHolder : InventoryHolder
 {
+    /*
     [SerializeField] private int secondaryInventorySize;
     [SerializeField] protected InventorySystem secondaryInventorySystem;
 
     public InventorySystem SecondaryInventorySystem => secondaryInventorySystem;
-
-    public static UnityAction<InventorySystem> OnPlayerBackpackDisplayRequested;
 
     protected override void Awake()
     {
@@ -18,13 +18,33 @@ public class PlayerInventoryHolder : InventoryHolder
 
         secondaryInventorySystem = new InventorySystem(secondaryInventorySize);
     }
+    */
+
+    //public static UnityAction<InventorySystem> OnPlayerBackpackDisplayRequested;
+
+    [SerializeField] private int playerHotbarSize = 10;
+    public static UnityAction OnPlayerInventoryChanged;
+
+    private void Start()
+    {
+        if (SaveLoad.currentSavedata != null) SaveLoad.currentSavedata.playerInventory = new InventorySaveData(primaryInventorySystem);
+    }
 
     // Update is called once per frame
     void Update()
     {
         if (Keyboard.current.bKey.wasPressedThisFrame)
         {
-            OnPlayerBackpackDisplayRequested?.Invoke(secondaryInventorySystem);
+            OnDynamicInventoryDisplayRequested?.Invoke(primaryInventorySystem, playerHotbarSize);
+        }
+    }
+
+    protected override void LoadInventory(SaveData data)
+    {
+        if (data.playerInventory.invSystem != null)
+        {
+            this.primaryInventorySystem = data.playerInventory.invSystem;
+            OnPlayerInventoryChanged?.Invoke();
         }
     }
 
@@ -42,12 +62,6 @@ public class PlayerInventoryHolder : InventoryHolder
             amountRemaining = 0;
             return true;
         }
-        else if (secondaryInventorySystem.AddToInventory(data, remainingAmount, out remainingAmount))
-        {
-            amountRemaining = 0;
-            return true;
-        }
-
 
         if (spawnItemOnFail)
         {
@@ -59,6 +73,7 @@ public class PlayerInventoryHolder : InventoryHolder
         return false;
     }
 
+    /* This used to add both inventorysystems when there were 2, might be useful in the future
     public Dictionary<InventoryItemData, int> GetAllItemsHeld()
     {
         var d1 = primaryInventorySystem.GetAllItemsHeld();
@@ -74,6 +89,7 @@ public class PlayerInventoryHolder : InventoryHolder
 
         return d1;
     }
+    */
 
     public void RemoveItemFromInventory(InventoryItemData itemData, int amount)
     {

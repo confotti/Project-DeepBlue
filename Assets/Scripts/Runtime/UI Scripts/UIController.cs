@@ -3,13 +3,13 @@ using UnityEngine.InputSystem;
 
 public class UIController : MonoBehaviour
 {
-    public DynamicInventoryDisplay chestPanel;
+    public DynamicInventoryDisplay inventoryPanel;
     public DynamicInventoryDisplay playerBackpackPanel;
     public CraftingDisplay craftingDisplay;
 
     private void Awake()
     {
-        chestPanel.gameObject.SetActive(false);
+        inventoryPanel.gameObject.SetActive(false);
         playerBackpackPanel.gameObject.SetActive(false);
         //craftingDisplay.gameObject.SetActive(false);
     }
@@ -17,14 +17,14 @@ public class UIController : MonoBehaviour
     private void OnEnable()
     {
         InventoryHolder.OnDynamicInventoryDisplayRequested += DisplayInventory;
-        PlayerInventoryHolder.OnPlayerBackpackDisplayRequested += DisplayPlayerBackpack;
+        //PlayerInventoryHolder.OnPlayerBackpackDisplayRequested += DisplayPlayerBackpack;
         CraftingDisplay.OnCraftingDisplayRequested += DisplayCraftingWindow;
     }
 
     private void OnDisable()
     {
         InventoryHolder.OnDynamicInventoryDisplayRequested -= DisplayInventory;
-        PlayerInventoryHolder.OnPlayerBackpackDisplayRequested -= DisplayPlayerBackpack;
+        //PlayerInventoryHolder.OnPlayerBackpackDisplayRequested -= DisplayPlayerBackpack;
         CraftingDisplay.OnCraftingDisplayRequested -= DisplayCraftingWindow;
     }
 
@@ -33,24 +33,25 @@ public class UIController : MonoBehaviour
         //TODO: Implement with input action asset
         if (!Keyboard.current.escapeKey.wasPressedThisFrame) return;
 
-        if (chestPanel.gameObject.activeInHierarchy) chestPanel.gameObject.SetActive(false);
+        if (inventoryPanel.gameObject.activeInHierarchy) inventoryPanel.gameObject.SetActive(false);
 
         if (playerBackpackPanel.gameObject.activeInHierarchy) playerBackpackPanel.gameObject.SetActive(false);
 
         if (craftingDisplay.gameObject.activeInHierarchy) craftingDisplay.gameObject.SetActive(false);
     }
 
-    private void DisplayInventory(InventorySystem invToDisplay)
+    private void DisplayInventory(InventorySystem invToDisplay, int offset)
     {
-        chestPanel.gameObject.SetActive(true);
-        chestPanel.RefreshDynamicInventory(invToDisplay);
+        inventoryPanel.gameObject.SetActive(true);
+        inventoryPanel.RefreshDynamicInventory(invToDisplay, offset);
     }
 
+    /*
     private void DisplayPlayerBackpack(InventorySystem invToDisplay)
     {
         playerBackpackPanel.gameObject.SetActive(true);
         playerBackpackPanel.RefreshDynamicInventory(invToDisplay);
-    }
+    }*/
 
     
     private void DisplayCraftingWindow(CraftingBench craftingToDisplay)
