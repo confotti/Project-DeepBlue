@@ -44,7 +44,7 @@ public class GameTimeStamp
         }
 
         // 20-hour days 
-        if (hour >= 20)
+        if (hour >= 24)
         {
             hour = 0;
             day++;
@@ -56,7 +56,7 @@ public class GameTimeStamp
     {
         // 1 day = 20 hours
         int seconds = 0;
-        seconds += ts.day * 20 * 60 * 60;
+        seconds += ts.day * 24 * 60 * 60;
         seconds += ts.hour * 60 * 60;
         seconds += ts.minute * 60;
         seconds += ts.second;
@@ -65,6 +65,6 @@ public class GameTimeStamp
 
     public static float TimeStampInHours(GameTimeStamp ts)
     {
-        return ts.day * 20f + ts.hour + (ts.minute / 60f) + (ts.second / 3600f);
+        return ts.day * 24f + ts.hour + (ts.minute / 60f) + (ts.second / 3600f);
     }
 }

@@ -1350,6 +1350,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 9089073759847799195, guid: 33449fdb7fa7d094da94050e75dc92af, type: 3}
+      propertyPath: craftButton
+      value: 
+      objectReference: {fileID: 5658241751853841235}
     - target: {fileID: 9091090385542635272, guid: 33449fdb7fa7d094da94050e75dc92af, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -1376,3 +1380,14 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 5873453526314513662, guid: 33449fdb7fa7d094da94050e75dc92af, type: 3}
   m_PrefabInstance: {fileID: 7714619730200562564}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &5658241751853841235 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2704914192021532887, guid: 33449fdb7fa7d094da94050e75dc92af, type: 3}
+  m_PrefabInstance: {fileID: 7714619730200562564}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

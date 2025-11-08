@@ -18,8 +18,8 @@ public class TimeManager : MonoBehaviour
     public Transform sunTransform;
     Vector3 sunAngle;
 
-    // One game day = 20 in-game hours = 72,000 seconds
-    private const float SecondsPerGameDay = 20f * 3600f;
+    // One game day = 24 in-game hours = 86,400 seconds
+    private const float SecondsPerGameDay = 24f * 3600f;
 
     // Store total game time in seconds
     private float totalGameSeconds;
@@ -40,8 +40,8 @@ public class TimeManager : MonoBehaviour
 
     private void Start()
     {
-        // Start at Day 1, 6:00:00 
-        timestamp = new GameTimeStamp(1, 6, 0, 0);
+        // Start at Day 1, 8:00:00 
+        timestamp = new GameTimeStamp(1, 8, 0, 0);
 
         totalGameSeconds = GameTimeStamp.TimeStampInSeconds(timestamp);
 
@@ -62,18 +62,18 @@ public class TimeManager : MonoBehaviour
     {
         float dayProgress = (totalGameSeconds % SecondsPerGameDay) / SecondsPerGameDay;
 
-        // Full 360° rotation in one 20-hour day
+        // Full 360° rotation in one 24-hour day
         float sunRotation = dayProgress * 360f;
 
         // Rotate around X, står rakt upp vid 12
         sunAngle = new Vector3(sunRotation - 90f, 170f, 0f);
-        sunTransform.rotation = Quaternion.Euler(sunAngle);
+        sunTransform.rotation = Quaternion.Euler(sunAngle); 
     }
 
     private GameTimeStamp SecondsToTimeStamp(int totalSeconds)
     {
-        int day = totalSeconds / (20 * 3600);
-        int hour = (totalSeconds / 3600) % 20;
+        int day = totalSeconds / (24 * 3600);
+        int hour = (totalSeconds / 3600) % 24;
         int minute = (totalSeconds / 60) % 60;
         int second = totalSeconds % 60;
         return new GameTimeStamp(day, hour, minute, second);
@@ -81,8 +81,8 @@ public class TimeManager : MonoBehaviour
 
     public float GetDayFactor()
     {
-        float hours = GameTimeStamp.TimeStampInHours(timestamp) % 20f;
-        float factor = Mathf.Cos((hours / 20f) * Mathf.PI * 2f) * 0.5f + 0.5f;
+        float hours = GameTimeStamp.TimeStampInHours(timestamp) % 24f;
+        float factor = Mathf.Cos((hours / 24f) * Mathf.PI * 2f) * 0.5f + 0.5f;
         return factor;
     }
 
