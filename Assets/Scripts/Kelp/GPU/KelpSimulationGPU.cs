@@ -113,6 +113,9 @@ public class KelpSimulationGPU_HDRP : MonoBehaviour
 
     void Start()
     {
+        kelpRenderMaterial = new Material(kelpRenderMaterial);
+        leafRenderMaterial = new Material(leafRenderMaterial); 
+
         InitializeBuffers();
         InitializeData();
         InitializeColliders();
