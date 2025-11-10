@@ -43,7 +43,7 @@ public class StaticInventoryDisplay : InventoryDisplay
     {
         base.Start();
 
-        if(inventoryHolder != null ) inventorySystem.OnInventorySlotChanged -= UpdateSlot;
+        if(inventorySystem != null ) inventorySystem.OnInventorySlotChanged -= UpdateSlot;
         RefreshStaticDisplay();
     }
 

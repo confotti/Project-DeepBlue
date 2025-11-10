@@ -4,27 +4,27 @@ using UnityEngine.InputSystem;
 public class UIController : MonoBehaviour
 {
     public DynamicInventoryDisplay inventoryPanel;
-    public DynamicInventoryDisplay playerBackpackPanel;
+    public DynamicInventoryDisplay playerInventoryPanel;
     public CraftingDisplay craftingDisplay;
 
     private void Awake()
     {
         inventoryPanel.gameObject.SetActive(false);
-        playerBackpackPanel.gameObject.SetActive(false);
-        //craftingDisplay.gameObject.SetActive(false);
+        playerInventoryPanel.gameObject.SetActive(false);
+        craftingDisplay.gameObject.SetActive(false);
     }
 
     private void OnEnable()
     {
         InventoryHolder.OnDynamicInventoryDisplayRequested += DisplayInventory;
-        //PlayerInventoryHolder.OnPlayerBackpackDisplayRequested += DisplayPlayerBackpack;
+        PlayerInventoryHolder.OnPlayerInventoryDisplayRequested += DisplayPlayerInventory;
         CraftingDisplay.OnCraftingDisplayRequested += DisplayCraftingWindow;
     }
 
     private void OnDisable()
     {
         InventoryHolder.OnDynamicInventoryDisplayRequested -= DisplayInventory;
-        //PlayerInventoryHolder.OnPlayerBackpackDisplayRequested -= DisplayPlayerBackpack;
+        PlayerInventoryHolder.OnPlayerInventoryDisplayRequested -= DisplayPlayerInventory;
         CraftingDisplay.OnCraftingDisplayRequested -= DisplayCraftingWindow;
     }
 
@@ -35,7 +35,7 @@ public class UIController : MonoBehaviour
 
         if (inventoryPanel.gameObject.activeInHierarchy) inventoryPanel.gameObject.SetActive(false);
 
-        if (playerBackpackPanel.gameObject.activeInHierarchy) playerBackpackPanel.gameObject.SetActive(false);
+        if (playerInventoryPanel.gameObject.activeInHierarchy) playerInventoryPanel.gameObject.SetActive(false);
 
         if (craftingDisplay.gameObject.activeInHierarchy) craftingDisplay.gameObject.SetActive(false);
     }
@@ -46,12 +46,12 @@ public class UIController : MonoBehaviour
         inventoryPanel.RefreshDynamicInventory(invToDisplay, offset);
     }
 
-    /*
-    private void DisplayPlayerBackpack(InventorySystem invToDisplay)
+    
+    private void DisplayPlayerInventory(InventorySystem invToDisplay, int offset)
     {
-        playerBackpackPanel.gameObject.SetActive(true);
-        playerBackpackPanel.RefreshDynamicInventory(invToDisplay);
-    }*/
+        playerInventoryPanel.gameObject.SetActive(true);
+        playerInventoryPanel.RefreshDynamicInventory(invToDisplay, offset);
+    }
 
     
     private void DisplayCraftingWindow(CraftingBench craftingToDisplay)

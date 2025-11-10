@@ -20,7 +20,7 @@ public class PlayerInventoryHolder : InventoryHolder
     }
     */
 
-    //public static UnityAction<InventorySystem> OnPlayerBackpackDisplayRequested;
+    public static UnityAction<InventorySystem, int> OnPlayerInventoryDisplayRequested;
 
     [SerializeField] private int playerHotbarSize = 10;
     public static UnityAction OnPlayerInventoryChanged;
@@ -35,7 +35,7 @@ public class PlayerInventoryHolder : InventoryHolder
     {
         if (Keyboard.current.bKey.wasPressedThisFrame)
         {
-            OnDynamicInventoryDisplayRequested?.Invoke(primaryInventorySystem, playerHotbarSize);
+            OnPlayerInventoryDisplayRequested?.Invoke(primaryInventorySystem, playerHotbarSize);
         }
     }
 

@@ -6,6 +6,7 @@ using UnityEngine.InputSystem;
 public class DynamicInventoryDisplay : InventoryDisplay
 {
     [SerializeField] protected InventorySlot_UI slotPrefab;
+    [SerializeField] private Transform gridParent;
 
     protected override void Start()
     {
@@ -30,7 +31,7 @@ public class DynamicInventoryDisplay : InventoryDisplay
         for (int i = offset; i < invToDisplay.InventorySize; i++)
         {
             //var uiSlot = Instantiate(slotPrefab, transform);
-            var uiSlot = ObjectPoolManager.SpawnObject(slotPrefab, transform, poolType: ObjectPoolManager.PoolType.UI);
+            var uiSlot = ObjectPoolManager.SpawnObject(slotPrefab, gridParent, poolType: ObjectPoolManager.PoolType.UI);
 
             slotDictionary.Add(uiSlot, invToDisplay.InventorySlots[i]);
             uiSlot.Init(invToDisplay.InventorySlots[i]);
@@ -48,9 +49,9 @@ public class DynamicInventoryDisplay : InventoryDisplay
         }
         */
 
-        for (int i = transform.childCount - 1; i >= 0; i--)
+        for (int i = gridParent.childCount - 1; i >= 0; i--)
         {
-            ObjectPoolManager.ReturnObjectToPool(transform.GetChild(i).gameObject, ObjectPoolManager.PoolType.UI);
+            ObjectPoolManager.ReturnObjectToPool(gridParent.GetChild(i).gameObject, ObjectPoolManager.PoolType.UI);
         }
 
         if (slotDictionary != null) slotDictionary.Clear();
