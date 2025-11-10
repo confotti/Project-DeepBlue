@@ -14,7 +14,7 @@ public class KelpSimulationGPU_HDRP : MonoBehaviour
 
     [Header("References")]
     public ComputeShader kelpComputeShader;
-    public Material kelpRenderMaterial;
+    public Material kelpRenderMaterial; 
     public Mesh kelpSegmentMesh;
     public Material leafRenderMaterial;
     public Mesh kelpLeafMesh;

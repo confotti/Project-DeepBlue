@@ -44,9 +44,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 09366c6e2f502674d8e54f9bc436801d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  totalStalkNodes: 500000
-  totalLeafObjects: 900000
-  totalKelpObjects: 4000
+  totalStalkNodes: 750000
+  totalLeafObjects: 600000
+  totalKelpObjects: 2500
   gravityForce: {x: 0, y: 0.47, z: 0}
   damping: 0.75
   kelpComputeShader: {fileID: 7200000, guid: eb9d1596b85f42545ad66e37d6f71457, type: 3}
@@ -65,7 +65,7 @@ MonoBehaviour:
   groundMask:
     serializedVersion: 2
     m_Bits: 8
-  spreadRadius: 315
+  spreadRadius: 420
   raycastHeight: 50
   constraintIterations: 8
   debugMode: 0

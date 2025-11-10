@@ -28164,18 +28164,6 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1849762060}
     - target: {fileID: 1977535405019423568, guid: a1b798d06422de14abf4b907f94b548a, type: 3}
-      propertyPath: totalStalkNodes
-      value: 500000
-      objectReference: {fileID: 0}
-    - target: {fileID: 1977535405019423568, guid: a1b798d06422de14abf4b907f94b548a, type: 3}
-      propertyPath: totalKelpObjects
-      value: 4000
-      objectReference: {fileID: 0}
-    - target: {fileID: 1977535405019423568, guid: a1b798d06422de14abf4b907f94b548a, type: 3}
-      propertyPath: totalLeafObjects
-      value: 900000
-      objectReference: {fileID: 0}
-    - target: {fileID: 1977535405019423568, guid: a1b798d06422de14abf4b907f94b548a, type: 3}
       propertyPath: 'dynamicColliders.Array.data[0]'
       value: 
       objectReference: {fileID: 2004041476}
@@ -28185,7 +28173,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6188249482795173138, guid: a1b798d06422de14abf4b907f94b548a, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7111760373504356558, guid: a1b798d06422de14abf4b907f94b548a, type: 3}
       propertyPath: m_LocalPosition.x
@@ -28197,7 +28185,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7111760373504356558, guid: a1b798d06422de14abf4b907f94b548a, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 353.31934
+      value: 575
       objectReference: {fileID: 0}
     - target: {fileID: 7111760373504356558, guid: a1b798d06422de14abf4b907f94b548a, type: 3}
       propertyPath: m_LocalRotation.w
@@ -44093,7 +44081,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &823848535
 Transform:
   m_ObjectHideFlags: 0
@@ -50999,11 +50987,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 942052390}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!1 &948123907 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 5083573799768335632, guid: cbc1e87d3d2a2f4448067cbbd6e3cb4b, type: 3}
-  m_PrefabInstance: {fileID: 1814872858}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &948374308
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -72473,20 +72456,7 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 4542047873671016298, guid: a686a032594d75d4faa77d026ced679c, type: 3}
-      propertyPath: player
-      value: 
-      objectReference: {fileID: 948123907}
-    - target: {fileID: 6979311244356953303, guid: a686a032594d75d4faa77d026ced679c, type: 3}
-      propertyPath: m_DrawInstanced
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6979311244356953303, guid: a686a032594d75d4faa77d026ced679c, type: 3}
-      propertyPath: m_MaterialTemplate
-      value: 
-      objectReference: {fileID: 2100000, guid: 24870e56d5723e54e8d26606a2234841, type: 2}
-    m_RemovedComponents:
-    - {fileID: 4542047873671016298, guid: a686a032594d75d4faa77d026ced679c, type: 3}
+    m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
@@ -105402,7 +105372,7 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 4840940593215283443, guid: cbc1e87d3d2a2f4448067cbbd6e3cb4b, type: 3}
   m_PrefabInstance: {fileID: 1814872858}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 948123907}
+  m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6db4bf90615657e45bbaeb9976bfa4c4, type: 3}
@@ -105868,7 +105838,7 @@ PrefabInstance:
       objectReference: {fileID: 354368090}
     - target: {fileID: 1977535405019423568, guid: a1b798d06422de14abf4b907f94b548a, type: 3}
       propertyPath: spreadRadius
-      value: 2
+      value: 25
       objectReference: {fileID: 0}
     - target: {fileID: 1977535405019423568, guid: a1b798d06422de14abf4b907f94b548a, type: 3}
       propertyPath: targetCamera
@@ -105884,7 +105854,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1977535405019423568, guid: a1b798d06422de14abf4b907f94b548a, type: 3}
       propertyPath: totalLeafObjects
-      value: 9000
+      value: 2000
       objectReference: {fileID: 0}
     - target: {fileID: 1977535405019423568, guid: a1b798d06422de14abf4b907f94b548a, type: 3}
       propertyPath: kelpRenderMaterial
@@ -127192,7 +127162,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5176005931226759352, guid: 6bb58f4521c6a8b4280f6350eedd24fc, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5765043360028516211, guid: 6bb58f4521c6a8b4280f6350eedd24fc, type: 3}
       propertyPath: m_LocalPosition.x
