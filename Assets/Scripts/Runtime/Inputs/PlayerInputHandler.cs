@@ -1,4 +1,5 @@
 using System;
+using SaveLoadSystem;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -35,9 +36,9 @@ public class PlayerInputHandler : MonoBehaviour
         //Subscriptions
         defaultInputActions.PlayerMovement.Interact.Enable();
         defaultInputActions.PlayerMovement.Interact.performed += Interact;
-        
+
         defaultInputActions.PlayerMovement.Jump.Enable();
-        defaultInputActions.PlayerMovement.Jump.performed += Jump;      
+        defaultInputActions.PlayerMovement.Jump.performed += Jump;
     }
 
     private void OnDisable()
@@ -55,5 +56,18 @@ public class PlayerInputHandler : MonoBehaviour
     private void Jump(InputAction.CallbackContext context)
     {
         OnJump?.Invoke();
+    }
+
+
+    [ContextMenu("Save")]
+    private void OnSave()
+    {
+        SaveLoad.Save();
+    }
+
+    [ContextMenu("Load")]
+    private void OnLoad()
+    {
+        SaveLoad.Load();
     }
 }

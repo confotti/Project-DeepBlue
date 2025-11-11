@@ -175,7 +175,7 @@ MonoBehaviour:
   m_fontSizeMax: 72
   m_fontStyle: 0
   m_HorizontalAlignment: 1
-  m_VerticalAlignment: 256
+  m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_wordSpacing: 0
@@ -222,7 +222,6 @@ GameObject:
   - component: {fileID: 8596683621424108342}
   - component: {fileID: 1961220146104176707}
   - component: {fileID: 7910041153227807912}
-  - component: {fileID: 3383988793096485237}
   - component: {fileID: 978466160465809615}
   m_Layer: 5
   m_Name: Inventory Slots Grid
@@ -288,20 +287,6 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &3383988793096485237
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3322813712540135278}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_HorizontalFit: 2
-  m_VerticalFit: 2
 --- !u!114 &978466160465809615
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -682,7 +667,6 @@ GameObject:
   - component: {fileID: 7124513891318929890}
   - component: {fileID: 8975761460659495309}
   - component: {fileID: 3736409915393987349}
-  - component: {fileID: 8096089070452415954}
   - component: {fileID: 4228785345107690342}
   m_Layer: 5
   m_Name: Dynamic Inventory panel (1)
@@ -748,20 +732,6 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &8096089070452415954
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6207214712404565639}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_HorizontalFit: 2
-  m_VerticalFit: 2
 --- !u!114 &4228785345107690342
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -975,7 +945,7 @@ MonoBehaviour:
   itemSprite: {fileID: 5099755132729860704}
   itemCount: {fileID: 1129533752003771990}
   assignedInventorySlot:
-    itemData: {fileID: 0}
+    itemID: -1
     stackSize: -1
 --- !u!1 &7418001020770808008
 GameObject:
@@ -1108,7 +1078,7 @@ MonoBehaviour:
   m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 1
   m_ChildControlWidth: 0
-  m_ChildControlHeight: 0
+  m_ChildControlHeight: 1
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
@@ -1125,6 +1095,7 @@ GameObject:
   - component: {fileID: 5315680265620902562}
   - component: {fileID: 943793583061921678}
   - component: {fileID: 733735643467867403}
+  - component: {fileID: 5856957850934991797}
   m_Layer: 5
   m_Name: Dynamic Inventory panel
   m_TagString: Untagged
@@ -1220,6 +1191,32 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_HorizontalFit: 2
   m_VerticalFit: 2
+--- !u!114 &5856957850934991797
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8671643855122519697}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 59f8146938fff824cb5fd77236b75775, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Padding:
+    m_Left: 0
+    m_Right: 0
+    m_Top: 0
+    m_Bottom: 0
+  m_ChildAlignment: 1
+  m_Spacing: 0
+  m_ChildForceExpandWidth: 1
+  m_ChildForceExpandHeight: 1
+  m_ChildControlWidth: 0
+  m_ChildControlHeight: 1
+  m_ChildScaleWidth: 0
+  m_ChildScaleHeight: 0
+  m_ReverseArrangement: 0
 --- !u!1001 &568027436920928964
 PrefabInstance:
   m_ObjectHideFlags: 0

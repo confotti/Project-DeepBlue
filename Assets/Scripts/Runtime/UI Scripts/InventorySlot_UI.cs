@@ -23,8 +23,6 @@ public class InventorySlot_UI : ParentItemSlot_UI
 
         button = GetComponent<Button>();
         button?.onClick.AddListener(OnUISlotClick);
-
-        ParentDisplay = transform.parent.GetComponent<InventoryDisplay>();
     }
 
     private void OnDestroy()
@@ -32,8 +30,9 @@ public class InventorySlot_UI : ParentItemSlot_UI
         button?.onClick.RemoveListener(OnUISlotClick);
     }
 
-    public void Init(InventorySlot slot)
+    public void Init(InventorySlot slot, InventoryDisplay parentDisplay)
     {
+        ParentDisplay = parentDisplay;
         assignedInventorySlot = slot;
         UpdateUISlot(slot);
     }
@@ -71,6 +70,7 @@ public class InventorySlot_UI : ParentItemSlot_UI
 
     public void OnUISlotClick()
     {
+        Debug.Log("varför?");
         ParentDisplay?.SlotClicked(this);
     }
 }

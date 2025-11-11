@@ -8,7 +8,6 @@ using System.Linq;
 public class InventorySystem
 {
     [SerializeField] private List<InventorySlot> inventorySlots;
-
     public List<InventorySlot> InventorySlots => inventorySlots;
     public int InventorySize => inventorySlots.Count;
 

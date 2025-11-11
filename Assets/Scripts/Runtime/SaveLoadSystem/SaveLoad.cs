@@ -17,15 +17,16 @@ namespace SaveLoadSystem
 
         public static SaveData currentSavedata;
 
-        public static bool Save(SaveData data)
+        public static bool Save()
         {
+            if (currentSavedata == null) currentSavedata = new SaveData();
             OnSaveGame?.Invoke();
 
             string dir = Application.persistentDataPath + SaveDirectory;
 
             if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
 
-            string json = JsonUtility.ToJson(data);
+            string json = JsonUtility.ToJson(currentSavedata, true);
             File.WriteAllText(dir + fileName, json);
 
 #if UNITY_EDITOR

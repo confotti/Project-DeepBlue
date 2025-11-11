@@ -6,20 +6,6 @@ using UnityEngine.InputSystem;
 
 public class PlayerInventoryHolder : InventoryHolder
 {
-    /*
-    [SerializeField] private int secondaryInventorySize;
-    [SerializeField] protected InventorySystem secondaryInventorySystem;
-
-    public InventorySystem SecondaryInventorySystem => secondaryInventorySystem;
-
-    protected override void Awake()
-    {
-        base.Awake();
-
-        secondaryInventorySystem = new InventorySystem(secondaryInventorySize);
-    }
-    */
-
     public static UnityAction<InventorySystem, int> OnPlayerInventoryDisplayRequested;
 
     [SerializeField] private int playerHotbarSize = 10;
@@ -28,6 +14,18 @@ public class PlayerInventoryHolder : InventoryHolder
     private void Start()
     {
         if (SaveLoad.currentSavedata != null) SaveLoad.currentSavedata.playerInventory = new InventorySaveData(primaryInventorySystem);
+    }
+
+    void OnEnable()
+    {
+        SaveLoad.OnSaveGame += SaveInventory;
+        SaveLoad.OnLoadGame += LoadInventory;
+    }
+
+    void OnDisable()
+    {
+        SaveLoad.OnSaveGame -= SaveInventory;
+        SaveLoad.OnLoadGame -= LoadInventory;
     }
 
     // Update is called once per frame
@@ -43,19 +41,14 @@ public class PlayerInventoryHolder : InventoryHolder
     {
         if (data.playerInventory.invSystem != null)
         {
-            this.primaryInventorySystem = data.playerInventory.invSystem;
+            primaryInventorySystem = data.playerInventory.invSystem;
+            
             OnPlayerInventoryChanged?.Invoke();
         }
     }
 
-    //TODO: This will always try to add to the hotbar before looking if item exists in the backpack. 
-    //Instead I want it to first look if there already is a non-full stack anywhere in the two systems, add to that,
-    //and then if there's still more to be added do this. 
     public bool AddToInventory(InventoryItemData data, int amount, out int amountRemaining, bool spawnItemOnFail = false)
     {
-
-        //Look for non-full stacks first. Probably need to make an AddToInventoryOnlyFillAlreadyAssigned function
-        //in the InventorySystem class or something like that. 
 
         if (primaryInventorySystem.AddToInventory(data, amount, out int remainingAmount))
         {
@@ -73,27 +66,14 @@ public class PlayerInventoryHolder : InventoryHolder
         return false;
     }
 
-    /* This used to add both inventorysystems when there were 2, might be useful in the future
-    public Dictionary<InventoryItemData, int> GetAllItemsHeld()
-    {
-        var d1 = primaryInventorySystem.GetAllItemsHeld();
-
-        foreach (var item in secondaryInventorySystem.GetAllItemsHeld())
-        {
-            if (!d1.ContainsKey(item.Key))
-            {
-                d1.Add(item.Key, item.Value);
-            }
-            else d1[item.Key] += item.Value;
-        }
-
-        return d1;
-    }
-    */
-
     public void RemoveItemFromInventory(InventoryItemData itemData, int amount)
     {
         //TODO: Have to create RemoveItemFromInventory() function in InventorySystem. 
+    }
+
+    public void SaveInventory()
+    {
+        SaveLoad.currentSavedata.playerInventory = new InventorySaveData(primaryInventorySystem);
     }
         
 }

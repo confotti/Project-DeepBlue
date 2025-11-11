@@ -34,7 +34,7 @@ public class DynamicInventoryDisplay : InventoryDisplay
             var uiSlot = ObjectPoolManager.SpawnObject(slotPrefab, gridParent, poolType: ObjectPoolManager.PoolType.UI);
 
             slotDictionary.Add(uiSlot, invToDisplay.InventorySlots[i]);
-            uiSlot.Init(invToDisplay.InventorySlots[i]);
+            uiSlot.Init(invToDisplay.InventorySlots[i], this);
         }
     }
 
