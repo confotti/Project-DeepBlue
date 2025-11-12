@@ -66,12 +66,71 @@ public class InventorySystem
         return false;
     }
 
+    public bool RemoveFromInventory(InventoryItemData itemToRemove, int amountToRemove)
+    {
+        if(AmountOfItem(itemToRemove, out List<InventorySlot> invSlots) < amountToRemove)
+        {
+            Debug.Log($"Amount ({amountToRemove}) is more than we currently have ({AmountOfItem(itemToRemove)}). ");
+            return false;
+        }
+        foreach (var slot in invSlots)
+        {
+            if(slot.StackSize > amountToRemove)
+            {
+                slot.RemoveFromStack(amountToRemove);
+                OnInventorySlotChanged?.Invoke(slot);
+                return true;
+            }
+            else
+            {
+                amountToRemove -= slot.StackSize;
+                slot.ClearSlot();
+                OnInventorySlotChanged?.Invoke(slot);
+                if (amountToRemove == 0) return true;
+            }
+        }
+
+        Debug.Log($"Something seems to have gone wrong I think? It should not be possible to get here");
+        return false;
+    }
+
     //Do any of our slots have the item to add in them? 
     //Outs a list of them and the bool is if any exists
     public bool ContainsItem(InventoryItemData itemToAdd, out List<InventorySlot> invSlots)
     {
-        invSlots = InventorySlots.Where(slot => slot.ItemData == itemToAdd).ToList();
+        invSlots = new List<InventorySlot>();
+        foreach (var slot in InventorySlots)
+        {
+            if (slot.ItemData == itemToAdd)
+                invSlots.Add(slot);
+        }
+
         return invSlots.Count > 0;
+    }
+
+    public int AmountOfItem(InventoryItemData whatItem)
+    {
+        int amount = 0;
+        foreach (var slot in InventorySlots)
+        {
+            if (slot.ItemData == whatItem)
+                amount += slot.StackSize;
+        }
+        return amount;
+    }
+
+    public int AmountOfItem(InventoryItemData whatItem, out List<InventorySlot> invSlots)
+    {
+        int amount = 0;
+        invSlots = new List<InventorySlot>();
+        foreach (var slot in InventorySlots)
+        {
+            if (slot.ItemData != whatItem) continue;
+
+            invSlots.Add(slot);
+            amount += slot.StackSize;
+        }
+        return amount;
     }
 
     //Do we have a free slot? Returns true if we do and outs the first slot. 

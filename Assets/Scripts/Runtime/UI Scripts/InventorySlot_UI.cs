@@ -70,7 +70,6 @@ public class InventorySlot_UI : ParentItemSlot_UI
 
     public void OnUISlotClick()
     {
-        Debug.Log("varför?");
         ParentDisplay?.SlotClicked(this);
     }
 }

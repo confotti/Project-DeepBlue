@@ -40,7 +40,7 @@ public class CraftingBench : MonoBehaviour, IInteractable
 
     private bool CheckIfCanCraft(CraftingRecipe recipe)
     {
-        var itemsHeld = playerInventory.PrimaryInventorySystem.GetAllItemsHeld();
+        var itemsHeld = playerInventory.InventorySystem.GetAllItemsHeld();
 
         foreach (var ingredient in recipe.Ingredients)
         {

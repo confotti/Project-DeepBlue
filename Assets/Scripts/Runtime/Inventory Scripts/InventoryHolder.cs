@@ -6,25 +6,25 @@ using UnityEngine.Events;
 [System.Serializable]
 public abstract class InventoryHolder : MonoBehaviour
 {
-    [SerializeField] private int primaryInventorySize;
-    [SerializeField] protected InventorySystem primaryInventorySystem;
+    [SerializeField] private int inventorySize;
+    [SerializeField] protected InventorySystem inventorySystem;
 
-    public InventorySystem PrimaryInventorySystem => primaryInventorySystem;
+    public InventorySystem InventorySystem => inventorySystem;
 
     public static UnityAction<InventorySystem, int> OnDynamicInventoryDisplayRequested; //InvSystem to display, amount to offset display by
 
     //Updates the UI if we change anything in the holder. 
     private void OnValidate()
     {
-        foreach (var slot in primaryInventorySystem.InventorySlots)
+        foreach (var slot in inventorySystem.InventorySlots)
         {
-            primaryInventorySystem.OnInventorySlotChanged?.Invoke(slot);
+            inventorySystem.OnInventorySlotChanged?.Invoke(slot);
         }
     }
 
     protected virtual void Awake()
     {
-        primaryInventorySystem = new InventorySystem(primaryInventorySize);
+        inventorySystem = new InventorySystem(inventorySize);
     }
 
     protected abstract void LoadInventory(SaveData data);

@@ -31,7 +31,7 @@ public class StaticInventoryDisplay : InventoryDisplay
     {
         if (inventoryHolder != null)
         {
-            inventorySystem = inventoryHolder.PrimaryInventorySystem;
+            inventorySystem = inventoryHolder.InventorySystem;
             inventorySystem.OnInventorySlotChanged += UpdateSlot;
         }
         else Debug.LogWarning($"No inventory assigned to {this.gameObject}");

@@ -13,7 +13,7 @@ public class PlayerInventoryHolder : InventoryHolder
 
     private void Start()
     {
-        if (SaveLoad.currentSavedata != null) SaveLoad.currentSavedata.playerInventory = new InventorySaveData(primaryInventorySystem);
+        if (SaveLoad.currentSavedata != null) SaveLoad.currentSavedata.playerInventory = new InventorySaveData(inventorySystem);
     }
 
     void OnEnable()
@@ -33,7 +33,7 @@ public class PlayerInventoryHolder : InventoryHolder
     {
         if (Keyboard.current.bKey.wasPressedThisFrame)
         {
-            OnPlayerInventoryDisplayRequested?.Invoke(primaryInventorySystem, playerHotbarSize);
+            OnPlayerInventoryDisplayRequested?.Invoke(inventorySystem, playerHotbarSize);
         }
     }
 
@@ -41,7 +41,7 @@ public class PlayerInventoryHolder : InventoryHolder
     {
         if (data.playerInventory.invSystem != null)
         {
-            primaryInventorySystem = data.playerInventory.invSystem;
+            inventorySystem = data.playerInventory.invSystem;
             
             OnPlayerInventoryChanged?.Invoke();
         }
@@ -50,7 +50,7 @@ public class PlayerInventoryHolder : InventoryHolder
     public bool AddToInventory(InventoryItemData data, int amount, out int amountRemaining, bool spawnItemOnFail = false)
     {
 
-        if (primaryInventorySystem.AddToInventory(data, amount, out int remainingAmount))
+        if (inventorySystem.AddToInventory(data, amount, out int remainingAmount))
         {
             amountRemaining = 0;
             return true;
@@ -68,12 +68,12 @@ public class PlayerInventoryHolder : InventoryHolder
 
     public void RemoveItemFromInventory(InventoryItemData itemData, int amount)
     {
-        //TODO: Have to create RemoveItemFromInventory() function in InventorySystem. 
+        inventorySystem.RemoveFromInventory(itemData, amount);
     }
 
     public void SaveInventory()
     {
-        SaveLoad.currentSavedata.playerInventory = new InventorySaveData(primaryInventorySystem);
+        SaveLoad.currentSavedata.playerInventory = new InventorySaveData(inventorySystem);
     }
         
 }
