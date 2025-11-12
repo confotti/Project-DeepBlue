@@ -405,8 +405,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 970ea816cb71cd84d96fce3a964486ca, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  primaryInventorySize: 10
-  primaryInventorySystem:
+  inventorySize: 10
+  inventorySystem:
     inventorySlots: []
 --- !u!65 &804990482
 BoxCollider:
@@ -1700,8 +1700,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 970ea816cb71cd84d96fce3a964486ca, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  primaryInventorySize: 20
-  primaryInventorySystem:
+  inventorySize: 20
+  inventorySystem:
     inventorySlots: []
 --- !u!65 &1659337079
 BoxCollider:
