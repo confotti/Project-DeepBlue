@@ -38,17 +38,8 @@ public class DynamicInventoryDisplay : InventoryDisplay
         }
     }
 
-    //TODO: Object pooling very important here
     private void ClearSlots()
     {
-        /*
-        foreach (var item in transform.Cast<Transform>())
-        {
-            //Destroy(item.gameObject);
-            ObjectPoolManager.ReturnObjectToPool(item.gameObject, ObjectPoolManager.PoolType.inventorySlots);
-        }
-        */
-
         for (int i = gridParent.childCount - 1; i >= 0; i--)
         {
             ObjectPoolManager.ReturnObjectToPool(gridParent.GetChild(i).gameObject, ObjectPoolManager.PoolType.UI);
