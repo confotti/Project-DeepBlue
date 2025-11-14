@@ -422,6 +422,10 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: c05d515f05b24a44b9dbfb452b22a429, type: 2}
+    - target: {fileID: 2370814762573428222, guid: 194ece0fa4e0e134a9e8e5f96bf99262, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: c05d515f05b24a44b9dbfb452b22a429, type: 2}
     - target: {fileID: 3247935716957284633, guid: 194ece0fa4e0e134a9e8e5f96bf99262, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
@@ -429,7 +433,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 194ece0fa4e0e134a9e8e5f96bf99262, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1389198690}
   m_SourcePrefab: {fileID: 100100000, guid: 194ece0fa4e0e134a9e8e5f96bf99262, type: 3}
 --- !u!1001 &166262967
 PrefabInstance:
@@ -1931,6 +1938,33 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d30f9bf89d0fa5a4aa9ac99ac94b4a77, type: 3}
+--- !u!1 &1389198689 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 194ece0fa4e0e134a9e8e5f96bf99262, type: 3}
+  m_PrefabInstance: {fileID: 111651941}
+  m_PrefabAsset: {fileID: 0}
+--- !u!95 &1389198690
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1389198689}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: e2aa28e2c17ded346a92b6a06c4911cb, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1001 &1468171379
 PrefabInstance:
   m_ObjectHideFlags: 0
