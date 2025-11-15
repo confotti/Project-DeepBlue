@@ -26,7 +26,7 @@ public class PlayerMovement : MonoBehaviour
     private CapsuleCollider col;
     [SerializeField] GameObject cameraHead;
 
-    [SerializeField] private States currentState = States.standing;
+    [SerializeField] public States currentState = States.standing;
     private Vector3 hitPosition = Vector3.zero;
 
     //TODO: Fix real statemachine

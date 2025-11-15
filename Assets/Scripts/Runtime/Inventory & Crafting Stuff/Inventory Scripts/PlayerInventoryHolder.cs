@@ -13,7 +13,7 @@ public class PlayerInventoryHolder : InventoryHolder
 
     private void Start()
     {
-        if (SaveLoad.currentSavedata != null) SaveLoad.currentSavedata.playerInventory = new InventorySaveData(inventorySystem);
+        SaveLoad.currentSavedata = new SaveData();
     }
 
     void OnEnable()
@@ -34,16 +34,6 @@ public class PlayerInventoryHolder : InventoryHolder
         if (Keyboard.current.bKey.wasPressedThisFrame)
         {
             OnPlayerInventoryDisplayRequested?.Invoke(inventorySystem, playerHotbarSize);
-        }
-    }
-
-    protected override void LoadInventory(SaveData data)
-    {
-        if (data.playerInventory.invSystem != null)
-        {
-            inventorySystem = data.playerInventory.invSystem;
-            
-            OnPlayerInventoryChanged?.Invoke();
         }
     }
 
@@ -71,9 +61,19 @@ public class PlayerInventoryHolder : InventoryHolder
         inventorySystem.RemoveFromInventory(itemData, amount);
     }
 
-    public void SaveInventory()
+    protected override void LoadInventory(SaveData data)
     {
-        SaveLoad.currentSavedata.playerInventory = new InventorySaveData(inventorySystem);
+        if (data.playerInventory.slots != null)
+        {
+            LoadFromSaveData(data.playerInventory);
+            
+            OnPlayerInventoryChanged?.Invoke();
+        }
     }
-        
+
+    protected override void SaveInventory()
+    {
+        SaveLoad.currentSavedata.playerInventory = new InventorySaveData(InventoryToSaveData());
+
+    }
 }

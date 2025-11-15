@@ -16,10 +16,12 @@ public abstract class InventoryHolder : MonoBehaviour
     //Updates the UI if we change anything in the holder. 
     private void OnValidate()
     {
+        /*
         foreach (var slot in inventorySystem.InventorySlots)
         {
-            inventorySystem.OnInventorySlotChanged?.Invoke(slot);
+            //inventorySystem.OnInventorySlotChanged?.Invoke(slot);
         }
+        */
     }
 
     protected virtual void Awake()
@@ -28,30 +30,51 @@ public abstract class InventoryHolder : MonoBehaviour
     }
 
     protected abstract void LoadInventory(SaveData data);
-}
 
-[Serializable]
-public struct InventorySaveData
-{
-    public InventorySystem invSystem;
-    public Vector3 position;
-    public Quaternion rotation;
-    public bool childOfSub;
+    protected abstract void SaveInventory();
 
-    public InventorySaveData(InventorySystem invSystem, Vector3 position, Quaternion rotation, bool childOfSub = true)
+    protected virtual ItemStackSaveData[] InventoryToSaveData()
     {
-        this.invSystem = invSystem;
-        this.position = position;
-        this.rotation = rotation;
-        this.childOfSub = childOfSub;
+        var items = new ItemStackSaveData[InventorySystem.InventorySize];
+        for (int i = 0; i < items.Length; i++)
+        {
+            if (items[i].amount <= 0)
+            {
+                items[i] = new ItemStackSaveData()
+                {
+                    amount = -1, 
+                    itemId = -1
+                };
+            }
+            else
+            {
+                items[i] = new ItemStackSaveData()
+                {
+                    amount = inventorySystem.InventorySlots[i].StackSize,
+                    itemId = inventorySystem.InventorySlots[i].ItemData.ID
+                };
+            }
+        }
+        return items;
     }
 
-    public InventorySaveData(InventorySystem invSystem)
+    protected void LoadFromSaveData(InventorySaveData data)
     {
-        this.invSystem = invSystem;
-        position = Vector3.zero;
-        rotation = Quaternion.identity;
-        childOfSub = false;
+        // Clear existing items
+        inventorySystem.ClearInventory();
+
+        var db = Resources.Load<ItemDatabase>("Item Database");
+
+        // Load items
+        for (int i = 0; i < data.slots.Length; i++)
+        {
+            if(data.slots[i].amount > 0)
+            {
+                inventorySystem.InventorySlots[i].UpdateInventorySlot(db.GetItem(data.slots[i].itemId),
+                    data.slots[i].amount);
+            }
+        }
     }
 }
+
 

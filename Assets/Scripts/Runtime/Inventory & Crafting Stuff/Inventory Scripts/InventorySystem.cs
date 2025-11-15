@@ -161,4 +161,12 @@ public class InventorySystem
 
         return distinctItems;
     }
+
+    public void ClearInventory()
+    {
+        foreach (var slot in inventorySlots)
+        {
+            slot.ClearSlot();
+        }
+    }
 }

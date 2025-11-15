@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 
 [System.Serializable]
-public class InventorySlot : ISerializationCallbackReceiver
+public class InventorySlot
 {
     [NonSerialized] private InventoryItemData itemData; //Reference to the data
     [SerializeField, ReadOnly] private int itemID = -1;
@@ -87,18 +87,5 @@ public class InventorySlot : ISerializationCallbackReceiver
         //Creates a copy with half the stack size. 
         splitStack = new InventorySlot(itemData, halfStack); 
         return true;
-    }
-
-    public void OnBeforeSerialize()
-    {
-        
-    }
-
-    public void OnAfterDeserialize()
-    {
-        if (itemID == -1) return;
-
-        var db = Resources.Load<ItemDatabase>("Item Database");
-        itemData = db.GetItem(itemID);
     }
 }
