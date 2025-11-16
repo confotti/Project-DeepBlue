@@ -35,9 +35,6 @@
             float4 _BaseColor;
             float3 _WorldOffset;
             int _LeafNodesPerLeaf;
-			float3 _WorldSpaceCameraPos; 
-			float4 unity_FogColor;
-			float4 unity_FogParams; // x = density, y = start, z = end, w = 1/(end-start) 
             float4x4 unity_ObjectToWorld;
             float4x4 unity_WorldToObject;
             float4x4 unity_MatrixVP;
@@ -124,32 +121,11 @@
                 return OUT;
             } 
 
-			float ComputeFogFactor(float3 positionWS)
-			{
-				// Distance from camera to world position
-				float3 camPos = _WorldSpaceCameraPos;
-				float dist = distance(camPos, positionWS);
-
-				// Exponential fog (default HDRP-style)
-				float fogDensity = unity_FogParams.x;
-				float fogFactor = exp(-dist * fogDensity);
-				fogFactor = saturate(fogFactor);
-				return fogFactor; 
-			}
-
             half4 frag(Varyings i) : SV_Target
-			{
-				half4 texColor = _MainTex.Sample(sampler_MainTex, i.uv);
-				half4 baseColor = texColor * i.color;
-
-				// Compute fog
-				float fogFactor = ComputeFogFactor(i.positionWS);
-
-				// Blend between fog color and surface color 
-				baseColor.rgb = lerp(unity_FogColor.rgb, baseColor.rgb, fogFactor);
-
-				return baseColor; 
-			}
+            {
+                half4 texColor = _MainTex.Sample(sampler_MainTex, i.uv); 
+                return texColor * i.color;
+            }
 
             ENDHLSL
         }
@@ -247,4 +223,4 @@
     }
 
     FallBack Off
-} 
+}
