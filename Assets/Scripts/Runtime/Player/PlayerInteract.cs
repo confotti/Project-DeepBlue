@@ -43,7 +43,7 @@ public class PlayerInteract : MonoBehaviour
     {
         if (interactable != null)
         {
-            interactable.Interact(this, out bool interactSuccessful);
+            interactable.Interact(this);
             //IsInteracting = true;
         }
     }

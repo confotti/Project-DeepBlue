@@ -6,6 +6,9 @@ using UnityEngine.Events;
 [RequireComponent(typeof(UniqueID))]
 public class ChestInventory : InventoryHolder, IInteractable
 {
+    [SerializeField] private string interactText = "";
+    public string InteractText => interactText;
+
     public UnityAction<IInteractable> OnInteractionComplete { get; set; }
     [NonSerialized] public bool isChildOfSub;
 
@@ -27,10 +30,9 @@ public class ChestInventory : InventoryHolder, IInteractable
 
     }
 
-    public void Interact(PlayerInteract interactor, out bool interactSuccessful)
+    public void Interact(PlayerInteract interactor)
     {
         OnDynamicInventoryDisplayRequested?.Invoke(inventorySystem, 0);
-        interactSuccessful = true;
     }
 
     public void EndInteraction()

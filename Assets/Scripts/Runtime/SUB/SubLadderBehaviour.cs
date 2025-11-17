@@ -3,6 +3,10 @@ using UnityEngine.Events;
 
 public class SubLadderBehaviour : MonoBehaviour, IInteractable
 {
+
+    [SerializeField] private string interactText = "";
+    public string InteractText => interactText;
+
     [SerializeField] private Vector3 teleportToLocation;
 
     public UnityAction<IInteractable> OnInteractionComplete { get; set; }
@@ -12,11 +16,13 @@ public class SubLadderBehaviour : MonoBehaviour, IInteractable
         
     }
 
-    public void Interact(PlayerInteract interactor, out bool interactSuccessful)
+    public void Interact(PlayerInteract interactor)
     {
+        PlayerMovement pm = interactor.GetComponent<PlayerMovement>();
+        if (!pm.IsSwimming) return;
+
         interactor.transform.position = transform.position + teleportToLocation;
-        interactor.GetComponent<PlayerMovement>().currentState = PlayerMovement.States.standing;
-        interactSuccessful = true;
+        pm.SetCurrentState(PlayerMovement.States.standing);
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created

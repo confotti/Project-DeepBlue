@@ -6,17 +6,16 @@ public class ItemPickUp : MonoBehaviour, IInteractable
     public InventoryItemData itemData;
     [SerializeField] private int amountOfItem = 1;
 
+    [SerializeField] private string interactText = "";
+    public string InteractText => interactText;
+
     public UnityAction<IInteractable> OnInteractionComplete { get; set; }
 
-    public void Interact(PlayerInteract interactor, out bool interactSuccessful)
+    public void Interact(PlayerInteract interactor)
     {
         var inventory = interactor.GetComponent<PlayerInventoryHolder>();
 
-        if (!inventory)
-        {
-            interactSuccessful = false;
-            return;
-        }
+        if (!inventory) return;
 
         if (inventory.AddToInventory(itemData, amountOfItem, out int remainingAmount))
         {
@@ -24,8 +23,6 @@ public class ItemPickUp : MonoBehaviour, IInteractable
             if (remainingAmount == 0) Destroy(gameObject);
             else amountOfItem = remainingAmount;
         }
-
-        interactSuccessful = true;
     }
 
     public void EndInteraction()

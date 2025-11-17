@@ -5,6 +5,8 @@ using UnityEngine.Events;
 public class CraftingBench : MonoBehaviour, IInteractable
 {
     //TODO: Make a CraftingStationParent class or similar. 
+    [SerializeField] private string interactText = "";
+    public string InteractText => interactText;
 
     [SerializeField] private List<CraftingRecipe> knownRecipes;
 
@@ -14,7 +16,7 @@ public class CraftingBench : MonoBehaviour, IInteractable
 
     public List<CraftingRecipe> KnownRecipes => knownRecipes;
 
-    public void Interact(PlayerInteract interactor, out bool interactSuccessful)
+    public void Interact(PlayerInteract interactor)
     {
         playerInventory = interactor.GetComponent<PlayerInventoryHolder>();
 
@@ -23,14 +25,8 @@ public class CraftingBench : MonoBehaviour, IInteractable
             CraftingDisplay.OnCraftingDisplayRequested?.Invoke(this);
 
             EndInteraction();
-            interactSuccessful = true;
 
         }
-        else
-        {
-            interactSuccessful = false;
-        }
-
     }
 
     public void EndInteraction()

@@ -14,6 +14,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float rideHeight = 3;
     [SerializeField] private float rideSpringStrength = 500;
     [SerializeField] private float rideSpringDamper = 40;
+    [SerializeField] private LayerMask springLayerMask;
 
     public bool IsSwimming => currentState == States.swimming;
 
@@ -26,7 +27,7 @@ public class PlayerMovement : MonoBehaviour
     private CapsuleCollider col;
     [SerializeField] GameObject cameraHead;
 
-    [SerializeField] public States currentState = States.standing;
+    [SerializeField] private States currentState = States.standing;
     private Vector3 hitPosition = Vector3.zero;
 
     //TODO: Fix real statemachine
@@ -88,7 +89,7 @@ public class PlayerMovement : MonoBehaviour
             RaycastHit hit;
             var a = col.bounds.center;
             a.y = col.bounds.min.y + col.radius * transform.lossyScale.y;
-            if(Physics.SphereCast(a, col.radius * transform.lossyScale.y, Vector3.down, out hit, rideHeight * 2, ~0))
+            if(Physics.SphereCast(a, col.radius * transform.lossyScale.y, Vector3.down, out hit, rideHeight * 2, springLayerMask))
                 springThing(hit);
             //if (Physics.Raycast(a, Vector3.down, out hit, rideHeight*2, ~0))
 
@@ -151,6 +152,11 @@ public class PlayerMovement : MonoBehaviour
             hitBody.AddForceAtPosition(rayDir * -springForce, hit.point);
         }
         */
+    }
+
+    public void SetCurrentState(States state)
+    {
+        currentState = state;
     }
 
     [System.Diagnostics.Conditional("UNITY_EDITOR")]

@@ -3,7 +3,8 @@ using UnityEngine.Events;
 
 public interface IInteractable
 {
-    public void Interact(PlayerInteract interactor, out bool interactSuccessful);
+    public string InteractText{ get; }
+    public void Interact(PlayerInteract interactor);
     public void EndInteraction();
 
     public UnityAction<IInteractable> OnInteractionComplete { get; set; }

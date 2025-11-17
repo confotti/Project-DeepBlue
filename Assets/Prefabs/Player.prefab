@@ -10280,6 +10280,9 @@ MonoBehaviour:
   rideHeight: 3.2
   rideSpringStrength: 600
   rideSpringDamper: 40
+  springLayerMask:
+    serializedVersion: 2
+    m_Bits: 16379
   cameraHead: {fileID: 5577114592626121966}
   currentState: 1
 --- !u!114 &903199630935089767
@@ -10297,7 +10300,7 @@ MonoBehaviour:
   range: 15
   interactLayer:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 16379
   head: {fileID: 5577114592626121966}
 --- !u!114 &4840940593215283443
 MonoBehaviour:
