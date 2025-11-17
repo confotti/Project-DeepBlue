@@ -1,33 +1,22 @@
 using UnityEngine;
+using UnityEngine.Events;
 
-public class InteractionButton : MonoBehaviour
+public class InteractionButton : MonoBehaviour, IInteractable
 {
     public SubmarineController submarine;
     private bool playerInTrigger = false;
 
-    void Update()
+    public string InteractText => throw new System.NotImplementedException();
+
+    public UnityAction<IInteractable> OnInteractionComplete { get; set; }
+
+    public void Interact(PlayerInteract interactor)
     {
-        if (playerInTrigger && Input.GetMouseButtonDown(0)) 
-        {
-            submarine.ToggleSub();
-        }
+        submarine.ToggleSub();
     }
 
-    private void OnTriggerEnter(Collider other)
+    public void EndInteraction()
     {
-        if (other.CompareTag("Player"))
-        {
-            playerInTrigger = true;
-            Debug.Log("Player entered button trigger");
-        }
-    }
-
-    private void OnTriggerExit(Collider other)
-    {
-        if (other.CompareTag("Player"))
-        {
-            playerInTrigger = false;
-            Debug.Log("Player left button trigger");
-        }
+        
     }
 }
