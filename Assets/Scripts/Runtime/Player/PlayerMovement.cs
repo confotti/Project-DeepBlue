@@ -21,6 +21,9 @@ public class PlayerMovement : MonoBehaviour
     private Vector2 rotation;
     private float lookYMax = 90;
 
+    private bool shouldSpring = true;
+    private bool grounded = false;
+
     //References
     private PlayerInputHandler inputHandler;
     private Rigidbody rb;
@@ -75,7 +78,7 @@ public class PlayerMovement : MonoBehaviour
         if (currentState == States.swimming)
         {
             rb.linearVelocity = (new Vector3(0, inputHandler.SwimUp - inputHandler.SwimDown, 0) +
-                cameraHead.transform.rotation * new Vector3(inputHandler.Move.x, 0, inputHandler.Move.y)).normalized * 
+                cameraHead.transform.rotation * new Vector3(inputHandler.Move.x, 0, inputHandler.Move.y)).normalized *
                 (inputHandler.Run ? swimmingFastSpeed : swimmingSpeed);
         }
 
@@ -87,11 +90,23 @@ public class PlayerMovement : MonoBehaviour
             move.y = rb.linearVelocity.y - gravity * Time.fixedDeltaTime;
             rb.linearVelocity = move;
 
+            if (!shouldSpring)
+            {
+                grounded = false;
+                if (rb.linearVelocity.y < 0.2f) shouldSpring = true;
+                else return;
+            }
+
             RaycastHit hit;
             var a = col.bounds.center;
             a.y = col.bounds.min.y + col.radius * transform.lossyScale.y;
-            if(Physics.SphereCast(a, col.radius * transform.lossyScale.y, Vector3.down, out hit, rideHeight * 2, springLayerMask))
+            if (Physics.SphereCast(a, col.radius * transform.lossyScale.y, Vector3.down, out hit, rideHeight * 1.5f, springLayerMask))
+            {
+                grounded = true;
                 springThing(hit);
+            }
+            else grounded = false;
+                
             //if (Physics.Raycast(a, Vector3.down, out hit, rideHeight*2, ~0))
 
         }
@@ -112,11 +127,13 @@ public class PlayerMovement : MonoBehaviour
 
     private void OnJump()
     {
-        if (currentState != States.standing) return;
+        if (currentState != States.standing || !grounded) return;
 
         var move = rb.linearVelocity;
         move.y = jumpPower;
         rb.linearVelocity = move;
+
+        shouldSpring = false;
     }
 
     private void springThing(RaycastHit hit)
@@ -170,7 +187,7 @@ public class PlayerMovement : MonoBehaviour
         Gizmos.color = Color.blue;
         Gizmos.DrawLine(a, a + Vector3.down * rideHeight);
         Gizmos.color = Color.red;
-        Gizmos.DrawLine(a + Vector3.down * rideHeight, a + Vector3.down * rideHeight * 2);
+        Gizmos.DrawLine(a + Vector3.down * rideHeight, a + Vector3.down * rideHeight * 1.5f);
 
         Gizmos.color = Color.magenta;
         Gizmos.DrawSphere(hitPosition, 0.5f);

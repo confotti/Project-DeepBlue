@@ -225,6 +225,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 054a72b5dc8878049b83810dbe254791, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  interactText: 
   knownRecipes:
   - {fileID: 11400000, guid: 92ecd63ac40a4be4fb0c833a29a1b358, type: 2}
   - {fileID: 11400000, guid: 7a6d3809d4f1b014aa41d15e705ed25f, type: 2}
@@ -399,6 +400,7 @@ MonoBehaviour:
   inventorySize: 10
   inventorySystem:
     inventorySlots: []
+  interactText: 
 --- !u!65 &804990482
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1694,6 +1696,7 @@ MonoBehaviour:
   inventorySize: 20
   inventorySystem:
     inventorySlots: []
+  interactText: 
 --- !u!65 &1659337079
 BoxCollider:
   m_ObjectHideFlags: 0
