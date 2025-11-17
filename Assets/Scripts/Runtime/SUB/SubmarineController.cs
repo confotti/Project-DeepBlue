@@ -8,11 +8,12 @@ public class SubmarineController : MonoBehaviour
 
     [SerializeField] private float velocity = 2f;
     [SerializeField] private float brake = 2f;
+    [SerializeField] private float maxSpeed = 5.5f;
     private float currentSpeed = 0f;
 
-    [Header("Player Follow")] 
+    [Header("Player Follow")]
     [SerializeField] string playerTag = "Player";
-    [SerializeField] Transform sub; 
+    [SerializeField] Transform sub;
 
     void Awake()
     {
@@ -25,15 +26,23 @@ public class SubmarineController : MonoBehaviour
         if (isRunning)
         {
             currentSpeed = Mathf.Lerp(
-                currentSpeed, splineAnimate.MaxSpeed, velocity * Time.deltaTime); 
+                currentSpeed, maxSpeed, velocity * Time.deltaTime);
+
+            UpdatePathSpeed(currentSpeed);
         }
         else
         {
-            currentSpeed = Mathf.Lerp( 
-                currentSpeed, 0f, brake * Time.deltaTime);
-
             if (currentSpeed <= 0.01f)
+            {
+                currentSpeed = 0;
                 splineAnimate.Pause();
+                return;
+            }
+
+            currentSpeed = Mathf.Lerp(
+                currentSpeed, 0f, brake * Time.deltaTime); 
+                
+            UpdatePathSpeed(currentSpeed);
         }
     }
 
@@ -43,19 +52,19 @@ public class SubmarineController : MonoBehaviour
         {
             other.gameObject.transform.parent = sub;
         }
-    } 
+    }
 
     private void OnTriggerExit(Collider other)
     {
         if (other.CompareTag("Player"))
         {
-            isRunning = false; 
-            Debug.Log("Player Has Exit SUB"); 
+            isRunning = false;
+            Debug.Log("Player Has Exit SUB");
         }
 
         if (other.gameObject.tag.Equals(playerTag))
         {
-            other.gameObject.transform.parent = null; 
+            other.gameObject.transform.parent = null;
         }
     }
 
@@ -79,5 +88,13 @@ public class SubmarineController : MonoBehaviour
             StopSub();
         else
             StartSub();
-    } 
+    }
+
+    private void UpdatePathSpeed(float newSpeed)
+    {
+        float prevProgress;
+        prevProgress = !float.IsNaN(splineAnimate.NormalizedTime) ? splineAnimate.NormalizedTime : 0;
+        splineAnimate.MaxSpeed = currentSpeed;
+        splineAnimate.NormalizedTime = prevProgress;
+    }
 }
