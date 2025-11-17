@@ -1,4 +1,5 @@
 {
+    "version": 1,
     "name": "DefaultInputActions",
     "maps": [
         {
@@ -45,6 +46,15 @@
                     "name": "Run",
                     "type": "Button",
                     "id": "5f21f39b-d43b-4190-bc33-eead4fa016b2",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Crouch",
+                    "type": "Button",
+                    "id": "795a77e4-0375-41d9-9e0b-1a622ded1e8b",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -170,6 +180,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "Run",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "3dfc821b-8b4d-444f-be73-06c3e5140e89",
+                    "path": "<Keyboard>/leftCtrl",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Crouch",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

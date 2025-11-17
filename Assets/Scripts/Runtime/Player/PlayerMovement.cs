@@ -74,7 +74,8 @@ public class PlayerMovement : MonoBehaviour
     {
         if (currentState == States.swimming)
         {
-            rb.linearVelocity = (cameraHead.transform.rotation * new Vector3(inputHandler.Move.x, 0, inputHandler.Move.y)).normalized * 
+            rb.linearVelocity = (new Vector3(0, inputHandler.SwimUp - inputHandler.SwimDown, 0) +
+                cameraHead.transform.rotation * new Vector3(inputHandler.Move.x, 0, inputHandler.Move.y)).normalized * 
                 (inputHandler.Run ? swimmingFastSpeed : swimmingSpeed);
         }
 

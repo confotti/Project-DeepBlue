@@ -9,10 +9,14 @@ public class PlayerInputHandler : MonoBehaviour
     private InputAction movement;
     private InputAction look;
     private InputAction run;
+    private InputAction jump;
+    private InputAction crouch;
 
     public Vector2 Move { get { return movement.ReadValue<Vector2>(); } }
     public Vector2 Look { get { return look.ReadValue<Vector2>(); } }
     public bool Run { get { return run.ReadValue<float>() == 1; } }
+    public float SwimUp { get { return jump.ReadValue<float>(); } }
+    public float SwimDown { get { return crouch.ReadValue<float>(); } }
     public Action OnInteract;
     public Action OnJump;
     public Action<InputAction.CallbackContext> OnRun;
@@ -37,8 +41,12 @@ public class PlayerInputHandler : MonoBehaviour
         defaultInputActions.PlayerMovement.Interact.Enable();
         defaultInputActions.PlayerMovement.Interact.performed += Interact;
 
-        defaultInputActions.PlayerMovement.Jump.Enable();
-        defaultInputActions.PlayerMovement.Jump.performed += Jump;
+        jump = defaultInputActions.PlayerMovement.Jump;
+        jump.Enable();
+        jump.performed += Jump;
+
+        crouch = defaultInputActions.PlayerMovement.Crouch;
+        crouch.Enable();
     }
 
     private void OnDisable()
