@@ -1,8 +1,7 @@
-#ifndef KELP_BUFFERS_INCLUDED
+﻿#ifndef KELP_BUFFERS_INCLUDED
 #define KELP_BUFFERS_INCLUDED
 
 // --- StalkNode buffer ---
-// Matches your C# struct layout (padding included for correct stride)
 struct StalkNode
 {
     float3 currentPos;  float pad0;
@@ -15,78 +14,91 @@ struct StalkNode
 
 // Buffers
 StructuredBuffer<StalkNode> _StalkNodesBuffer;
-StructuredBuffer<float3> initialRootPositions; // optional roots access
+StructuredBuffer<float3> initialRootPositions;
 
-// --- Helper: Rotation matrix from 'from' to 'to' ---
+// Control from C# (0 = normal object, 1 = kelp instancing)
+float _Kelp_UseInstance = 0.0;
+
+// --- Rotation from 'from' to 'to' ---
 float3x3 RotationFromTo(float3 from, float3 to)
 {
     from = normalize(from);
-    to = normalize(to);
-    float c = saturate(dot(from, to));
+    to   = normalize(to);
+    float c = dot(from, to);
 
-    if (c > 0.9999)
+    if (c > 0.9998)
         return float3x3(1,0,0, 0,1,0, 0,0,1);
 
-    float3 axis = cross(from, to);
-    float s = length(axis);
-    float x = axis.x, y = axis.y, z = axis.z;
-    float K = (1.0 - c) / (s*s);
+    if (c < -0.9998)
+    {
+        float3 axis = normalize(abs(from.x) > 0.1 ? float3(0,1,0) : float3(1,0,0));
+        float3 ortho = normalize(cross(from, axis));
+        return float3x3(-1,0,0, 0,-1,0, 0,0,-1);
+    }
 
-    float3x3 R;
-    R[0][0] = c + K*x*x;
-    R[0][1] = K*x*y - z;
-    R[0][2] = K*x*z + y;
-    R[1][0] = K*x*y + z;
-    R[1][1] = c + K*y*y;
-    R[1][2] = K*y*z - x;
-    R[2][0] = K*x*z - y;
-    R[2][1] = K*y*z + x;
-    R[2][2] = c + K*z*z;
-    return R;
+    float3 v = cross(from, to);
+    float s = length(v);
+    float k = (1.0 - c) / (s * s);
+
+    return float3x3(
+        c + k*v.x*v.x,      k*v.x*v.y - v.z,  k*v.x*v.z + v.y,
+        k*v.x*v.y + v.z,    c + k*v.y*v.y,    k*v.y*v.z - v.x,
+        k*v.x*v.z - v.y,    k*v.y*v.z + v.x,  c + k*v.z*v.z
+    );
 }
 
 // --- Shader Graph-compatible vertex transform ---
-// Note: instanceID must be passed from Shader Graph
 void Kelp_VertexTransform_float(
     float3 positionOS,
     float3 normalOS,
-    uint instanceID,
+    float InstanceID,
     float3 worldOffset,
     out float3 positionWS,
     out float3 normalWS
 )
 {
-    // Safe access to object-to-world matrix
     float4x4 objToWorld = GetObjectToWorldMatrix();
 
-    uint idx = instanceID;
-
-    // Clamp to buffer length
-    if (idx >= _StalkNodesBuffer.Length)
+    // Normal object behavior if not instanced
+    if (_Kelp_UseInstance < 0.5)
     {
-        // fallback to standard transform
-        positionWS = mul(objToWorld, float4(positionOS,1)).xyz + worldOffset;
-        normalWS = normalize(mul((float3x3)objToWorld, normalOS));
+        positionWS = mul(objToWorld, float4(positionOS, 1)).xyz;
+        normalWS   = normalize(mul((float3x3)objToWorld, normalOS));
         return;
     }
 
-    // Sample current node
+    uint idx = (uint)InstanceID;
+
+    if (_StalkNodesBuffer.Length == 0 || idx >= _StalkNodesBuffer.Length)
+    {
+        positionWS = mul(objToWorld, float4(positionOS, 1)).xyz;
+        normalWS   = normalize(mul((float3x3)objToWorld, normalOS));
+        return;
+    }
+
+    // --- Sample node ---
     StalkNode node = _StalkNodesBuffer[idx];
     float3 p0 = node.currentPos;
-    float3 p1 = (idx + 1 < _StalkNodesBuffer.Length) ? _StalkNodesBuffer[idx+1].currentPos : p0 + float3(0,1,0);
+    float3 p1 = (idx + 1 < _StalkNodesBuffer.Length) ? _StalkNodesBuffer[idx + 1].currentPos : p0 + float3(0,1,0);
 
-    // If this is a tip, adjust positions
     if (node.isTip == 1 && idx > 0)
-        p0 = _StalkNodesBuffer[idx-1].currentPos;
+    {
+        p0 = _StalkNodesBuffer[idx - 1].currentPos;
+        p1 = node.currentPos;
+    }
 
     float3 dir = normalize(p1 - p0);
-
-    // Build rotation from up to direction
     float3x3 rot = RotationFromTo(float3(0,1,0), dir);
 
-    // Transform position and normal
-    positionWS = p0 + mul(rot, positionOS) + worldOffset;
-    normalWS = normalize(mul(rot, normalOS));
+    // --- Correct scaling ---
+    // Apply object scale first, then rotate along stalk, then offset by node + world
+    float3 posScaled = mul((float3x3)objToWorld, positionOS); // apply object scale & rotation
+    float3 posRotated = mul(rot, posScaled);                  // rotate along stalk
+    positionWS = posRotated + p0 + worldOffset;
+
+    float3 normalScaled = mul((float3x3)objToWorld, normalOS); // object rotation & scale
+    float3 normalRotated = mul(rot, normalScaled);             // rotate to stalk
+    normalWS = normalize(normalRotated);
 }
 
 #endif

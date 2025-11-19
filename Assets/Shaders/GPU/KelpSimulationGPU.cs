@@ -14,7 +14,7 @@ public class KelpSimulationGPU_HDRP : MonoBehaviour
 
     [Header("References")]
     public ComputeShader kelpComputeShader;
-    public Material kelpRenderMaterial; 
+    public Material kelpRenderMaterial;
     public Mesh kelpSegmentMesh;
     public Material leafRenderMaterial;
     public Mesh kelpLeafMesh;
@@ -25,7 +25,7 @@ public class KelpSimulationGPU_HDRP : MonoBehaviour
     public Color kelpColor = Color.green;
     public Color leafColor = new Color(0.2f, 0.8f, 0.2f, 1f);
     public float windStrength = 0.5f;
-    public float windFrequency = 1f; 
+    public float windFrequency = 1f;
 
     [Range(2, 6)]
     public int leafNodesPerLeaf = 3;
@@ -113,8 +113,11 @@ public class KelpSimulationGPU_HDRP : MonoBehaviour
 
     void Start()
     {
-        kelpRenderMaterial = new Material(kelpRenderMaterial);
-        leafRenderMaterial = new Material(leafRenderMaterial); 
+        // Create material instances so we can safely set buffers/properties on them
+        if (kelpRenderMaterial != null)
+            kelpRenderMaterial = new Material(kelpRenderMaterial);
+        if (leafRenderMaterial != null)
+            leafRenderMaterial = new Material(leafRenderMaterial);
 
         InitializeBuffers();
         InitializeData();
@@ -125,8 +128,8 @@ public class KelpSimulationGPU_HDRP : MonoBehaviour
 
         if (targetCamera == null) targetCamera = Camera.main;
 
-        kelpRenderMaterial.enableInstancing = true;
-        leafRenderMaterial.enableInstancing = true;
+        if (kelpRenderMaterial != null) kelpRenderMaterial.enableInstancing = true;
+        if (leafRenderMaterial != null) leafRenderMaterial.enableInstancing = true;
     }
 
     void InitializeBuffers()
@@ -246,7 +249,7 @@ public class KelpSimulationGPU_HDRP : MonoBehaviour
                     Vector3 p = n0Pos + outward + stalkDir * step * n;
                     leafSegments[segIndex].currentPos = p;
                     leafSegments[segIndex].previousPos = p;
-                    leafSegments[segIndex].color = leafColor.linear; 
+                    leafSegments[segIndex].color = leafColor.linear;
                 }
             }
         }
@@ -275,7 +278,7 @@ public class KelpSimulationGPU_HDRP : MonoBehaviour
     {
         if (targetCamera == null) targetCamera = Camera.main;
 
-        // --- Set globals ---
+        // --- Set globals for compute ---
         kelpComputeShader.SetFloat("_DeltaTime", Time.deltaTime);
         kelpComputeShader.SetVector("_Gravity", gravityForce);
         kelpComputeShader.SetFloat("_Damping", damping);
@@ -302,6 +305,7 @@ public class KelpSimulationGPU_HDRP : MonoBehaviour
             sphereCollidersBuffer.SetData(collidersCPU);
         }
 
+        // --- Bind compute buffers to kernels ---
         kelpComputeShader.SetBuffer(stalkKernel, "_StalkNodesBuffer", stalkNodesBuffer);
         kelpComputeShader.SetBuffer(stalkKernel, "initialRootPositions", initialRootPositionsBuffer);
         kelpComputeShader.SetBuffer(stalkKernel, "_SphereColliders", sphereCollidersBuffer);
@@ -321,23 +325,40 @@ public class KelpSimulationGPU_HDRP : MonoBehaviour
         kelpComputeShader.Dispatch(leafKernel, leafGroups, 1, 1);
 
         // --- Draw call ---
-        kelpRenderMaterial.SetColor("_BaseColor", kelpColor.linear);
-        kelpRenderMaterial.SetVector("_WorldOffset", transform.position);
-        kelpRenderMaterial.SetBuffer("_StalkNodesBuffer", stalkNodesBuffer);
-        kelpRenderMaterial.SetBuffer("_KelpObjectsBuffer", kelpObjectsBuffer);
+        if (kelpRenderMaterial != null)
+        {
+            // important: set buffers & flags on the material instance
+            kelpRenderMaterial.SetColor("_BaseColor", kelpColor.linear);
+            kelpRenderMaterial.SetVector("_WorldOffset", transform.position);
+            kelpRenderMaterial.SetBuffer("_StalkNodesBuffer", stalkNodesBuffer);
+            kelpRenderMaterial.SetBuffer("_KelpObjectsBuffer", kelpObjectsBuffer);
 
-        leafRenderMaterial.SetColor("_BaseColor", leafColor.linear); 
-        leafRenderMaterial.SetVector("_WorldOffset", transform.position);
-        leafRenderMaterial.SetInt("_LeafNodesPerLeaf", Mathf.Max(2, leafNodesPerLeaf));
-        leafRenderMaterial.SetBuffer("_LeafSegmentsBuffer", leafSegmentsBuffer);
-        leafRenderMaterial.SetBuffer("_LeafObjectsBuffer", leafObjectsBuffer);
+            // tell the shader to use instanced transform path
+            kelpRenderMaterial.SetFloat("_Kelp_UseInstance", 1.0f);
+        }
+
+        if (leafRenderMaterial != null)
+        {
+            leafRenderMaterial.SetColor("_BaseColor", leafColor.linear);
+            leafRenderMaterial.SetVector("_WorldOffset", transform.position);
+            leafRenderMaterial.SetInt("_LeafNodesPerLeaf", Mathf.Max(2, leafNodesPerLeaf));
+            leafRenderMaterial.SetBuffer("_LeafSegmentsBuffer", leafSegmentsBuffer);
+            leafRenderMaterial.SetBuffer("_LeafObjectsBuffer", leafObjectsBuffer);
+            leafRenderMaterial.SetFloat("_Kelp_UseInstance", 1.0f);
+        }
+
+        // ensure bounds are generous to avoid culling issues
+        Bounds drawBounds = GetDrawBounds();
 
         Graphics.DrawMeshInstancedProcedural(
-            kelpSegmentMesh, 0, kelpRenderMaterial, GetDrawBounds(), totalStalkNodes
+            kelpSegmentMesh, 0, kelpRenderMaterial, drawBounds, totalStalkNodes
         );
         Graphics.DrawMeshInstancedProcedural(
-            kelpLeafMesh, 0, leafRenderMaterial, GetDrawBounds(), totalLeafObjects
+            kelpLeafMesh, 0, leafRenderMaterial, drawBounds, totalLeafObjects
         );
+
+        // (Optional) reset the flag if you rely on the same material elsewhere; we keep it set here
+        // kelpRenderMaterial.SetFloat("_Kelp_UseInstance", 0f);
     }
 
 #if UNITY_EDITOR
@@ -400,8 +421,9 @@ public class KelpSimulationGPU_HDRP : MonoBehaviour
 
     Bounds GetDrawBounds()
     {
+        // enlarge bounds to be safe from culling issues
         float maxHeight = totalStalkNodes * segmentSpacing + leafLength; // include leaf extension
-        float radius = spreadRadius + 2f; // margin
+        float radius = spreadRadius + 5f; // bigger margin
         return new Bounds(
             transform.position + Vector3.up * maxHeight * 0.5f,
             new Vector3(radius * 2f, maxHeight, radius * 2f)
