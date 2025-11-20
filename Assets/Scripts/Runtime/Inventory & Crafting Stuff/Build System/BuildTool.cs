@@ -5,19 +5,19 @@ namespace BuildSystem
 {
     public class BuildTool : MonoBehaviour
     {
-        [SerializeField] private float rayDistance = 20;
-        [SerializeField] private LayerMask buildModeLayerMask;
-        [SerializeField] private LayerMask deleteModeLayerMask;
-        [SerializeField] private int defaultLayerInt = 9;
-        [SerializeField] private Transform rayOrigin;
-        [SerializeField] private Material buildingMatPositive;
-        [SerializeField] private Material buildingMatNegative;
+        [SerializeField] private float _rayDistance = 20;
+        [SerializeField] private LayerMask _buildModeLayerMask;
+        [SerializeField] private LayerMask _deleteModeLayerMask;
+        [SerializeField] private int _defaultLayerInt = 9;
+        [SerializeField] private Transform _rayOrigin;
+        [SerializeField] private Material _buildingMatPositive;
+        [SerializeField] private Material _buildingMatNegative;
 
         private bool deleteModeEnabled = false;
 
         private Camera cam;
 
-        private GameObject gameObjectToPosition;
+        [SerializeField] private Building _spawnedBuilding;
 
         private void Awake()
         {
@@ -35,22 +35,36 @@ namespace BuildSystem
 
         private bool IsRayHittingSomething(LayerMask layerMask, out RaycastHit hitInfo)
         {
-            return Physics.Raycast(rayOrigin.position, cam.transform.forward, out hitInfo, rayDistance, layerMask);
+            return Physics.Raycast(_rayOrigin.position, cam.transform.forward, out hitInfo, _rayDistance, layerMask);
         }
 
         private void BuildModeLogic()
         {
-            if (gameObjectToPosition == null) return;
-            if (!IsRayHittingSomething(buildModeLayerMask, out RaycastHit hitInfo)) return;
+            if (_spawnedBuilding == null) return;
 
-            gameObjectToPosition.transform.position = hitInfo.point;
+            if (!IsRayHittingSomething(_buildModeLayerMask, out RaycastHit hitInfo))
+            {
+                _spawnedBuilding.UpdateMaterial(_buildingMatNegative);
+            }
+            else
+            {
+                _spawnedBuilding.UpdateMaterial(_buildingMatPositive);
+                _spawnedBuilding.transform.position = hitInfo.point;
+            }
 
-            if (Mouse.current.leftButton.wasPressedThisFrame) ObjectPoolManager.SpawnObject(gameObjectToPosition, hitInfo.point);
+            _spawnedBuilding.transform.position = hitInfo.point;
+
+            if (Mouse.current.leftButton.wasPressedThisFrame)
+            {
+                Building placedBuilding = ObjectPoolManager.SpawnObject(_spawnedBuilding, hitInfo.point);
+                placedBuilding.PlaceBuilding();
+                //Continue from 9:00. 
+            } 
         }
 
         private void DeleteModeLogic()
         {
-            if(!IsRayHittingSomething(deleteModeLayerMask, out RaycastHit hitInfo)) return;
+            if(!IsRayHittingSomething(_deleteModeLayerMask, out RaycastHit hitInfo)) return;
 
             if (Mouse.current.leftButton.wasPressedThisFrame) ObjectPoolManager.ReturnObjectToPool(hitInfo.collider.gameObject);
         }
