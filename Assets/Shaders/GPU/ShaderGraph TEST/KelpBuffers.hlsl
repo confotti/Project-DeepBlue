@@ -57,13 +57,11 @@ void Kelp_VertexTransform_float(
     out float3 normalWS
 )
 {
-    float4x4 objToWorld = GetObjectToWorldMatrix();
-
-    // Normal object behavior if not instanced
+    // Normal object rendering (not instanced)
     if (_Kelp_UseInstance < 0.5)
     {
-        positionWS = mul(objToWorld, float4(positionOS, 1)).xyz;
-        normalWS   = normalize(mul((float3x3)objToWorld, normalOS));
+        positionWS = TransformObjectToWorld(positionOS);
+        normalWS   = TransformObjectToWorldDir(normalOS);
         return;
     }
 
@@ -71,8 +69,8 @@ void Kelp_VertexTransform_float(
 
     if (_StalkNodesBuffer.Length == 0 || idx >= _StalkNodesBuffer.Length)
     {
-        positionWS = mul(objToWorld, float4(positionOS, 1)).xyz;
-        normalWS   = normalize(mul((float3x3)objToWorld, normalOS));
+        positionWS = TransformObjectToWorld(positionOS);
+        normalWS   = TransformObjectToWorldDir(normalOS);
         return;
     }
 
@@ -90,15 +88,15 @@ void Kelp_VertexTransform_float(
     float3 dir = normalize(p1 - p0);
     float3x3 rot = RotationFromTo(float3(0,1,0), dir);
 
-    // --- Correct scaling ---
-    // Apply object scale first, then rotate along stalk, then offset by node + world
-    float3 posScaled = mul((float3x3)objToWorld, positionOS); // apply object scale & rotation
-    float3 posRotated = mul(rot, posScaled);                  // rotate along stalk
-    positionWS = posRotated + p0 + worldOffset;
+    // --- Instance-aware object->world scaling ---
+    float3 posScaled     = TransformObjectToWorld(positionOS) - GetObjectToWorldMatrix()[3].xyz;
+    posScaled            = mul(rot, posScaled);
 
-    float3 normalScaled = mul((float3x3)objToWorld, normalOS); // object rotation & scale
-    float3 normalRotated = mul(rot, normalScaled);             // rotate to stalk
-    normalWS = normalize(normalRotated);
+    float3 norScaled     = TransformObjectToWorldDir(normalOS);
+    norScaled            = mul(rot, norScaled);
+
+    positionWS = posScaled + p0 + worldOffset;
+    normalWS   = normalize(norScaled);
 }
 
 #endif
