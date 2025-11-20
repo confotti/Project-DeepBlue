@@ -1,9 +1,11 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System;
 
 public class InventorySlot_UI : ParentItemSlot_UI
 {
+    [SerializeField] private GameObject _slotHighlight;
     [SerializeField] private InventorySlot assignedInventorySlot;
 
     private Button button;
@@ -71,5 +73,10 @@ public class InventorySlot_UI : ParentItemSlot_UI
     public void OnUISlotClick()
     {
         ParentDisplay?.SlotClicked(this);
+    }
+
+    internal void ToggleHighlight()
+    {
+        _slotHighlight.SetActive(!_slotHighlight.activeSelf);
     }
 }

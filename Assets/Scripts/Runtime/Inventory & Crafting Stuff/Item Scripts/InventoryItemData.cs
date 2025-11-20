@@ -23,4 +23,9 @@ public class InventoryItemData : ScriptableObject
             Debug.LogWarning("Max Stack Size cannot be less than 1");
         }
     }
+
+    public void UseItem()
+    {
+        //I really don't like this. Dont know what to do about it rn. 
+    }
 }
