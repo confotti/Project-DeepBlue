@@ -1,5 +1,6 @@
 ﻿#ifndef KELP_BUFFERS_INCLUDED
 #define KELP_BUFFERS_INCLUDED
+#define UNITY_DOTS_INSTANCING_ENABLED 
 
 // --- StalkNode buffer ---
 struct StalkNode
@@ -51,7 +52,7 @@ float3x3 RotationFromTo(float3 from, float3 to)
 void Kelp_VertexTransform_float(
     float3 positionOS,
     float3 normalOS,
-    float InstanceID,
+    uint InstanceID,
     float3 worldOffset,
     out float3 positionWS,
     out float3 normalWS
