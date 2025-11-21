@@ -88,15 +88,19 @@ void Kelp_VertexTransform_float(
     float3 dir = normalize(p1 - p0);
     float3x3 rot = RotationFromTo(float3(0,1,0), dir);
 
-    // --- Instance-aware object->world scaling ---
-    float3 posScaled     = TransformObjectToWorld(positionOS) - GetObjectToWorldMatrix()[3].xyz;
-    posScaled            = mul(rot, posScaled);
+    // Apply scale in object space
+    float3 posLocal  = positionOS;
 
-    float3 norScaled     = TransformObjectToWorldDir(normalOS);
-    norScaled            = mul(rot, norScaled);
+    // Apply segment rotation
+    float3 posRot    = mul(rot, posLocal);
 
-    positionWS = posScaled + p0 + worldOffset;
-    normalWS   = normalize(norScaled);
+    // Convert into world position using your kelp node positions
+    positionWS = posRot + p0 + worldOffset;
+
+    // Normal
+    float3 norLocal = normalOS;
+    float3 norRot   = mul(rot, norLocal);
+    normalWS        = normalize(norRot); 
 }
 
-#endif
+#endif 
