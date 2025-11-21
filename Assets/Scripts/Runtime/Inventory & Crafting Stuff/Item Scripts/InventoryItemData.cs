@@ -12,7 +12,7 @@ public class InventoryItemData : ScriptableObject
     public string DisplayName;
     [TextArea(4, 4)] public string Description;
 
-    public Sprite icon;
+    public Sprite Icon;
     public int MaxStackSize = 1;
 
     private void OnValidate()

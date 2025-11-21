@@ -39,7 +39,7 @@ public class CraftRecipe_UI : ParentItemSlot_UI
 
     private void UpdateUISlot(CraftingRecipe recipe)
     {
-        itemSprite.sprite = recipe.CraftedItem.icon;
+        itemSprite.sprite = recipe.CraftedItem.Icon;
         itemCount.text = recipe.CraftedAmount.ToString();
         craftedItemName.text = recipe.CraftedItem.DisplayName;
     }

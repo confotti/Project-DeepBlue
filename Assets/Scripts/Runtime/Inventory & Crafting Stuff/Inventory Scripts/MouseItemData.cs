@@ -23,7 +23,7 @@ public class MouseItemData : MonoBehaviour
     public void UpdateMouseSlot(InventorySlot invSlot)
     {
         assignedInventorySlot.AssignItem(invSlot);
-        itemSprite.sprite = invSlot.ItemData.icon;
+        itemSprite.sprite = invSlot.ItemData.Icon;
         itemCount.text = invSlot.StackSize > 1 ? invSlot.StackSize.ToString() : "";
         itemSprite.color = Color.white;
     }
@@ -32,7 +32,7 @@ public class MouseItemData : MonoBehaviour
     {
         if(assignedInventorySlot.ItemData != null) 
         {
-            itemSprite.sprite = assignedInventorySlot.ItemData.icon;
+            itemSprite.sprite = assignedInventorySlot.ItemData.Icon;
             itemCount.text = assignedInventorySlot.StackSize > 1 ? assignedInventorySlot.StackSize.ToString() : "";
             itemSprite.color = Color.white;
         }

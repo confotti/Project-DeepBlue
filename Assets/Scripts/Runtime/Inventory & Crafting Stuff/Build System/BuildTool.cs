@@ -5,19 +5,22 @@ namespace BuildSystem
 {
     public class BuildTool : MonoBehaviour
     {
+        [SerializeField] private float _rotateSnapAngle = 45f;
         [SerializeField] private float _rayDistance = 20;
         [SerializeField] private LayerMask _buildModeLayerMask;
         [SerializeField] private LayerMask _deleteModeLayerMask;
-        [SerializeField] private int _defaultLayerInt = 9;
+        [SerializeField] private int _defaultLayerInt = 15;
         [SerializeField] private Transform _rayOrigin;
         [SerializeField] private Material _buildingMatPositive;
         [SerializeField] private Material _buildingMatNegative;
 
-        private bool deleteModeEnabled = false;
+        private bool _deleteModeEnabled = false;
 
         private Camera cam;
 
         [SerializeField] private Building _spawnedBuilding;
+        private Building _targetBuilding;
+        private Quaternion _lastRotation;
 
         private void Awake()
         {
@@ -26,11 +29,30 @@ namespace BuildSystem
 
         private void Update()
         {
-            if (Keyboard.current.qKey.wasPressedThisFrame) deleteModeEnabled = !deleteModeEnabled;
+            if (Keyboard.current.qKey.wasPressedThisFrame) _deleteModeEnabled = !_deleteModeEnabled;
 
-            if (deleteModeEnabled) DeleteModeLogic();
+            if (_deleteModeEnabled) DeleteModeLogic();
             else BuildModeLogic();
 
+        }
+
+        private void ChoosePart(BuildingData data)
+        {
+            if (_deleteModeEnabled)
+            {
+                UnassignTargetBuilding();
+                _deleteModeEnabled = false;
+            }
+
+            if (_spawnedBuilding != null)
+            {
+                ObjectPoolManager.ReturnObjectToPool(_spawnedBuilding.gameObject);
+                _spawnedBuilding = null;
+            }
+
+            _spawnedBuilding = ObjectPoolManager.Instantiate(data.Prefab);
+            _spawnedBuilding.Init(data);
+            _spawnedBuilding.transform.rotation = _lastRotation;
         }
 
         private bool IsRayHittingSomething(LayerMask layerMask, out RaycastHit hitInfo)
@@ -40,33 +62,90 @@ namespace BuildSystem
 
         private void BuildModeLogic()
         {
+            UnassignTargetBuilding();
+
             if (_spawnedBuilding == null) return;
+
+            if (Keyboard.current.rKey.wasPressedThisFrame)
+            {
+                _spawnedBuilding.transform.Rotate(0, _rotateSnapAngle, 0);
+                _lastRotation = _spawnedBuilding.transform.rotation;
+            }
 
             if (!IsRayHittingSomething(_buildModeLayerMask, out RaycastHit hitInfo))
             {
-                _spawnedBuilding.UpdateMaterial(_buildingMatNegative);
+                //_spawnedBuilding.UpdateMaterial(_buildingMatNegative);
+                _spawnedBuilding.gameObject.SetActive(false);
             }
             else
             {
+                _spawnedBuilding.gameObject.SetActive(true);
+                _spawnedBuilding.transform.position = hitInfo.point + new Vector3(0, _spawnedBuilding.Col.size.y / 2, 0);
+
+                if (Physics.OverlapBox(_spawnedBuilding.transform.position + _spawnedBuilding.Col.center, _spawnedBuilding.Col.size / 2, _spawnedBuilding.transform.rotation).Length > 0)
+                {
+                    _spawnedBuilding.UpdateMaterial(_buildingMatNegative);
+                    return;
+                }
+
                 _spawnedBuilding.UpdateMaterial(_buildingMatPositive);
-                _spawnedBuilding.transform.position = hitInfo.point;
+
+                if (Mouse.current.leftButton.wasPressedThisFrame)
+                {
+                    _spawnedBuilding.PlaceBuilding();
+                    var dataCopy = _spawnedBuilding.AssignedData;
+                    _spawnedBuilding = null;
+                    ChoosePart(dataCopy);
+                    
+                }
             }
 
-            _spawnedBuilding.transform.position = hitInfo.point;
-
-            if (Mouse.current.leftButton.wasPressedThisFrame)
-            {
-                Building placedBuilding = ObjectPoolManager.SpawnObject(_spawnedBuilding, hitInfo.point);
-                placedBuilding.PlaceBuilding();
-                //Continue from 9:00. 
-            } 
         }
 
         private void DeleteModeLogic()
         {
-            if(!IsRayHittingSomething(_deleteModeLayerMask, out RaycastHit hitInfo)) return;
+            if (!IsRayHittingSomething(_deleteModeLayerMask, out RaycastHit hitInfo)) 
+            {
+                UnassignTargetBuilding();
+                return;
+            }
 
-            if (Mouse.current.leftButton.wasPressedThisFrame) ObjectPoolManager.ReturnObjectToPool(hitInfo.collider.gameObject);
+            var detectedBuilding = hitInfo.collider.gameObject.GetComponentInParent<Building>();
+
+            if (detectedBuilding == null)
+            {
+                UnassignTargetBuilding();
+                return;
+            }
+
+            if (_targetBuilding == null) _targetBuilding = detectedBuilding;
+
+            if (detectedBuilding != _targetBuilding && _targetBuilding.FlaggedForDelete)
+            {
+                _targetBuilding.RemoveDeleteFlag();
+                _targetBuilding = detectedBuilding;
+            }
+
+            if(detectedBuilding == _targetBuilding && !_targetBuilding.FlaggedForDelete)
+            {
+                _targetBuilding.FlagForDelete(_buildingMatNegative);
+
+            }
+
+            if (Mouse.current.leftButton.wasPressedThisFrame) 
+            {
+                ObjectPoolManager.ReturnObjectToPool(_targetBuilding.gameObject);
+                UnassignTargetBuilding();
+            } 
+        }
+
+        private void UnassignTargetBuilding()
+        {
+            if (_targetBuilding != null && _targetBuilding.FlaggedForDelete)
+            {
+                _targetBuilding.RemoveDeleteFlag();
+            }
+            _targetBuilding = null;
         }
     }
 }

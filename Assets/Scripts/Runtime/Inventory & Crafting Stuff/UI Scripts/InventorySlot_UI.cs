@@ -43,7 +43,7 @@ public class InventorySlot_UI : ParentItemSlot_UI
     {
         if(slot.ItemData != null)
         {
-            itemSprite.sprite = slot.ItemData.icon;
+            itemSprite.sprite = slot.ItemData.Icon;
             itemSprite.color = Color.white;
 
             if (slot.StackSize > 1) itemCount.text = slot.StackSize.ToString();

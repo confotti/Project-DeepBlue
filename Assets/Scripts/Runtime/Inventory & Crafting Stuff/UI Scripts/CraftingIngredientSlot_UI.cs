@@ -12,7 +12,7 @@ public class CraftingIngredientSlot_UI : ParentItemSlot_UI
 
     public void UpdateUISlot(CraftingIngredient ingredient)
     {
-        itemSprite.sprite = ingredient.itemRequired.icon;
+        itemSprite.sprite = ingredient.itemRequired.Icon;
         itemCount.text = ingredient.amountRequired.ToString();
         itemName.text = ingredient.itemRequired.DisplayName;
     }

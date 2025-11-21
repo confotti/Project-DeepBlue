@@ -68,7 +68,7 @@ public class CraftingDisplay : MonoBehaviour
 
     private void DisplayItemPreview(CraftingRecipe recipe)
     {
-        itemPreviewSprite.sprite = recipe.CraftedItem.icon;
+        itemPreviewSprite.sprite = recipe.CraftedItem.Icon;
         itemPreviewSprite.color = Color.white;
         itemPreviewName.text = recipe.CraftedItem.DisplayName;
         itemPreviewDescription.text = recipe.CraftedItem.Description;
