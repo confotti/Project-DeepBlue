@@ -1,6 +1,7 @@
 ﻿#ifndef KELP_BUFFERS_INCLUDED
 #define KELP_BUFFERS_INCLUDED
 #define UNITY_DOTS_INSTANCING_ENABLED 
+#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/UnityInstancing.hlsl" 
 
 // --- StalkNode buffer ---
 struct StalkNode
@@ -50,19 +51,19 @@ float3x3 RotationFromTo(float3 from, float3 to)
 
 // --- Shader Graph-compatible vertex transform ---
 void Kelp_VertexTransform_float(
-    float3 positionOS,
-    float3 normalOS,
+    float3 positionOS_IN,
+    float3 normalOS_IN,
     uint InstanceID,
     float3 worldOffset,
-    out float3 positionWS,
-    out float3 normalWS
+    out float3 positionOS,
+    out float3 normalOS
 )
 {
     // Normal object rendering (not instanced)
     if (_Kelp_UseInstance < 0.5)
     {
-        positionWS = TransformObjectToWorld(positionOS);
-        normalWS   = TransformObjectToWorldDir(normalOS);
+        positionOS = positionOS_IN;
+        normalOS   = normalOS_IN;
         return;
     }
 
@@ -70,8 +71,8 @@ void Kelp_VertexTransform_float(
 
     if (_StalkNodesBuffer.Length == 0 || idx >= _StalkNodesBuffer.Length)
     {
-        positionWS = TransformObjectToWorld(positionOS);
-        normalWS   = TransformObjectToWorldDir(normalOS);
+        positionOS = positionOS_IN;
+        normalOS   = normalOS_IN;
         return;
     }
 
@@ -89,19 +90,13 @@ void Kelp_VertexTransform_float(
     float3 dir = normalize(p1 - p0);
     float3x3 rot = RotationFromTo(float3(0,1,0), dir);
 
-    // Apply scale in object space
-    float3 posLocal  = positionOS;
+    // Rotate original OS vertex into world-space direction
+    float3 posWS = mul(rot, positionOS_IN) + p0 + worldOffset;
+    float3 norWS = mul(rot, normalOS_IN);
 
-    // Apply segment rotation
-    float3 posRot    = mul(rot, posLocal);
-
-    // Convert into world position using your kelp node positions
-    positionWS = posRot + p0 + worldOffset;
-
-    // Normal
-    float3 norLocal = normalOS;
-    float3 norRot   = mul(rot, norLocal);
-    normalWS        = normalize(norRot); 
+    // Convert back to Object Space for Shader Graph
+    positionOS = TransformWorldToObject(posWS);
+    normalOS   = TransformWorldToObjectDir(norWS);
 }
 
-#endif 
+#endif
