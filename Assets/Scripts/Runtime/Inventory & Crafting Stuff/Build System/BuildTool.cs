@@ -27,6 +27,12 @@ namespace BuildSystem
             cam = Camera.main;
         }
 
+        private void Start()
+        {
+            _spawnedBuilding.Col.isTrigger = true;
+            _spawnedBuilding.gameObject.layer = 2;
+        }
+
         private void Update()
         {
             if (Keyboard.current.qKey.wasPressedThisFrame) _deleteModeEnabled = !_deleteModeEnabled;
@@ -80,9 +86,9 @@ namespace BuildSystem
             else
             {
                 _spawnedBuilding.gameObject.SetActive(true);
-                _spawnedBuilding.transform.position = hitInfo.point + new Vector3(0, _spawnedBuilding.Col.size.y / 2, 0);
+                _spawnedBuilding.transform.position = hitInfo.point + new Vector3(0, _spawnedBuilding.Col.size.y / 2 * transform.lossyScale.y, 0);
 
-                if (Physics.OverlapBox(_spawnedBuilding.transform.position + _spawnedBuilding.Col.center, _spawnedBuilding.Col.size / 2, _spawnedBuilding.transform.rotation).Length > 0)
+                if (_spawnedBuilding.IsColliding())
                 {
                     _spawnedBuilding.UpdateMaterial(_buildingMatNegative);
                     return;

@@ -12,6 +12,9 @@ public class Building : MonoBehaviour
     private bool _flaggedForDelete;
     public bool FlaggedForDelete => _flaggedForDelete;
 
+    private int _collisionCount = 0;
+    public bool IsColliding() => _collisionCount > 0;
+
     public void Init(BuildingData data)
     {
         _assignedData = data;
@@ -20,14 +23,14 @@ public class Building : MonoBehaviour
 
         if(TryGetComponent<BoxCollider>(out Col))
         {
-            Col.enabled = false;
+            Col.isTrigger = true;
         }
     }
 
     public void PlaceBuilding()
     {
         UpdateMaterial(_defaultMaterial);
-        Col.enabled = true;
+        Col.isTrigger = false;
         gameObject.layer = 15;
     }
 
@@ -45,5 +48,15 @@ public class Building : MonoBehaviour
     public void RemoveDeleteFlag(){
         UpdateMaterial(_defaultMaterial);
         _flaggedForDelete = false;
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        _collisionCount++;
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        _collisionCount--;
     }
 }
