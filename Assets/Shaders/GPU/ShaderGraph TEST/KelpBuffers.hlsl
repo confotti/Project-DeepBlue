@@ -1,7 +1,7 @@
 ﻿#ifndef KELP_BUFFERS_INCLUDED
 #define KELP_BUFFERS_INCLUDED
-#define UNITY_DOTS_INSTANCING_ENABLED 
-#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/UnityInstancing.hlsl" 
+#define UNITY_DOTS_INSTANCING_ENABLED
+#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/UnityInstancing.hlsl"
 
 // --- StalkNode buffer ---
 struct StalkNode
@@ -16,36 +16,30 @@ struct StalkNode
 
 // Buffers
 StructuredBuffer<StalkNode> _StalkNodesBuffer;
-StructuredBuffer<float3> initialRootPositions;
 
 // Control from C# (0 = normal object, 1 = kelp instancing)
 float _Kelp_UseInstance = 0.0;
 
-// --- Rotation from 'from' to 'to' ---
+// --- Rotation helper ---
 float3x3 RotationFromTo(float3 from, float3 to)
 {
     from = normalize(from);
     to   = normalize(to);
     float c = dot(from, to);
-
-    if (c > 0.9998)
-        return float3x3(1,0,0, 0,1,0, 0,0,1);
-
+    if (c > 0.9998) return float3x3(1,0,0, 0,1,0, 0,0,1);
     if (c < -0.9998)
     {
         float3 axis = normalize(abs(from.x) > 0.1 ? float3(0,1,0) : float3(1,0,0));
         float3 ortho = normalize(cross(from, axis));
         return float3x3(-1,0,0, 0,-1,0, 0,0,-1);
     }
-
     float3 v = cross(from, to);
     float s = length(v);
-    float k = (1.0 - c) / (s * s);
-
+    float k = (1.0 - c)/(s*s);
     return float3x3(
-        c + k*v.x*v.x,      k*v.x*v.y - v.z,  k*v.x*v.z + v.y,
-        k*v.x*v.y + v.z,    c + k*v.y*v.y,    k*v.y*v.z - v.x,
-        k*v.x*v.z - v.y,    k*v.y*v.z + v.x,  c + k*v.z*v.z
+        c + k*v.x*v.x, k*v.x*v.y - v.z, k*v.x*v.z + v.y,
+        k*v.x*v.y + v.z, c + k*v.y*v.y, k*v.y*v.z - v.x,
+        k*v.x*v.z - v.y, k*v.y*v.z + v.x, c + k*v.z*v.z
     );
 }
 
@@ -53,50 +47,40 @@ float3x3 RotationFromTo(float3 from, float3 to)
 void Kelp_VertexTransform_float(
     float3 positionOS_IN,
     float3 normalOS_IN,
-    uint InstanceID,
+    float InstanceIDParam,   // float from Shader Graph (or uint cast)
     float3 worldOffset,
     out float3 positionOS,
     out float3 normalOS
 )
 {
-    // Normal object rendering (not instanced)
-    if (_Kelp_UseInstance < 0.5)
+    uint InstanceID = (uint)InstanceIDParam;
+
+    if (_Kelp_UseInstance < 0.5 || _StalkNodesBuffer.Length == 0 || InstanceID >= _StalkNodesBuffer.Length)
     {
         positionOS = positionOS_IN;
-        normalOS   = normalOS_IN;
+        normalOS = normalOS_IN;
         return;
     }
 
-    uint idx = (uint)InstanceID;
-
-    if (_StalkNodesBuffer.Length == 0 || idx >= _StalkNodesBuffer.Length)
-    {
-        positionOS = positionOS_IN;
-        normalOS   = normalOS_IN;
-        return;
-    }
-
-    // --- Sample node ---
-    StalkNode node = _StalkNodesBuffer[idx];
+    // Sample node
+    StalkNode node = _StalkNodesBuffer[InstanceID];
     float3 p0 = node.currentPos;
-    float3 p1 = (idx + 1 < _StalkNodesBuffer.Length) ? _StalkNodesBuffer[idx + 1].currentPos : p0 + float3(0,1,0);
-
-    if (node.isTip == 1 && idx > 0)
+    float3 p1 = (InstanceID + 1 < _StalkNodesBuffer.Length) ? _StalkNodesBuffer[InstanceID+1].currentPos : p0 + float3(0,1,0);
+    if (node.isTip == 1 && InstanceID > 0)
     {
-        p0 = _StalkNodesBuffer[idx - 1].currentPos;
+        p0 = _StalkNodesBuffer[InstanceID-1].currentPos;
         p1 = node.currentPos;
     }
 
     float3 dir = normalize(p1 - p0);
     float3x3 rot = RotationFromTo(float3(0,1,0), dir);
 
-    // Rotate original OS vertex into world-space direction
     float3 posWS = mul(rot, positionOS_IN) + p0 + worldOffset;
     float3 norWS = mul(rot, normalOS_IN);
 
     // Convert back to Object Space for Shader Graph
-    positionOS = TransformWorldToObject(posWS);
-    normalOS   = TransformWorldToObjectDir(norWS);
+    positionOS = posWS;
+	normalOS   = normalize(norWS); 
 }
 
 #endif
