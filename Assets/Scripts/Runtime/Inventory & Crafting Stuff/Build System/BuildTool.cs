@@ -3,7 +3,7 @@ using UnityEngine.InputSystem;
 
 namespace BuildSystem
 {
-    public class BuildTool : MonoBehaviour
+    public class BuildTool : ItemBehaviour
     {
         [SerializeField] private float _rotateSnapAngle = 45f;
         [SerializeField] private float _rayDistance = 20;

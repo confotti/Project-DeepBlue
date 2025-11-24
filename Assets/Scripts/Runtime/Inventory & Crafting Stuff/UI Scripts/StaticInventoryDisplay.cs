@@ -9,7 +9,7 @@ public class StaticInventoryDisplay : InventoryDisplay
 
     private void OnValidate()
     {
-        Awake();
+        slots = GetComponentsInChildren<InventorySlot_UI>();
     }
 
     private void Awake()
@@ -43,7 +43,7 @@ public class StaticInventoryDisplay : InventoryDisplay
     {
         base.Start();
 
-        if(inventorySystem != null ) inventorySystem.OnInventorySlotChanged -= UpdateSlot;
+        if (inventorySystem != null) inventorySystem.OnInventorySlotChanged -= UpdateSlot;
         RefreshStaticDisplay();
     }
 

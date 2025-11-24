@@ -11,6 +11,8 @@ public class InventorySlot
     public InventoryItemData ItemData => itemData;
     public int StackSize => stackSize;
 
+    public Action<InventorySlot> SlotChanged;
+
     //Constructor to make a occupied slot. 
     public InventorySlot(InventoryItemData source, int amount) 
     {
@@ -30,6 +32,7 @@ public class InventorySlot
         itemData = null;
         stackSize = -1;
         itemID = -1;
+        SlotChanged?.Invoke(this);
     }
 
     //Assigns an item to the slot
@@ -37,8 +40,8 @@ public class InventorySlot
     {
         itemData = invSlot.ItemData;
         itemID = itemData.ID;
-        stackSize = 0;
-        AddToStack(invSlot.stackSize);
+        stackSize = invSlot.stackSize;
+        SlotChanged?.Invoke(this);
     }
 
     //Update slot directly, this or AssignItem may be redundant
@@ -47,6 +50,7 @@ public class InventorySlot
         itemData = data;
         itemID = itemData.ID;
         stackSize = amount;
+        SlotChanged?.Invoke(this);
     }
 
     //Is there enough room in the stack for the amount we want to add, this outputs how much more fits
@@ -66,11 +70,13 @@ public class InventorySlot
     public void AddToStack(int amount)
     {
         stackSize += amount;
+        SlotChanged?.Invoke(this);
     }
 
     public void RemoveFromStack(int amount)
     {
         stackSize -= amount;
+        SlotChanged?.Invoke(this);
     }
 
     public bool SplitStack(out InventorySlot splitStack)
@@ -83,6 +89,8 @@ public class InventorySlot
         
         int halfStack = Mathf.RoundToInt(stackSize / 2); //Get half the stack. 
         RemoveFromStack(halfStack);
+
+        SlotChanged?.Invoke(this);
 
         //Creates a copy with half the stack size. 
         splitStack = new InventorySlot(itemData, halfStack); 

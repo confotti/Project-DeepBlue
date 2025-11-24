@@ -55,7 +55,8 @@ public abstract class InventoryDisplay : MonoBehaviour
             else //Picks up if player is not trying to split or it is to few to split
             {
                 mouseInventoryItem.UpdateMouseSlot(clickedUISlot.AssignedInventorySlot);
-                clickedUISlot.ClearSlot();
+                clickedUISlot.AssignedInventorySlot.ClearSlot();
+                //clickedUISlot.ClearSlot();
                 return;
             }
         }
@@ -118,8 +119,9 @@ public abstract class InventoryDisplay : MonoBehaviour
 
         mouseInventoryItem.UpdateMouseSlot(clickedUISlot.AssignedInventorySlot);
 
-        clickedUISlot.ClearSlot();
+        //clickedUISlot.AssignedInventorySlot.ClearSlot();
+        //clickedUISlot.ClearSlot();
         clickedUISlot.AssignedInventorySlot.AssignItem(clonedSlot);
-        clickedUISlot.UpdateUISlot();
+        //clickedUISlot.UpdateUISlot();
     }
 }

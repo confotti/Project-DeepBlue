@@ -64,7 +64,7 @@ public class InventorySlot_UI : ParentItemSlot_UI
     //Clears out the slot and updates UI. 
     public void ClearSlot()
     {
-        assignedInventorySlot.ClearSlot();
+        //assignedInventorySlot.ClearSlot();
         itemSprite.sprite = null;
         itemSprite.color = Color.clear;
         itemCount.text = "";

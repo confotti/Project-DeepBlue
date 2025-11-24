@@ -14,6 +14,7 @@ public class InventoryItemData : ScriptableObject
 
     public Sprite Icon;
     public int MaxStackSize = 1;
+    public ItemBehaviour itemPrefab;
 
     private void OnValidate()
     {
@@ -22,10 +23,5 @@ public class InventoryItemData : ScriptableObject
             MaxStackSize = 1;
             Debug.LogWarning("Max Stack Size cannot be less than 1");
         }
-    }
-
-    public void UseItem()
-    {
-        //I really don't like this. Dont know what to do about it rn. 
     }
 }

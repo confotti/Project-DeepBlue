@@ -1,8 +1,11 @@
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class HotbarDisplay : StaticInventoryDisplay
 {
+    public static Action<ItemBehaviour> EquipNewItem;
+
     private int _maxIndexSize = 9;
     private int _currentIndex = 0;
 
@@ -14,6 +17,8 @@ public class HotbarDisplay : StaticInventoryDisplay
         _maxIndexSize = slots.Length - 1;
 
         slots[_currentIndex].ToggleHighlight();
+
+        inventorySystem.OnInventorySlotChanged += OnInventorySlotChanged;
     }
 
     protected override void OnEnable()
@@ -31,6 +36,11 @@ public class HotbarDisplay : StaticInventoryDisplay
         //Unsubscribe inputs
     }
 
+    private void OnDestroy()
+    {
+        inventorySystem.OnInventorySlotChanged -= OnInventorySlotChanged;
+    }
+
     private void Hotbar1(InputAction.CallbackContext context)
     {
         SetIndex(0);
@@ -42,14 +52,6 @@ public class HotbarDisplay : StaticInventoryDisplay
         //if(mouseWheelInput < -0.1f) ChangeIndex(-1);
     }
 
-    private void UseItem(InputAction.CallbackContext context)
-    {
-        if (slots[_currentIndex].AssignedInventorySlot.ItemData != null)
-        {
-            slots[_currentIndex].AssignedInventorySlot.ItemData.UseItem();
-        }
-    }
-
     private void ChangeIndex(int direction)
     {
         slots[_currentIndex].ToggleHighlight();
@@ -59,6 +61,7 @@ public class HotbarDisplay : StaticInventoryDisplay
         if(_currentIndex < 0) _currentIndex += _maxIndexSize + 1;
 
         slots[_currentIndex].ToggleHighlight();
+        EquipNewItem?.Invoke(slots[_currentIndex].AssignedInventorySlot.ItemData.itemPrefab);
     }
 
     private void SetIndex(int newIndex)
@@ -71,7 +74,16 @@ public class HotbarDisplay : StaticInventoryDisplay
 
         _currentIndex = newIndex;
         slots[_currentIndex].ToggleHighlight();
+        EquipNewItem?.Invoke(slots[_currentIndex].AssignedInventorySlot.ItemData.itemPrefab);
     }
 
-
+    private void OnInventorySlotChanged(InventorySlot slotChanged)
+    {
+        var currentSlot = slots[_currentIndex].AssignedInventorySlot;
+        if (slotChanged == currentSlot)
+        {
+            if (currentSlot.ItemData != null) EquipNewItem?.Invoke(currentSlot.ItemData.itemPrefab);
+            else EquipNewItem?.Invoke(null);
+        }
+    }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using System.Linq;
+using Unity.VisualScripting;
 
 [System.Serializable]
 public class InventorySystem
@@ -19,8 +20,20 @@ public class InventorySystem
 
         for (int i = 0; i < size; i++)
         {
-            inventorySlots.Add(new InventorySlot());
+            var slot = new InventorySlot();
+            slot.SlotChanged += InventorySlotChanged;
+            inventorySlots.Add(slot);
         }
+    }
+
+    public void InventorySlotChanged(InventorySlot slot)
+    {
+        OnInventorySlotChanged(slot);
+    }
+
+    public void OnDestroy()
+    {
+        foreach (var slot in inventorySlots) slot.SlotChanged -= InventorySlotChanged;
     }
 
     //Dont think this splits correctly if it amountToAdd doesnt fit in a slot
@@ -52,7 +65,6 @@ public class InventorySystem
         if (HasFreeSlot(out InventorySlot freeSlot)) 
         {
             freeSlot.UpdateInventorySlot(itemToAdd, amountToAdd);
-            OnInventorySlotChanged?.Invoke(freeSlot);
             remainingAmount = 0;
             return true;
 

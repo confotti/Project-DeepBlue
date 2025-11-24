@@ -29,6 +29,11 @@ public abstract class InventoryHolder : MonoBehaviour
         inventorySystem = new InventorySystem(inventorySize);
     }
 
+    protected virtual void OnDestroy()
+    {
+        if (inventorySystem != null) inventorySystem.OnDestroy();
+    }
+
     protected abstract void LoadInventory(SaveData data);
 
     protected abstract void SaveInventory();
