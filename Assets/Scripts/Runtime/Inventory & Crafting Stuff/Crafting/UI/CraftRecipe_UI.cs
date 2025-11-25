@@ -11,14 +11,12 @@ public class CraftRecipe_UI : ParentItemSlot_UI
     private CraftingDisplay parentDisplay;
     private CraftingRecipe recipe;
 
-    void Awake()
+    void OnEnable()
     {
-        //itemSprite.preserveAspect = true;
-
         button.onClick.AddListener(OnButtonClicked);
     }
 
-    private void OnDestroy()
+    private void OnDisable()
     {
         button.onClick.RemoveListener(OnButtonClicked);
     }

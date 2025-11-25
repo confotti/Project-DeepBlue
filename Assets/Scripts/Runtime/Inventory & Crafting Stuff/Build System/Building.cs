@@ -18,10 +18,17 @@ public class Building : MonoBehaviour
     public void Init(BuildingData data)
     {
         _assignedData = data;
-        _renderer.GetComponentInChildren<Renderer>();
+        _renderer = GetComponent<Renderer>();
         if(_renderer) _defaultMaterial = _renderer.material;
-
-        if(TryGetComponent<BoxCollider>(out Col))
+        gameObject.layer = 2;
+        if(!TryGetComponent<Rigidbody>(out Rigidbody rb))
+        {
+            rb = gameObject.AddComponent<Rigidbody>();
+            rb.isKinematic = true;
+            rb.useGravity = false;
+        }
+        
+        if (TryGetComponent<BoxCollider>(out Col))
         {
             Col.isTrigger = true;
         }
@@ -32,6 +39,9 @@ public class Building : MonoBehaviour
         UpdateMaterial(_defaultMaterial);
         Col.isTrigger = false;
         gameObject.layer = 15;
+
+        var rb = GetComponent<Rigidbody>();
+        Destroy(rb);
     }
 
     public void UpdateMaterial(Material newMaterial)
@@ -58,5 +68,10 @@ public class Building : MonoBehaviour
     private void OnTriggerExit(Collider other)
     {
         _collisionCount--;
+    }
+
+    private void OnDisable()
+    {
+        _collisionCount = 0;
     }
 }

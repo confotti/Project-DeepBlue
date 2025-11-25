@@ -40,7 +40,6 @@ public class CraftingDisplay : MonoBehaviour
     public void DisplayCraftingWindow(CraftingBench craftBench)
     {
         ClearRecipePreview();
-        ClearSlots(recipeListPanel);
 
         craftingBench = craftBench;
 

@@ -6,7 +6,8 @@ public class BuildingData : ScriptableObject
     public string DisplayName;
     public Sprite Icon;
     public Building Prefab;
-    public BuildingCategory category;
+    public BuildingCategory Category;
+    public ItemCost[] Cost;
 }
 
 public enum BuildingCategory

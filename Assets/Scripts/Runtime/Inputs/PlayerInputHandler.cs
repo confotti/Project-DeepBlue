@@ -1,10 +1,13 @@
 using System;
 using SaveLoadSystem;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.InputSystem;
 
 public class PlayerInputHandler : MonoBehaviour
 {
+    public static UnityAction<bool> ToggleLooking;
+
     private DefaultInputActions defaultInputActions;
     private InputAction movement;
     private InputAction look;
@@ -33,6 +36,7 @@ public class PlayerInputHandler : MonoBehaviour
 
         look = defaultInputActions.PlayerMovement.Look;
         look.Enable();
+        ToggleLooking += OnToggleLooking;
 
         run = defaultInputActions.PlayerMovement.Run;
         run.Enable();
@@ -52,6 +56,7 @@ public class PlayerInputHandler : MonoBehaviour
     private void OnDisable()
     {
         //Unsubscriptions
+        ToggleLooking -= OnToggleLooking;
         defaultInputActions.PlayerMovement.Interact.performed -= Interact;
         defaultInputActions.PlayerMovement.Jump.performed -= Jump;
     }
@@ -64,6 +69,12 @@ public class PlayerInputHandler : MonoBehaviour
     private void Jump(InputAction.CallbackContext context)
     {
         OnJump?.Invoke();
+    }
+
+    private void OnToggleLooking(bool enabled)
+    {
+        if (enabled) look.Enable();
+        else look.Disable();
     }
 
 

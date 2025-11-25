@@ -42,8 +42,6 @@ public class PlayerMovement : MonoBehaviour
 
     private void Awake()
     {
-        //Cursor.lockState = CursorLockMode.Locked;
-
         inputHandler = GetComponent<PlayerInputHandler>();
         rb = GetComponent<Rigidbody>();
         col = GetComponent<CapsuleCollider>();

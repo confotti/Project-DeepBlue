@@ -10,7 +10,7 @@ public class CraftingIngredientSlot_UI : ParentItemSlot_UI
         //itemSprite.preserveAspect = true;
     }
 
-    public void UpdateUISlot(CraftingIngredient ingredient)
+    public void UpdateUISlot(ItemCost ingredient)
     {
         itemSprite.sprite = ingredient.itemRequired.Icon;
         itemCount.text = ingredient.amountRequired.ToString();

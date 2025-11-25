@@ -7,22 +7,22 @@ public class CraftingRecipe : ScriptableObject
 {
     //Currently does not support an output of multiple different items, fix if neccessary. 
 
-    [SerializeField] private List<CraftingIngredient> ingredients;
+    [SerializeField] private List<ItemCost> ingredients;
     [SerializeField] private InventoryItemData craftedItem;
     [SerializeField, Min(1)] private int craftedAmount = 1;
 
-    public List<CraftingIngredient> Ingredients => ingredients;
+    public List<ItemCost> Ingredients => ingredients;
     public InventoryItemData CraftedItem => craftedItem;
     public int CraftedAmount => craftedAmount;
 }
 
 [System.Serializable]
-public struct CraftingIngredient
+public struct ItemCost
 {
     public InventoryItemData itemRequired;
     public int amountRequired;
 
-    public CraftingIngredient(InventoryItemData itemRequired, int amountRequired)
+    public ItemCost(InventoryItemData itemRequired, int amountRequired)
     {
         this.itemRequired = itemRequired;
         this.amountRequired = amountRequired;

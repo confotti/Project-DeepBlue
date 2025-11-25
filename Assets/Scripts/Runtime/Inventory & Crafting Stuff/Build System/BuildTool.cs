@@ -9,7 +9,6 @@ namespace BuildSystem
         [SerializeField] private float _rayDistance = 20;
         [SerializeField] private LayerMask _buildModeLayerMask;
         [SerializeField] private LayerMask _deleteModeLayerMask;
-        [SerializeField] private int _defaultLayerInt = 15;
         [SerializeField] private Transform _rayOrigin;
         [SerializeField] private Material _buildingMatPositive;
         [SerializeField] private Material _buildingMatNegative;
@@ -27,14 +26,25 @@ namespace BuildSystem
             cam = Camera.main;
         }
 
-        private void Start()
+        private void OnEnable()
         {
-            _spawnedBuilding.Col.isTrigger = true;
-            _spawnedBuilding.gameObject.layer = 2;
+            BuildDisplay.OnPartChosen += ChoosePart;
+        }
+
+        private void OnDisable()
+        {
+            BuildDisplay.OnPartChosen -= ChoosePart;
+        }
+
+        public override void Init(Transform rayOrigin)
+        {
+            base.Init(rayOrigin);
+            _rayOrigin = rayOrigin;
         }
 
         private void Update()
         {
+            if (Mouse.current.rightButton.wasPressedThisFrame) BuildDisplay.OnBuildDisplayRequested?.Invoke();
             if (Keyboard.current.qKey.wasPressedThisFrame) _deleteModeEnabled = !_deleteModeEnabled;
 
             if (_deleteModeEnabled) DeleteModeLogic();
@@ -56,7 +66,7 @@ namespace BuildSystem
                 _spawnedBuilding = null;
             }
 
-            _spawnedBuilding = ObjectPoolManager.Instantiate(data.Prefab);
+            _spawnedBuilding = ObjectPoolManager.SpawnObject(data.Prefab);
             _spawnedBuilding.Init(data);
             _spawnedBuilding.transform.rotation = _lastRotation;
         }
