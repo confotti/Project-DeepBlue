@@ -1,5 +1,6 @@
 ﻿#ifndef KELP_BUFFERS_INCLUDED
 #define KELP_BUFFERS_INCLUDED
+
 #define UNITY_DOTS_INSTANCING_ENABLED
 #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/UnityInstancing.hlsl"
 
@@ -14,10 +15,7 @@ struct StalkNode
     int    isTip;       float3 pad4;
 };
 
-// Buffers
 StructuredBuffer<StalkNode> _StalkNodesBuffer;
-
-// Control from C# (0 = normal object, 1 = kelp instancing)
 float _Kelp_UseInstance = 0.0;
 
 // --- Rotation helper ---
@@ -43,11 +41,11 @@ float3x3 RotationFromTo(float3 from, float3 to)
     );
 }
 
-// --- Shader Graph-compatible vertex transform ---
+// --- ShaderGraph vertex transform ---
 void Kelp_VertexTransform_float(
     float3 positionOS_IN,
     float3 normalOS_IN,
-    float InstanceIDParam,   // float from Shader Graph (or uint cast)
+    float InstanceIDParam,
     float3 worldOffset,
     out float3 positionOS,
     out float3 normalOS
@@ -65,7 +63,10 @@ void Kelp_VertexTransform_float(
     // Sample node
     StalkNode node = _StalkNodesBuffer[InstanceID];
     float3 p0 = node.currentPos;
-    float3 p1 = (InstanceID + 1 < _StalkNodesBuffer.Length) ? _StalkNodesBuffer[InstanceID+1].currentPos : p0 + float3(0,1,0);
+    float3 p1 = (InstanceID + 1 < _StalkNodesBuffer.Length) ? 
+                _StalkNodesBuffer[InstanceID+1].currentPos : 
+                p0 + float3(0,1,0);
+
     if (node.isTip == 1 && InstanceID > 0)
     {
         p0 = _StalkNodesBuffer[InstanceID-1].currentPos;
@@ -78,9 +79,11 @@ void Kelp_VertexTransform_float(
     float3 posWS = mul(rot, positionOS_IN) + p0 + worldOffset;
     float3 norWS = mul(rot, normalOS_IN);
 
-    // Convert back to Object Space for Shader Graph
-    positionOS = posWS;
-	normalOS   = normalize(norWS); 
+    // Use SRP-safe matrices
+    // Convert world → object space
+    positionOS = mul(UNITY_MATRIX_I_M, float4(posWS, 1)).xyz;
+    normalOS   = mul((float3x3)UNITY_MATRIX_I_M, norWS);
+    normalOS   = normalize(normalOS);
 }
 
 #endif
