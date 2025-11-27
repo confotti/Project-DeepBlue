@@ -22,7 +22,7 @@ public class SubLadderBehaviour : MonoBehaviour, IInteractable
         if (!pm.IsSwimming) return;
 
         interactor.transform.position = transform.position + teleportToLocation;
-        pm.SetCurrentState(PlayerMovement.States.standing);
+        pm.StateMachine.ChangeState(pm.StandingState);
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created

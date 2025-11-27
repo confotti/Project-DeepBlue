@@ -20,9 +20,16 @@ public class PlayerItemHandler : MonoBehaviour
 
     private void EquipNewItem(ItemBehaviour newItem)
     {
-        if (_currentItem != null) Destroy(_currentItem.gameObject);
-        _currentItem = null;
-        if (newItem != null) _currentItem = Instantiate(newItem, gameObject.transform);
-        _currentItem.Init(_playerHead);
+        if (_currentItem != null)
+        {
+            Destroy(_currentItem.gameObject);
+            _currentItem = null;
+        } 
+
+        if (newItem != null)
+        {
+            _currentItem = Instantiate(newItem, gameObject.transform);
+            _currentItem.Init(_playerHead);
+        } 
     }
 }

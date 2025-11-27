@@ -2,185 +2,78 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
-    [SerializeField] private float swimmingSpeed = 20;
-    [SerializeField] private float swimmingFastSpeed = 40;
-    [SerializeField] private float walkingSpeed = 20;
-    [SerializeField] private float runningSpeed = 40;
+    public StateMachine<PlayerMovement> StateMachine = new();
+    [SerializeField] public PlayerStandingState StandingState = new();
+    [SerializeField] public PlayerSwimmingState SwimmingState = new();
 
-    [SerializeField] private float mouseSensitivity = 1;
-    [SerializeField] private float gravity = 20;
-    [SerializeField] private float jumpPower = 20;
+    [SerializeField] private float _mouseSensitivity = 0.2f;
 
-    [SerializeField] private float rideHeight = 3;
-    [SerializeField] private float rideSpringStrength = 500;
-    [SerializeField] private float rideSpringDamper = 40;
-    [SerializeField] private LayerMask springLayerMask;
+    [SerializeField] private bool StartStanding = false;
 
-    public bool IsSwimming => currentState == States.swimming;
+    private Vector2 _rotation;
+    private float _lookYMax = 90;
 
-    private Vector2 rotation;
-    private float lookYMax = 90;
-
-    private bool shouldSpring = true;
-    private bool grounded = false;
+    public bool IsSwimming => StateMachine.CurrentState == SwimmingState;
 
     //References
-    private PlayerInputHandler inputHandler;
-    private Rigidbody rb;
-    private CapsuleCollider col;
-    [SerializeField] GameObject cameraHead;
-
-    [SerializeField] private States currentState = States.standing;
-    private Vector3 hitPosition = Vector3.zero;
-
-    //TODO: Fix real statemachine
-    public enum States
-    {
-        standing,
-        swimming
-    }
+    public PlayerInputHandler InputHandler { get; private set; }
+    public Rigidbody Rb { get; private set; }
+    public CapsuleCollider Col { get; private set; }
+    [SerializeField] public GameObject CameraHead;
 
     private void Awake()
     {
-        inputHandler = GetComponent<PlayerInputHandler>();
-        rb = GetComponent<Rigidbody>();
-        col = GetComponent<CapsuleCollider>();
+        InputHandler = GetComponent<PlayerInputHandler>();
+        Rb = GetComponent<Rigidbody>();
+        Col = GetComponent<CapsuleCollider>();
+
+        StandingState.Init(this, StateMachine);
+        SwimmingState.Init(this, StateMachine);
+        StateMachine.Initialize(StartStanding ? StandingState : SwimmingState);
     }
 
     private void OnEnable()
     {
-        inputHandler.OnJump += OnJump;
-
-        rotation.x = cameraHead.transform.rotation.eulerAngles.y;
-        rotation.y = cameraHead.transform.rotation.eulerAngles.x;
+        _rotation.x = CameraHead.transform.rotation.eulerAngles.y;
+        _rotation.y = CameraHead.transform.rotation.eulerAngles.x;
     }
 
-    private void OnDisable()
+    void OnDestroy()
     {
-        inputHandler.OnJump -= OnJump;
+        StateMachine.CurrentState.Exit();
     }
 
     private void Update()
     {
-        Shader.SetGlobalVector("_Player", transform.position); 
+        Shader.SetGlobalVector("_Player", transform.position);
         CameraMovement();
+        StateMachine.CurrentState.LogicUpdate();
     }
 
     private void FixedUpdate()
     {
-        Movement();
-    }
-
-    private void Movement()
-    {
-        if (currentState == States.swimming)
-        {
-            rb.linearVelocity = (new Vector3(0, inputHandler.SwimUp - inputHandler.SwimDown, 0) +
-                cameraHead.transform.rotation * new Vector3(inputHandler.Move.x, 0, inputHandler.Move.y)).normalized *
-                (inputHandler.Run ? swimmingFastSpeed : swimmingSpeed);
-        }
-
-        else if (currentState == States.standing)
-        {
-            var move = transform.rotation * new Vector3(inputHandler.Move.x, 0, inputHandler.Move.y);
-            move.y = 0;
-            move = move.normalized * (inputHandler.Run ? runningSpeed : walkingSpeed);
-            move.y = rb.linearVelocity.y - gravity * Time.fixedDeltaTime;
-            rb.linearVelocity = move;
-
-            if (!shouldSpring)
-            {
-                grounded = false;
-                if (rb.linearVelocity.y < 0.2f) shouldSpring = true;
-                else return;
-            }
-
-            RaycastHit hit;
-            var a = col.bounds.center;
-            a.y = col.bounds.min.y + col.radius * transform.lossyScale.y;
-            if (Physics.SphereCast(a, col.radius * transform.lossyScale.y, Vector3.down, out hit, rideHeight * 1.5f, springLayerMask))
-            {
-                grounded = true;
-                springThing(hit);
-            }
-            else grounded = false;
-                
-            //if (Physics.Raycast(a, Vector3.down, out hit, rideHeight*2, ~0))
-
-        }
-
+        StateMachine.CurrentState.PhysicsUpdate();
     }
 
     private void CameraMovement()
     {
-        rotation.x += inputHandler.Look.x * mouseSensitivity;
-        rotation.y += inputHandler.Look.y * mouseSensitivity;
-        rotation.y = Mathf.Clamp(rotation.y, -lookYMax, lookYMax);
-        var xQuat = Quaternion.AngleAxis(rotation.x, Vector3.up);
-        var yQuat = Quaternion.AngleAxis(rotation.y, Vector3.left);
-        cameraHead.transform.rotation = xQuat * yQuat;
+        _rotation.x += InputHandler.Look.x * _mouseSensitivity;
+        _rotation.y += InputHandler.Look.y * _mouseSensitivity;
+        _rotation.y = Mathf.Clamp(_rotation.y, -_lookYMax, _lookYMax);
+        var xQuat = Quaternion.AngleAxis(_rotation.x, Vector3.up);
+        var yQuat = Quaternion.AngleAxis(_rotation.y, Vector3.left);
+        CameraHead.transform.rotation = xQuat * yQuat;
 
         transform.rotation = xQuat;
     }
 
-    private void OnJump()
-    {
-        if (currentState != States.standing || !grounded) return;
-
-        var move = rb.linearVelocity;
-        move.y = jumpPower;
-        rb.linearVelocity = move;
-
-        shouldSpring = false;
-    }
-
-    private void springThing(RaycastHit hit)
-    {
-#if UNITY_EDITOR
-        hitPosition = hit.point;
-#endif
-
-        Vector3 vel = rb.linearVelocity;
-        Vector3 rayDir = Vector3.down;
-
-        Vector3 otherVel = Vector3.zero;
-        Rigidbody hitBody = hit.rigidbody;
-        if (hitBody != null)
-        {
-            otherVel = hitBody.linearVelocity;
-        }
-
-        float rayDirVel = Vector3.Dot(rayDir, vel);
-        float otherDirVel = Vector3.Dot(rayDir, otherVel);
-
-        float relVel = rayDirVel - otherDirVel;
-
-        float x = hit.distance - rideHeight;
-
-        float springForce = (x * rideSpringStrength) - (relVel * rideSpringDamper);
-
-        rb.AddForce(rayDir * springForce);
-
-        //If we want to impact what we're standing on
-        /*
-        if(hitBody != null)
-        {
-            hitBody.AddForceAtPosition(rayDir * -springForce, hit.point);
-        }
-        */
-    }
-
-    public void SetCurrentState(States state)
-    {
-        currentState = state;
-    }
-
+/*
     [System.Diagnostics.Conditional("UNITY_EDITOR")]
     private void OnDrawGizmosSelected()
     {
-        col = GetComponent<CapsuleCollider>();
-        var a = col.bounds.center;
-        a.y = col.bounds.min.y;
+        Col = GetComponent<CapsuleCollider>();
+        var a = Col.bounds.center;
+        a.y = Col.bounds.min.y;
 
         Gizmos.color = Color.blue;
         Gizmos.DrawLine(a, a + Vector3.down * rideHeight);
@@ -188,6 +81,8 @@ public class PlayerMovement : MonoBehaviour
         Gizmos.DrawLine(a + Vector3.down * rideHeight, a + Vector3.down * rideHeight * 1.5f);
 
         Gizmos.color = Color.magenta;
-        Gizmos.DrawSphere(hitPosition, 0.5f);
+        Gizmos.DrawSphere(_hitPosition, 0.5f);
     }
+
+    */
 }

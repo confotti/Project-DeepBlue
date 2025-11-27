@@ -10271,21 +10271,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e2ad28bfab3c02a498f2854d197a4d8d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  swimmingSpeed: 20
-  swimmingFastSpeed: 40
-  walkingSpeed: 20
-  runningSpeed: 40
-  mouseSensitivity: 0.25
-  gravity: 70
-  jumpPower: 40
-  rideHeight: 3.2
-  rideSpringStrength: 600
-  rideSpringDamper: 40
-  springLayerMask:
-    serializedVersion: 2
-    m_Bits: 65529
-  cameraHead: {fileID: 5577114592626121966}
-  currentState: 1
+  StandingState:
+    _walkingSpeed: 20
+    _runningSpeed: 40
+    _gravity: 70
+    _jumpPower: 40
+    _rideHeight: 3.2
+    _rideSpringStrength: 600
+    _rideSpringDamper: 40
+    springLayerMask:
+      serializedVersion: 2
+      m_Bits: 49129
+  SwimmingState:
+    _swimmingSpeed: 20
+    _swimmingFastSpeed: 40
+  _mouseSensitivity: 0.2
+  CameraHead: {fileID: 5577114592626121966}
 --- !u!114 &903199630935089767
 MonoBehaviour:
   m_ObjectHideFlags: 0
