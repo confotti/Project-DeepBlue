@@ -29,7 +29,7 @@ public class PlayerInteract : MonoBehaviour
 
     void Update()
     {
-        var hits = Physics.RaycastAll(transform.position, head.transform.forward, range, interactLayer);
+        var hits = Physics.RaycastAll(head.transform.position, head.transform.forward, range, interactLayer);
         interactable = null;
         foreach (var item in hits)
         {
@@ -69,6 +69,6 @@ public class PlayerInteract : MonoBehaviour
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.yellow;
-        Gizmos.DrawLine(transform.position, transform.position + head.transform.forward * range);
+        Gizmos.DrawLine(head.transform.position, head.transform.position + head.transform.forward * range);
     }
 }

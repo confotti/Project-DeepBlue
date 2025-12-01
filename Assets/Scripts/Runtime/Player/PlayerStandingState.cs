@@ -29,6 +29,7 @@ public class PlayerStandingState : State<PlayerMovement>
         base.Enter();
 
         obj.InputHandler.OnJump += OnJump;
+        obj.Animator.SetBool("IsStanding", true);
     }
 
     public override void Exit()
@@ -36,6 +37,7 @@ public class PlayerStandingState : State<PlayerMovement>
         base.Exit();
 
         obj.InputHandler.OnJump -= OnJump;
+        obj.Animator.SetBool("IsStanding", false);
     }
 
     private void Movement()

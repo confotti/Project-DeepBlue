@@ -20,6 +20,12 @@ public class PlayerMovement : MonoBehaviour
     public Rigidbody Rb { get; private set; }
     public CapsuleCollider Col { get; private set; }
     [SerializeField] public GameObject CameraHead;
+    [SerializeField] private Animator _animator;
+    public Animator Animator => _animator;
+    
+    [SerializeField] private GameObject playerModel;
+    [SerializeField] private GameObject neckBone;
+    private Vector3 neckComparedToHead;
 
     private void Awake()
     {
@@ -30,6 +36,8 @@ public class PlayerMovement : MonoBehaviour
         StandingState.Init(this, StateMachine);
         SwimmingState.Init(this, StateMachine);
         StateMachine.Initialize(StartStanding ? StandingState : SwimmingState);
+
+        neckComparedToHead = neckBone.transform.position - CameraHead.transform.position;
     }
 
     private void OnEnable()
@@ -53,6 +61,11 @@ public class PlayerMovement : MonoBehaviour
     private void FixedUpdate()
     {
         StateMachine.CurrentState.PhysicsUpdate();
+
+        _animator.SetFloat("MoveX", Mathf.Lerp(_animator.GetFloat("MoveX"), InputHandler.Move.x, Time.deltaTime));
+        _animator.SetFloat("MoveY", Mathf.Lerp(_animator.GetFloat("MoveY"), InputHandler.Move.y, Time.deltaTime));
+
+        playerModel.transform.position = playerModel.transform.position - (neckBone.transform.position - (CameraHead.transform.position + transform.rotation * neckComparedToHead));
     }
 
     private void CameraMovement()

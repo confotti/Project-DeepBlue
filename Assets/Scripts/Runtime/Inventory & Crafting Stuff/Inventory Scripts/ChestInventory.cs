@@ -19,8 +19,10 @@ public class ChestInventory : InventoryHolder, IInteractable
         SaveLoad.OnLoadGame += LoadInventory;
     }
 
-    private void OnDestroy()
+    protected override void OnDestroy()
     {
+        base.OnDestroy();
+
         SaveLoad.OnSaveGame -= SaveInventory;
         SaveLoad.OnLoadGame -= LoadInventory;
     }
@@ -45,8 +47,8 @@ public class ChestInventory : InventoryHolder, IInteractable
         if(data.chestDictionary.TryGetValue(GetComponent<UniqueID>().ID, out InventorySaveData chestData))    
         {
             LoadFromSaveData(chestData);
-            this.transform.position = chestData.position;
-            this.transform.rotation = chestData.rotation;
+            transform.position = chestData.position;
+            transform.rotation = chestData.rotation;
         }
     }
 
@@ -56,8 +58,8 @@ public class ChestInventory : InventoryHolder, IInteractable
         SaveLoad.currentSavedata.chestDictionary[GetComponent<UniqueID>().ID] = new InventorySaveData()
         {
             slots = InventoryToSaveData(),
-            position = this.transform.position,
-            rotation = this.transform.rotation,
+            position = transform.position,
+            rotation = transform.rotation,
             childOfSub = isChildOfSub
         };
     }

@@ -15,4 +15,18 @@ public class PlayerSwimmingState : State<PlayerMovement>
                 obj.CameraHead.transform.rotation * new Vector3(obj.InputHandler.Move.x, 0, obj.InputHandler.Move.y)).normalized *
                 (obj.InputHandler.Run ? _swimmingFastSpeed : _swimmingSpeed);
     }
+
+    public override void Enter()
+    {
+        base.Enter();
+
+        obj.Animator.SetBool("IsSwimming", true);
+    }
+
+    public override void Exit()
+    {
+        base.Exit();
+
+        obj.Animator.SetBool("IsSwimming", false);
+    }
 }

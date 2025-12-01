@@ -5,11 +5,11 @@ public class StalkerBehaviour : MonoBehaviour
     public StateMachine<StalkerBehaviour> StateMachine;
     public StalkerRoamingState RoamingState = new();
     public StalkerPursuitState PursuitState = new();
-    [SerializeField] private float speed = 2;
 
-    private Rigidbody rb;
+    public Rigidbody Rb { get; private set; }
     private void Awake()
     {
+        Rb = GetComponent<Rigidbody>();
         RoamingState.Init(this, StateMachine);
         PursuitState.Init(this, StateMachine);
 
@@ -18,8 +18,11 @@ public class StalkerBehaviour : MonoBehaviour
 
     void Update()
     {
-        var a = transform.position;
-        a += transform.forward * speed * Time.deltaTime;
-        transform.position = a;
+        StateMachine.CurrentState.LogicUpdate();
+    }
+
+    void FixedUpdate()
+    {
+        StateMachine.CurrentState.PhysicsUpdate();
     }
 }
