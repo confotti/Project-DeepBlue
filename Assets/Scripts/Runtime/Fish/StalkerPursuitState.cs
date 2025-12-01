@@ -5,5 +5,9 @@ using UnityEngine;
 public class StalkerPursuitState : State<StalkerBehaviour>
 {
     [SerializeField] private float _pursuitSpeed;
-    
+
+    public override void PhysicsUpdate()
+    {
+        //obj.Rb.linearVelocity = 
+    }
 }
