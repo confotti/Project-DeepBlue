@@ -257,7 +257,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &7454937273733113724
 Transform:
   m_ObjectHideFlags: 0
@@ -267,7 +267,7 @@ Transform:
   m_GameObject: {fileID: 1560076290871888978}
   serializedVersion: 2
   m_LocalRotation: {x: -0.77637655, y: 0, z: 0, w: 0.63026935}
-  m_LocalPosition: {x: 0, y: -0.085, z: 0.034}
+  m_LocalPosition: {x: 0, y: 0.3223, z: 0.0489}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -5078,7 +5078,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: afe98feeb186f7140a1b35c0e745a33a, type: 2}
+  - {fileID: 2100000, guid: 0787d80c483d1354d9498e74f5f7d5f5, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -5099,7 +5099,7 @@ ParticleSystemRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_RenderMode: 4
+  m_RenderMode: 0
   m_MeshDistribution: 0
   m_SortMode: 0
   m_MinParticleSize: 0
