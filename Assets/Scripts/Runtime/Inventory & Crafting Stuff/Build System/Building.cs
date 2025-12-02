@@ -19,7 +19,7 @@ public class Building : MonoBehaviour
     {
         _assignedData = data;
         _renderer = GetComponent<Renderer>();
-        if(_renderer) _defaultMaterial = _renderer.material;
+        if(_defaultMaterial != null && _renderer) _defaultMaterial = _renderer.material;
         gameObject.layer = 2;
         if(!TryGetComponent<Rigidbody>(out Rigidbody rb))
         {
