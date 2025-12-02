@@ -8,6 +8,8 @@ public class StalkerPursuitState : State<StalkerBehaviour>
 
     public override void PhysicsUpdate()
     {
+        base.PhysicsUpdate();
+
         //obj.Rb.linearVelocity = 
     }
 }

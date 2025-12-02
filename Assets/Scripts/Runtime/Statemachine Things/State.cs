@@ -26,7 +26,6 @@ public abstract class State<T1> where T1 : MonoBehaviour
         isAnimationFinished = false;
         */
 
-        DoChecks();
     }
     
     public virtual void Exit()
@@ -34,19 +33,14 @@ public abstract class State<T1> where T1 : MonoBehaviour
         //obj.Anim.SetBool(animBoolName, false);
     }
     
-    public virtual void DoChecks()
-    {
-        
-    }
-    
     public virtual void LogicUpdate()
     {
         
     }
-    
+
     public virtual void PhysicsUpdate()
     {
-        DoChecks();
+        
     }
 
     //public void AnimationFinishTrigger() => isAnimationFinished = true;
