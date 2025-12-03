@@ -55,13 +55,11 @@ public class PlayerStandingState : State<PlayerMovement>
             else return;
         }
 
-        Debug.Log("AAAAA");
         RaycastHit hit;
         var a = obj.Col.bounds.center;
         a.y = obj.Col.bounds.min.y + obj.Col.radius * obj.transform.lossyScale.y;
         if (Physics.SphereCast(a, obj.Col.radius * obj.transform.lossyScale.y, Vector3.down, out hit, _rideHeight * 1.5f, springLayerMask))
         {
-            Debug.Log("Hej");
             grounded = true;
             springThing(hit);
         }
