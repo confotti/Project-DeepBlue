@@ -25,4 +25,19 @@ public class StalkerBehaviour : MonoBehaviour
     {
         StateMachine.CurrentState.PhysicsUpdate();
     }
+
+    public float DistanceToPlayer => Vector3.Distance(transform.position, PlayerMovement.Instance.transform.position);
+
+    public bool PlayerInPursuitRange => DistanceToPlayer < PursuitState.PursuitDetectionRange;
+
+    public bool PlayerInLineOfSight()
+    {
+        if(Physics.Raycast(transform.position, PlayerMovement.Instance.transform.position - transform.position, out RaycastHit hit))
+        {
+            if (hit.collider.CompareTag("Player")) return true;
+        }
+
+        return false;
+    }
+
 }

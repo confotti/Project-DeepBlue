@@ -2,6 +2,9 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
+    //TODO: Rework the whole access to player thing later. 
+    public static PlayerMovement Instance;
+
     public StateMachine<PlayerMovement> StateMachine = new();
     [SerializeField] public PlayerStandingState StandingState = new();
     [SerializeField] public PlayerSwimmingState SwimmingState = new();
@@ -38,6 +41,8 @@ public class PlayerMovement : MonoBehaviour
         StateMachine.Initialize(StartStanding ? StandingState : SwimmingState);
 
         neckComparedToHead = neckBone.transform.position - CameraHead.transform.position;
+
+        Instance = this;
     }
 
     private void OnEnable()
