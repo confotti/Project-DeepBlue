@@ -25,6 +25,9 @@ public class HotbarDisplay : StaticInventoryDisplay
     {
         base.OnEnable();
 
+        PlayerInputHandler.OnHotbarSelection += HotbarSelection;
+        PlayerInputHandler.OnHotbarChange += ChangeIndex;
+
         //Inputs are here
         //Button 1-0, scrollwheel and use item.
     }
@@ -34,6 +37,9 @@ public class HotbarDisplay : StaticInventoryDisplay
         base.OnDisable();
 
         //Unsubscribe inputs
+        PlayerInputHandler.OnHotbarSelection -= HotbarSelection;
+        PlayerInputHandler.OnHotbarChange -= ChangeIndex;
+
     }
 
     private void OnDestroy()
@@ -41,9 +47,9 @@ public class HotbarDisplay : StaticInventoryDisplay
         inventorySystem.OnInventorySlotChanged -= OnInventorySlotChanged;
     }
 
-    private void Hotbar1(InputAction.CallbackContext context)
+    private void HotbarSelection(int slot)
     {
-        SetIndex(0);
+        SetIndex(slot - 1);
     }
 
     void Update()
@@ -61,7 +67,7 @@ public class HotbarDisplay : StaticInventoryDisplay
         if(_currentIndex < 0) _currentIndex += _maxIndexSize + 1;
 
         slots[_currentIndex].ToggleHighlight();
-        EquipNewItem?.Invoke(slots[_currentIndex].AssignedInventorySlot.ItemData.itemPrefab);
+        Equip();
     }
 
     private void SetIndex(int newIndex)
@@ -74,16 +80,20 @@ public class HotbarDisplay : StaticInventoryDisplay
 
         _currentIndex = newIndex;
         slots[_currentIndex].ToggleHighlight();
-        EquipNewItem?.Invoke(slots[_currentIndex].AssignedInventorySlot.ItemData.itemPrefab);
+        Equip();
     }
 
     private void OnInventorySlotChanged(InventorySlot slotChanged)
     {
-        var currentSlot = slots[_currentIndex].AssignedInventorySlot;
-        if (slotChanged == currentSlot)
+        if (slotChanged == slots[_currentIndex].AssignedInventorySlot)
         {
-            if (currentSlot.ItemData != null) EquipNewItem?.Invoke(currentSlot.ItemData.itemPrefab);
-            else EquipNewItem?.Invoke(null);
+            Equip();
         }
+    }
+
+    private void Equip()
+    {
+        if(slots[_currentIndex].AssignedInventorySlot.ItemData == null) EquipNewItem?.Invoke(null);
+        else EquipNewItem?.Invoke(slots[_currentIndex].AssignedInventorySlot.ItemData.itemPrefab);
     }
 }

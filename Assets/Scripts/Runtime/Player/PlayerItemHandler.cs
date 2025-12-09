@@ -22,14 +22,14 @@ public class PlayerItemHandler : MonoBehaviour
     {
         if (_currentItem != null)
         {
-            Destroy(_currentItem.gameObject);
+            _currentItem.OnUnequip();
             _currentItem = null;
         } 
 
         if (newItem != null)
         {
             _currentItem = Instantiate(newItem, gameObject.transform);
-            _currentItem.Init(_playerHead);
+            _currentItem.OnEquip(_playerHead);
         } 
     }
 }

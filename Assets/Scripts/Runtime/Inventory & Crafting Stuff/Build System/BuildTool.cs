@@ -17,7 +17,7 @@ namespace BuildSystem
 
         private Camera cam;
 
-        [SerializeField] private Building _spawnedBuilding;
+        private Building _spawnedBuilding;
         private Building _targetBuilding;
         private Quaternion _lastRotation;
 
@@ -36,10 +36,17 @@ namespace BuildSystem
             BuildDisplay.OnPartChosen -= ChoosePart;
         }
 
-        public override void Init(Transform rayOrigin)
+        public override void OnEquip(Transform rayOrigin)
         {
-            base.Init(rayOrigin);
+            base.OnEquip(rayOrigin);
             _rayOrigin = rayOrigin;
+        }
+
+        public override void OnUnequip()
+        {
+            base.OnUnequip();
+
+            if(_spawnedBuilding != null) ObjectPoolManager.ReturnObjectToPool(_spawnedBuilding.gameObject);
         }
 
         private void Update()
@@ -96,7 +103,9 @@ namespace BuildSystem
             else
             {
                 _spawnedBuilding.gameObject.SetActive(true);
-                _spawnedBuilding.transform.position = hitInfo.point + new Vector3(0, _spawnedBuilding.Col.size.y / 2 * transform.lossyScale.y, 0);
+                _spawnedBuilding.transform.position = hitInfo.point 
+                    + new Vector3(0, 0.01f + _spawnedBuilding.Col.size.y * _spawnedBuilding.transform.lossyScale.y / 2)
+                    - _spawnedBuilding.Col.center * _spawnedBuilding.transform.lossyScale.y;
 
                 if (_spawnedBuilding.IsColliding())
                 {

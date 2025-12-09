@@ -373,7 +373,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5700871189913967699, guid: cbc1e87d3d2a2f4448067cbbd6e3cb4b, type: 3}
       propertyPath: StartStanding
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5700871189913967699, guid: cbc1e87d3d2a2f4448067cbbd6e3cb4b, type: 3}
       propertyPath: springLayerMask.m_Bits
@@ -1306,6 +1306,30 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8503232610848605028, guid: 1735cfffb7976c2418760dbc0cae993e, type: 3}
       propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8615182075089582970, guid: 1735cfffb7976c2418760dbc0cae993e, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8615182075089582970, guid: 1735cfffb7976c2418760dbc0cae993e, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8615182075089582970, guid: 1735cfffb7976c2418760dbc0cae993e, type: 3}
+      propertyPath: m_AnchorMin.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8615182075089582970, guid: 1735cfffb7976c2418760dbc0cae993e, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8615182075089582970, guid: 1735cfffb7976c2418760dbc0cae993e, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8615182075089582970, guid: 1735cfffb7976c2418760dbc0cae993e, type: 3}
+      propertyPath: m_SizeDelta.y
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8620693638710020576, guid: 1735cfffb7976c2418760dbc0cae993e, type: 3}

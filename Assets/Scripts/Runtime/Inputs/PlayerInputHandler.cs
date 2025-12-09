@@ -9,11 +9,11 @@ public class PlayerInputHandler : MonoBehaviour
     public static UnityAction<bool> ToggleLooking;
 
     private DefaultInputActions defaultInputActions;
-    private InputAction movement;
-    private InputAction look;
-    private InputAction run;
-    private InputAction jump;
-    private InputAction crouch;
+    private InputAction movement => defaultInputActions.PlayerMovement.Move;
+    private InputAction look => defaultInputActions.PlayerMovement.Look;
+    private InputAction run => defaultInputActions.PlayerMovement.Run;
+    private InputAction jump => defaultInputActions.PlayerMovement.Jump;
+    private InputAction crouch => defaultInputActions.PlayerMovement.Crouch;
 
     public Vector2 Move { get { return movement.ReadValue<Vector2>(); } }
     public Vector2 Look { get { return look.ReadValue<Vector2>(); } }
@@ -24,6 +24,11 @@ public class PlayerInputHandler : MonoBehaviour
     public Action OnJump;
     public Action<InputAction.CallbackContext> OnRun;
 
+
+    //Hotbar stuff below
+    public static Action<int> OnHotbarSelection;
+    public static Action<int> OnHotbarChange;
+
     private void Awake()
     {
         defaultInputActions = new DefaultInputActions();
@@ -31,26 +36,35 @@ public class PlayerInputHandler : MonoBehaviour
 
     private void OnEnable()
     {
-        movement = defaultInputActions.PlayerMovement.Move;
+        defaultInputActions.PlayerMovement.Enable();
+
+        //movement = defaultInputActions.PlayerMovement.Move;
         movement.Enable();
 
-        look = defaultInputActions.PlayerMovement.Look;
+        //look = defaultInputActions.PlayerMovement.Look;
         look.Enable();
         ToggleLooking += OnToggleLooking;
 
-        run = defaultInputActions.PlayerMovement.Run;
+        //run = defaultInputActions.PlayerMovement.Run;
         run.Enable();
 
         //Subscriptions
         defaultInputActions.PlayerMovement.Interact.Enable();
         defaultInputActions.PlayerMovement.Interact.performed += Interact;
 
-        jump = defaultInputActions.PlayerMovement.Jump;
+        //jump = defaultInputActions.PlayerMovement.Jump;
         jump.Enable();
         jump.performed += Jump;
 
-        crouch = defaultInputActions.PlayerMovement.Crouch;
+        //crouch = defaultInputActions.PlayerMovement.Crouch;
         crouch.Enable();
+
+        defaultInputActions.Hotbar.Enable();
+        defaultInputActions.Hotbar.HotbarSelection.Enable();
+        defaultInputActions.Hotbar.HotbarSelection.performed += HotbarSelection;
+
+        defaultInputActions.Hotbar.HotbarNext.performed += HotbarNext;
+        defaultInputActions.Hotbar.HotbarPrevious.performed += HotbarPrevious;
     }
 
     private void OnDisable()
@@ -59,6 +73,11 @@ public class PlayerInputHandler : MonoBehaviour
         ToggleLooking -= OnToggleLooking;
         defaultInputActions.PlayerMovement.Interact.performed -= Interact;
         defaultInputActions.PlayerMovement.Jump.performed -= Jump;
+
+        defaultInputActions.Hotbar.HotbarSelection.performed -= HotbarSelection;
+
+        defaultInputActions.Hotbar.HotbarNext.performed -= HotbarNext;
+        defaultInputActions.Hotbar.HotbarPrevious.performed -= HotbarPrevious;
     }
 
     private void Interact(InputAction.CallbackContext context)
@@ -78,6 +97,24 @@ public class PlayerInputHandler : MonoBehaviour
     }
 
 
+    //Hotbar stuff below
+    private void HotbarSelection(InputAction.CallbackContext context)
+    {
+        OnHotbarSelection?.Invoke((int)context.ReadValue<float>());
+    }
+
+    private void HotbarNext(InputAction.CallbackContext context)
+    {
+        OnHotbarChange?.Invoke(1);
+    }
+
+    private void HotbarPrevious(InputAction.CallbackContext context)
+    {
+        OnHotbarChange?.Invoke(-1);
+    }
+
+
+    //Remove these later. 
     [ContextMenu("Save")]
     private void OnSave()
     {

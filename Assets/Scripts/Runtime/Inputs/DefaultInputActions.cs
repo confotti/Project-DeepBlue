@@ -281,6 +281,129 @@ public partial class @DefaultInputActions: IInputActionCollection2, IDisposable
                     ""isPartOfComposite"": false
                 }
             ]
+        },
+        {
+            ""name"": ""Hotbar"",
+            ""id"": ""349edddf-3c10-418c-b07c-e19edd1e0f7d"",
+            ""actions"": [
+                {
+                    ""name"": ""HotbarSelection"",
+                    ""type"": ""Button"",
+                    ""id"": ""69229a78-861d-4c63-a719-41d6ff9e89d8"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""HotbarNext"",
+                    ""type"": ""Value"",
+                    ""id"": ""b03d14f0-239c-45a1-97b6-58ced1d3dc80"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""HotbarPrevious"",
+                    ""type"": ""Value"",
+                    ""id"": ""cd5bd9de-3993-48c7-bd85-65650c361361"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
+                }
+            ],
+            ""bindings"": [
+                {
+                    ""name"": """",
+                    ""id"": ""7be55814-610a-4c13-9f82-fc806d566344"",
+                    ""path"": ""<Mouse>/scroll/down"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""HotbarNext"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""7d870693-6eb9-4a1f-9796-be7840edce8c"",
+                    ""path"": ""<Mouse>/scroll/up"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""HotbarPrevious"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""438a62ec-1e02-40d4-bbb3-2f035a8df7da"",
+                    ""path"": ""<Keyboard>/1"",
+                    ""interactions"": """",
+                    ""processors"": ""Scale"",
+                    ""groups"": """",
+                    ""action"": ""HotbarSelection"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""5bb44023-e1bb-4ad9-9f05-3cbd91e1a1b3"",
+                    ""path"": ""<Keyboard>/2"",
+                    ""interactions"": """",
+                    ""processors"": ""Scale(factor=2)"",
+                    ""groups"": """",
+                    ""action"": ""HotbarSelection"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""a0fec4f9-84c5-4166-b6ef-9b4556028d3c"",
+                    ""path"": ""<Keyboard>/3"",
+                    ""interactions"": """",
+                    ""processors"": ""Scale(factor=3)"",
+                    ""groups"": """",
+                    ""action"": ""HotbarSelection"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""a3784d4e-71e7-407f-8e24-b7cd2fd8ecd4"",
+                    ""path"": ""<Keyboard>/4"",
+                    ""interactions"": """",
+                    ""processors"": ""Scale(factor=4)"",
+                    ""groups"": """",
+                    ""action"": ""HotbarSelection"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""b0f2055f-e366-436d-927b-2f59a2881fbf"",
+                    ""path"": ""<Keyboard>/5"",
+                    ""interactions"": """",
+                    ""processors"": ""Scale(factor=5)"",
+                    ""groups"": """",
+                    ""action"": ""HotbarSelection"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""7f990407-867e-4651-b152-2e5da5d29305"",
+                    ""path"": ""<Keyboard>/6"",
+                    ""interactions"": """",
+                    ""processors"": ""Scale(factor=6)"",
+                    ""groups"": """",
+                    ""action"": ""HotbarSelection"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                }
+            ]
         }
     ],
     ""controlSchemes"": []
@@ -293,11 +416,17 @@ public partial class @DefaultInputActions: IInputActionCollection2, IDisposable
         m_PlayerMovement_Jump = m_PlayerMovement.FindAction("Jump", throwIfNotFound: true);
         m_PlayerMovement_Run = m_PlayerMovement.FindAction("Run", throwIfNotFound: true);
         m_PlayerMovement_Crouch = m_PlayerMovement.FindAction("Crouch", throwIfNotFound: true);
+        // Hotbar
+        m_Hotbar = asset.FindActionMap("Hotbar", throwIfNotFound: true);
+        m_Hotbar_HotbarSelection = m_Hotbar.FindAction("HotbarSelection", throwIfNotFound: true);
+        m_Hotbar_HotbarNext = m_Hotbar.FindAction("HotbarNext", throwIfNotFound: true);
+        m_Hotbar_HotbarPrevious = m_Hotbar.FindAction("HotbarPrevious", throwIfNotFound: true);
     }
 
     ~@DefaultInputActions()
     {
         UnityEngine.Debug.Assert(!m_PlayerMovement.enabled, "This will cause a leak and performance issues, DefaultInputActions.PlayerMovement.Disable() has not been called.");
+        UnityEngine.Debug.Assert(!m_Hotbar.enabled, "This will cause a leak and performance issues, DefaultInputActions.Hotbar.Disable() has not been called.");
     }
 
     /// <summary>
@@ -520,6 +649,124 @@ public partial class @DefaultInputActions: IInputActionCollection2, IDisposable
     /// Provides a new <see cref="PlayerMovementActions" /> instance referencing this action map.
     /// </summary>
     public PlayerMovementActions @PlayerMovement => new PlayerMovementActions(this);
+
+    // Hotbar
+    private readonly InputActionMap m_Hotbar;
+    private List<IHotbarActions> m_HotbarActionsCallbackInterfaces = new List<IHotbarActions>();
+    private readonly InputAction m_Hotbar_HotbarSelection;
+    private readonly InputAction m_Hotbar_HotbarNext;
+    private readonly InputAction m_Hotbar_HotbarPrevious;
+    /// <summary>
+    /// Provides access to input actions defined in input action map "Hotbar".
+    /// </summary>
+    public struct HotbarActions
+    {
+        private @DefaultInputActions m_Wrapper;
+
+        /// <summary>
+        /// Construct a new instance of the input action map wrapper class.
+        /// </summary>
+        public HotbarActions(@DefaultInputActions wrapper) { m_Wrapper = wrapper; }
+        /// <summary>
+        /// Provides access to the underlying input action "Hotbar/HotbarSelection".
+        /// </summary>
+        public InputAction @HotbarSelection => m_Wrapper.m_Hotbar_HotbarSelection;
+        /// <summary>
+        /// Provides access to the underlying input action "Hotbar/HotbarNext".
+        /// </summary>
+        public InputAction @HotbarNext => m_Wrapper.m_Hotbar_HotbarNext;
+        /// <summary>
+        /// Provides access to the underlying input action "Hotbar/HotbarPrevious".
+        /// </summary>
+        public InputAction @HotbarPrevious => m_Wrapper.m_Hotbar_HotbarPrevious;
+        /// <summary>
+        /// Provides access to the underlying input action map instance.
+        /// </summary>
+        public InputActionMap Get() { return m_Wrapper.m_Hotbar; }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Enable()" />
+        public void Enable() { Get().Enable(); }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Disable()" />
+        public void Disable() { Get().Disable(); }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.enabled" />
+        public bool enabled => Get().enabled;
+        /// <summary>
+        /// Implicitly converts an <see ref="HotbarActions" /> to an <see ref="InputActionMap" /> instance.
+        /// </summary>
+        public static implicit operator InputActionMap(HotbarActions set) { return set.Get(); }
+        /// <summary>
+        /// Adds <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
+        /// </summary>
+        /// <param name="instance">Callback instance.</param>
+        /// <remarks>
+        /// If <paramref name="instance" /> is <c>null</c> or <paramref name="instance"/> have already been added this method does nothing.
+        /// </remarks>
+        /// <seealso cref="HotbarActions" />
+        public void AddCallbacks(IHotbarActions instance)
+        {
+            if (instance == null || m_Wrapper.m_HotbarActionsCallbackInterfaces.Contains(instance)) return;
+            m_Wrapper.m_HotbarActionsCallbackInterfaces.Add(instance);
+            @HotbarSelection.started += instance.OnHotbarSelection;
+            @HotbarSelection.performed += instance.OnHotbarSelection;
+            @HotbarSelection.canceled += instance.OnHotbarSelection;
+            @HotbarNext.started += instance.OnHotbarNext;
+            @HotbarNext.performed += instance.OnHotbarNext;
+            @HotbarNext.canceled += instance.OnHotbarNext;
+            @HotbarPrevious.started += instance.OnHotbarPrevious;
+            @HotbarPrevious.performed += instance.OnHotbarPrevious;
+            @HotbarPrevious.canceled += instance.OnHotbarPrevious;
+        }
+
+        /// <summary>
+        /// Removes <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
+        /// </summary>
+        /// <remarks>
+        /// Calling this method when <paramref name="instance" /> have not previously been registered has no side-effects.
+        /// </remarks>
+        /// <seealso cref="HotbarActions" />
+        private void UnregisterCallbacks(IHotbarActions instance)
+        {
+            @HotbarSelection.started -= instance.OnHotbarSelection;
+            @HotbarSelection.performed -= instance.OnHotbarSelection;
+            @HotbarSelection.canceled -= instance.OnHotbarSelection;
+            @HotbarNext.started -= instance.OnHotbarNext;
+            @HotbarNext.performed -= instance.OnHotbarNext;
+            @HotbarNext.canceled -= instance.OnHotbarNext;
+            @HotbarPrevious.started -= instance.OnHotbarPrevious;
+            @HotbarPrevious.performed -= instance.OnHotbarPrevious;
+            @HotbarPrevious.canceled -= instance.OnHotbarPrevious;
+        }
+
+        /// <summary>
+        /// Unregisters <param cref="instance" /> and unregisters all input action callbacks via <see cref="HotbarActions.UnregisterCallbacks(IHotbarActions)" />.
+        /// </summary>
+        /// <seealso cref="HotbarActions.UnregisterCallbacks(IHotbarActions)" />
+        public void RemoveCallbacks(IHotbarActions instance)
+        {
+            if (m_Wrapper.m_HotbarActionsCallbackInterfaces.Remove(instance))
+                UnregisterCallbacks(instance);
+        }
+
+        /// <summary>
+        /// Replaces all existing callback instances and previously registered input action callbacks associated with them with callbacks provided via <param cref="instance" />.
+        /// </summary>
+        /// <remarks>
+        /// If <paramref name="instance" /> is <c>null</c>, calling this method will only unregister all existing callbacks but not register any new callbacks.
+        /// </remarks>
+        /// <seealso cref="HotbarActions.AddCallbacks(IHotbarActions)" />
+        /// <seealso cref="HotbarActions.RemoveCallbacks(IHotbarActions)" />
+        /// <seealso cref="HotbarActions.UnregisterCallbacks(IHotbarActions)" />
+        public void SetCallbacks(IHotbarActions instance)
+        {
+            foreach (var item in m_Wrapper.m_HotbarActionsCallbackInterfaces)
+                UnregisterCallbacks(item);
+            m_Wrapper.m_HotbarActionsCallbackInterfaces.Clear();
+            AddCallbacks(instance);
+        }
+    }
+    /// <summary>
+    /// Provides a new <see cref="HotbarActions" /> instance referencing this action map.
+    /// </summary>
+    public HotbarActions @Hotbar => new HotbarActions(this);
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "Player Movement" which allows adding and removing callbacks.
     /// </summary>
@@ -569,5 +816,34 @@ public partial class @DefaultInputActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnCrouch(InputAction.CallbackContext context);
+    }
+    /// <summary>
+    /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "Hotbar" which allows adding and removing callbacks.
+    /// </summary>
+    /// <seealso cref="HotbarActions.AddCallbacks(IHotbarActions)" />
+    /// <seealso cref="HotbarActions.RemoveCallbacks(IHotbarActions)" />
+    public interface IHotbarActions
+    {
+        /// <summary>
+        /// Method invoked when associated input action "HotbarSelection" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnHotbarSelection(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "HotbarNext" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnHotbarNext(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "HotbarPrevious" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnHotbarPrevious(InputAction.CallbackContext context);
     }
 }
