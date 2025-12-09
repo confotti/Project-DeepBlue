@@ -2,7 +2,9 @@ using UnityEngine;
 
 public class StalkerBehaviour : MonoBehaviour
 {
-    public StateMachine<StalkerBehaviour> StateMachine;
+    [SerializeField] private LayerMask _lineOfSightMask;
+
+    public StateMachine<StalkerBehaviour> StateMachine = new();
     public StalkerRoamingState RoamingState = new();
     public StalkerPursuitState PursuitState = new();
 
@@ -32,7 +34,7 @@ public class StalkerBehaviour : MonoBehaviour
 
     public bool PlayerInLineOfSight()
     {
-        if(Physics.Raycast(transform.position, PlayerMovement.Instance.transform.position - transform.position, out RaycastHit hit))
+        if(Physics.Raycast(transform.position, PlayerMovement.Instance.transform.position - transform.position, out RaycastHit hit, _lineOfSightMask))
         {
             if (hit.collider.CompareTag("Player")) return true;
         }
@@ -40,4 +42,9 @@ public class StalkerBehaviour : MonoBehaviour
         return false;
     }
 
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, PursuitState.PursuitDetectionRange);
+    }
 }

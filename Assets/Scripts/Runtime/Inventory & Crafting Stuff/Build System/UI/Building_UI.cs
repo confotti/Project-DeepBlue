@@ -21,7 +21,7 @@ public class Building_UI : MonoBehaviour
     public void Init(BuildingData data)
     {
         _assignedData = data;
-        _button.GetComponentInChildren<Image>().sprite = _assignedData.Icon;
+        _button.transform.GetChild(0).GetComponent<Image>().sprite = _assignedData.Icon;
     }
 
     private void OnButtonClicked()
