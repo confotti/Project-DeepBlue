@@ -4,8 +4,8 @@ using UnityEngine;
 [Serializable]
 public class StalkerPursuitState : State<StalkerBehaviour>
 {
-    [SerializeField] private float _pursuitSpeed;
-    public float PursuitDetectionRange = 50f;
+    [SerializeField] private float _pursuitSpeed = 25f;
+    public float PursuitDetectionRange = 70f;
 
     public override void PhysicsUpdate()
     {
@@ -21,6 +21,6 @@ public class StalkerPursuitState : State<StalkerBehaviour>
 
         //TODO: Probably create a state where it goes to player last seen position here instead. 
         if (!obj.PlayerInPursuitRange || !obj.PlayerInLineOfSight())
-            obj.StateMachine.ChangeState(obj.RoamingState);
+            obj.StateMachine.ChangeState(obj.WanderState);
     }
 }

@@ -76,8 +76,13 @@ MonoBehaviour:
   _lineOfSightMask:
     serializedVersion: 2
     m_Bits: 49097
-  RoamingState:
-    _RoamingSpeed: 5
+  WanderState:
+    _wanderSpeed: 15
+    _turnSpeed: 0.03
+    _wanderCircleDistance: 20
+    _wanderCircleRadius: 10
+    _wanderJitter: 1
+    _avoidDistance: 35
   PursuitState:
     _pursuitSpeed: 25
     PursuitDetectionRange: 70

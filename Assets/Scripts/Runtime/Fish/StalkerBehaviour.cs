@@ -5,17 +5,17 @@ public class StalkerBehaviour : MonoBehaviour
     [SerializeField] private LayerMask _lineOfSightMask;
 
     public StateMachine<StalkerBehaviour> StateMachine = new();
-    public StalkerRoamingState RoamingState = new();
-    public StalkerPursuitState PursuitState = new();
+    [Header("Green Gizmos")] public StalkerWanderState WanderState = new();
+    [Header("Red Gizmos")] public StalkerPursuitState PursuitState = new();
 
     public Rigidbody Rb { get; private set; }
     private void Awake()
     {
         Rb = GetComponent<Rigidbody>();
-        RoamingState.Init(this, StateMachine);
+        WanderState.Init(this, StateMachine);
         PursuitState.Init(this, StateMachine);
 
-        StateMachine.Initialize(RoamingState);
+        StateMachine.Initialize(WanderState);
     }
 
     void Update()
@@ -46,5 +46,11 @@ public class StalkerBehaviour : MonoBehaviour
     {
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, PursuitState.PursuitDetectionRange);
+
+        Gizmos.color = new Color(0.5f, 1f, 0.1f);
+        Gizmos.DrawWireSphere(transform.position + transform.forward * WanderState.WanderCircleDistance, WanderState.WanderCircleRadius);
+        Gizmos.color = new Color(0.1f, 1f, 0.5f);
+        Gizmos.DrawLine(transform.position, transform.position + transform.forward * WanderState.AvoidDistance);
+
     }
 }
