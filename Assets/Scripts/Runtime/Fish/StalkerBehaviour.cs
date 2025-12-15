@@ -3,12 +3,29 @@ using UnityEngine;
 public class StalkerBehaviour : MonoBehaviour
 {
     [SerializeField] private LayerMask _lineOfSightMask;
+    [SerializeField, Range(45, 360)] private float _fieldOfViewInspector;
+    private float _fovThreshhold;
 
     public StateMachine<StalkerBehaviour> StateMachine = new();
-    [Header("Green Gizmos")] public StalkerWanderState WanderState = new();
-    [Header("Red Gizmos")] public StalkerPursuitState PursuitState = new();
+
+#if UNITY_EDITOR
+    [Header("Green Gizmos"), SerializeField] private bool _showWanderGizmos = true;
+#endif
+    public StalkerWanderState WanderState = new();
+
+#if UNITY_EDITOR
+    [Header("Red Gizmos"), SerializeField] private bool _showPursuitGizmos = true;
+#endif
+    public StalkerPursuitState PursuitState = new();
+
 
     public Rigidbody Rb { get; private set; }
+
+    private void OnValidate()
+    {
+        _fovThreshhold = Mathf.Cos(_fieldOfViewInspector * Mathf.Deg2Rad * 0.5f);
+    }
+
     private void Awake()
     {
         Rb = GetComponent<Rigidbody>();
@@ -16,6 +33,9 @@ public class StalkerBehaviour : MonoBehaviour
         PursuitState.Init(this, StateMachine);
 
         StateMachine.Initialize(WanderState);
+
+        _fovThreshhold = Mathf.Cos(_fieldOfViewInspector * Mathf.Deg2Rad * 0.5f);
+
     }
 
     void Update()
@@ -34,7 +54,8 @@ public class StalkerBehaviour : MonoBehaviour
 
     public bool PlayerInLineOfSight()
     {
-        if(Physics.Raycast(transform.position, PlayerMovement.Instance.transform.position - transform.position, out RaycastHit hit, _lineOfSightMask))
+        if (PlayerInFOV() &&
+        Physics.Raycast(transform.position, PlayerMovement.Instance.transform.position - transform.position, out RaycastHit hit, _lineOfSightMask))
         {
             if (hit.collider.CompareTag("Player")) return true;
         }
@@ -42,15 +63,69 @@ public class StalkerBehaviour : MonoBehaviour
         return false;
     }
 
+    public bool PlayerInFOV()
+    {
+        return Vector3.Dot(transform.forward, (PlayerMovement.Instance.transform.position - transform.position).normalized) >= _fovThreshhold;
+    }
+
+
+#if UNITY_EDITOR
     private void OnDrawGizmosSelected()
     {
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, PursuitState.PursuitDetectionRange);
+        Transform t = transform;
 
-        Gizmos.color = new Color(0.5f, 1f, 0.1f);
-        Gizmos.DrawWireSphere(transform.position + transform.forward * WanderState.WanderCircleDistance, WanderState.WanderCircleRadius);
-        Gizmos.color = new Color(0.1f, 1f, 0.5f);
-        Gizmos.DrawLine(transform.position, transform.position + transform.forward * WanderState.AvoidDistance);
+        if (_showWanderGizmos)
+        {
+            Gizmos.color = new Color(0.5f, 1f, 0.1f);
+            Gizmos.DrawWireSphere(t.position + t.forward * WanderState.WanderCircleDistance, WanderState.WanderCircleRadius);
+            Gizmos.color = new Color(0.1f, 1f, 0.5f);
+            Gizmos.DrawLine(t.position, t.position + t.forward * WanderState.AvoidDistance);
+        }
 
+        if (_showPursuitGizmos)
+        {
+            //Field of view gizmo
+            Gizmos.color = Color.red;
+
+            // Half FOV
+            float halfFOV = _fieldOfViewInspector * 0.5f;
+
+            // Boundary directions
+            Vector3 leftDir = Quaternion.AngleAxis(-halfFOV, Vector3.up) * t.forward;
+            Vector3 rightDir = Quaternion.AngleAxis(halfFOV, Vector3.up) * t.forward;
+            Vector3 upDir = Quaternion.AngleAxis(-halfFOV, Vector3.right) * t.forward;
+            Vector3 downDir = Quaternion.AngleAxis(halfFOV, Vector3.right) * t.forward;
+
+            Gizmos.DrawLine(t.position, t.position + leftDir * PursuitState.PursuitDetectionRange);
+            Gizmos.DrawLine(t.position, t.position + rightDir * PursuitState.PursuitDetectionRange);
+            Gizmos.DrawLine(t.position, t.position + upDir * PursuitState.PursuitDetectionRange);
+            Gizmos.DrawLine(t.position, t.position + downDir * PursuitState.PursuitDetectionRange);
+
+            // Optional arc visualization
+            DrawArc(t.position, t.forward, Vector3.up, _fieldOfViewInspector, PursuitState.PursuitDetectionRange);
+            DrawArc(t.position, t.forward, t.right, _fieldOfViewInspector, PursuitState.PursuitDetectionRange);
+            DrawArc(t.position + t.rotation * new Vector3(0, 0, Mathf.Cos(_fieldOfViewInspector * 0.5f * Mathf.Deg2Rad) * PursuitState.PursuitDetectionRange),
+            t.up, t.forward, 360, PursuitState.PursuitDetectionRange * Mathf.Sin(_fieldOfViewInspector * 0.5f * Mathf.Deg2Rad));
+        }
+        
     }
+
+
+    void DrawArc(Vector3 center, Vector3 forward, Vector3 axis, float angle, float radius)
+    {
+        int segments = 32;
+        float step = angle / segments;
+
+        Vector3 prevPoint = center + Quaternion.AngleAxis(-angle / 2f, axis) * forward * radius;
+
+        for (int i = 1; i <= segments; i++)
+        {
+            float currentAngle = -angle / 2f + step * i;
+            Vector3 nextPoint = center + Quaternion.AngleAxis(currentAngle, axis) * forward * radius;
+
+            Gizmos.DrawLine(prevPoint, nextPoint);
+            prevPoint = nextPoint;
+        }
+    }
+#endif
 }

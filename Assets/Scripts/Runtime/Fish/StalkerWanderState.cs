@@ -43,14 +43,12 @@ public class StalkerWanderState : State<StalkerBehaviour>
 
     private void Wander()
     {
-        Debug.Log($"Pre: {_wanderTarget}");
         // Add slight random jitter to the wander target
         _wanderTarget += new Vector3(
             Random.Range(-_wanderJitter, _wanderJitter),
             Random.Range(-_wanderJitter, _wanderJitter),
             Random.Range(-_wanderJitter, _wanderJitter)
         );
-        Debug.Log($"Post: {_wanderTarget}");
 
         _wanderTarget.y = Mathf.Clamp(_wanderTarget.y, -_wanderCircleRadius * 0.95f, _wanderCircleRadius * 0.95f);
         _wanderTarget = _wanderTarget.normalized * _wanderCircleRadius;
