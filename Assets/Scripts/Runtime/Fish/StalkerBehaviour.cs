@@ -6,6 +6,8 @@ public class StalkerBehaviour : MonoBehaviour
     [SerializeField, Range(45, 360)] private float _fieldOfViewInspector;
     private float _fovThreshhold;
 
+    [SerializeField] public Transform LookAtPoint;
+
     public StateMachine<StalkerBehaviour> StateMachine = new();
 
 #if UNITY_EDITOR
@@ -80,6 +82,9 @@ public class StalkerBehaviour : MonoBehaviour
             Gizmos.DrawWireSphere(t.position + t.forward * WanderState.WanderCircleDistance, WanderState.WanderCircleRadius);
             Gizmos.color = new Color(0.1f, 1f, 0.5f);
             Gizmos.DrawLine(t.position, t.position + t.forward * WanderState.AvoidDistance);
+
+            Gizmos.color = Color.green;
+            Gizmos.DrawSphere(LookAtPoint.transform.position, 0.5f);
         }
 
         if (_showPursuitGizmos)

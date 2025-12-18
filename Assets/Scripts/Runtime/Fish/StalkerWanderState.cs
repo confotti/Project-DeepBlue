@@ -15,7 +15,7 @@ public class StalkerWanderState : State<StalkerBehaviour>
 
     [SerializeField] private float _avoidDistance = 20f;
 
-    private Vector3 _wanderTarget = new Vector3(0, 0, 0.5f);
+    private Vector3 _wanderTarget;
 
     public float WanderCircleDistance => _wanderCircleDistance;
     public float WanderCircleRadius => _wanderCircleRadius;
@@ -38,6 +38,7 @@ public class StalkerWanderState : State<StalkerBehaviour>
         AvoidObstacles();
         obj.Rb.linearVelocity = obj.transform.forward * _wanderSpeed;
 
+        obj.LookAtPoint.position = Vector3.Lerp(obj.LookAtPoint.position, obj.transform.position + obj.transform.forward * _wanderCircleDistance + _wanderTarget, 0.1f);
         
     }
 
@@ -54,8 +55,7 @@ public class StalkerWanderState : State<StalkerBehaviour>
         _wanderTarget = _wanderTarget.normalized * _wanderCircleRadius;
 
         // Project circle in front of fish
-        Vector3 circleCenter = obj.transform.position + obj.transform.forward * _wanderCircleDistance;
-        Vector3 targetWorldPos = circleCenter + _wanderTarget;
+        Vector3 targetWorldPos = obj.transform.position + obj.transform.forward * _wanderCircleDistance + _wanderTarget;
 
         // Turn toward that target smoothly
         Vector3 direction = (targetWorldPos - obj.transform.position).normalized;
@@ -91,6 +91,7 @@ public class StalkerWanderState : State<StalkerBehaviour>
         if (Physics.Raycast(obj.transform.position, obj.transform.forward, out RaycastHit hit, _avoidDistance))
         {
             Vector3 avoidDir = Vector3.Reflect(obj.transform.forward, hit.normal);
+            _wanderTarget += avoidDir * 0.2f;
             Quaternion avoidRot = Quaternion.LookRotation(avoidDir);
 
             obj.transform.rotation = Quaternion.Slerp(
