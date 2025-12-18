@@ -4,7 +4,7 @@ using UnityEngine;
 /// <summary>
 /// This class contains custom drawer for ReadOnly attribute. 
 /// </summary>
-[CustomPropertyDrawer(typeof(ReadOnlyAttribute))]
+[CustomPropertyDrawer(typeof(InspectorReadOnlyAttribute))]
 public class ReadOnlyDrawer : PropertyDrawer
 {
     /// <summary>

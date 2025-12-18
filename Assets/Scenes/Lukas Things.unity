@@ -319,6 +319,60 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 9e86d79f6e4e1004bbdd8db736f43d88, type: 3}
+--- !u!1 &1310641127
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1310641129}
+  - component: {fileID: 1310641128}
+  m_Layer: 0
+  m_Name: BoidsTest
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1310641128
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1310641127}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c03aeb2736c57db468c400e0a226c769, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  FishCount: 2000
+  CellSize: 2
+  _neighborRadius: 10
+  _separationWeight: 1.5
+  _alignmentWeight: 1
+  _cohesionWeight: 1
+  _spawnRadius: 25
+  _spawnCenter: {x: 0, y: 0, z: 0}
+  _fishMesh: {fileID: 10208, guid: 0000000000000000e000000000000000, type: 0}
+  _fishMaterial: {fileID: 2100000, guid: e9481c91dd92bad4ead7541d5ada3f12, type: 2}
+--- !u!4 &1310641129
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1310641127}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 69.584305, y: 64.656204, z: -205.02635}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1447271799
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2267,3 +2321,4 @@ SceneRoots:
   - {fileID: 1568024645}
   - {fileID: 1307590995628268256}
   - {fileID: 3644558251165241911}
+  - {fileID: 1310641129}

@@ -5,7 +5,7 @@ using UnityEngine;
 [ExecuteInEditMode]
 public class UniqueID : MonoBehaviour
 {
-    [ReadOnly, SerializeField] private string id = Guid.NewGuid().ToString();
+    [InspectorReadOnly, SerializeField] private string id = Guid.NewGuid().ToString();
     [SerializeField] private static SerializableDictionary<string, GameObject> idDatabase = 
         new SerializableDictionary<string, GameObject>();
 
