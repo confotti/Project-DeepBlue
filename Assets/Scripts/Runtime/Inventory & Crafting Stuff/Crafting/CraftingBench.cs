@@ -40,9 +40,9 @@ public class CraftingBench : MonoBehaviour, IInteractable
 
         foreach (var ingredient in recipe.Ingredients)
         {
-            if (!itemsHeld.TryGetValue(ingredient.itemRequired, out int amountHeld)) return false;
+            if (!itemsHeld.TryGetValue(ingredient.ItemRequired, out int amountHeld)) return false;
 
-            if (ingredient.amountRequired > amountHeld)
+            if (ingredient.AmountRequired > amountHeld)
             {
                 return false;
             }
@@ -57,7 +57,7 @@ public class CraftingBench : MonoBehaviour, IInteractable
         {
             foreach (var ingredient in recipe.Ingredients)
             {
-                playerInventory.RemoveItemFromInventory(ingredient.itemRequired, ingredient.amountRequired);
+                playerInventory.RemoveItemFromInventory(ingredient.ItemRequired, ingredient.AmountRequired);
             }
 
             playerInventory.AddToInventory(recipe.CraftedItem, recipe.CraftedAmount, out int remainingAmount, true);

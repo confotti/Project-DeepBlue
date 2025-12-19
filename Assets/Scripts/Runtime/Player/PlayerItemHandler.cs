@@ -5,8 +5,16 @@ public class PlayerItemHandler : MonoBehaviour
     private ItemBehaviour _currentItem;
 
     private PlayerInputHandler _playerInputs;
+    private PlayerInventoryHolder _playerInventory;
+    public PlayerInventoryHolder PlayerInventory => _playerInventory;
 
     [SerializeField] private Transform _playerHead;
+    public Transform PlayerHead => _playerHead;
+
+    void Awake()
+    {
+        _playerInventory = GetComponent<PlayerInventoryHolder>();
+    }
 
     private void OnEnable()
     {
@@ -29,7 +37,7 @@ public class PlayerItemHandler : MonoBehaviour
         if (newItem != null)
         {
             _currentItem = Instantiate(newItem, gameObject.transform);
-            _currentItem.OnEquip(_playerHead);
+            _currentItem.OnEquip(this);
         } 
     }
 }

@@ -60,13 +60,18 @@ public class PlayerInventoryHolder : InventoryHolder
     {
         inventorySystem.RemoveFromInventory(itemData, amount);
     }
+    
+    public void RemoveItemFromInventory(ItemCost cost)
+    {
+        inventorySystem.RemoveFromInventory(cost.ItemRequired, cost.AmountRequired);
+    }
 
     protected override void LoadInventory(SaveData data)
     {
         if (data.playerInventory.slots != null)
         {
             LoadFromSaveData(data.playerInventory);
-            
+
             OnPlayerInventoryChanged?.Invoke();
         }
     }

@@ -9,7 +9,6 @@ namespace BuildSystem
         [SerializeField] private float _rayDistance = 20;
         [SerializeField] private LayerMask _buildModeLayerMask;
         [SerializeField] private LayerMask _deleteModeLayerMask;
-        [SerializeField] private Transform _rayOrigin;
         [SerializeField] private Material _buildingMatPositive;
         [SerializeField] private Material _buildingMatNegative;
 
@@ -36,17 +35,16 @@ namespace BuildSystem
             BuildDisplay.OnPartChosen -= ChoosePart;
         }
 
-        public override void OnEquip(Transform rayOrigin)
+        public override void OnEquip(PlayerItemHandler player)
         {
-            base.OnEquip(rayOrigin);
-            _rayOrigin = rayOrigin;
+            base.OnEquip(player);
         }
 
         public override void OnUnequip()
         {
             base.OnUnequip();
 
-            if(_spawnedBuilding != null) ObjectPoolManager.ReturnObjectToPool(_spawnedBuilding.gameObject);
+            if (_spawnedBuilding != null) ObjectPoolManager.ReturnObjectToPool(_spawnedBuilding.gameObject);
         }
 
         private void Update()
@@ -54,6 +52,8 @@ namespace BuildSystem
             if (Mouse.current.rightButton.wasPressedThisFrame) BuildDisplay.OnBuildDisplayRequested?.Invoke();
             if (Keyboard.current.qKey.wasPressedThisFrame) _deleteModeEnabled = !_deleteModeEnabled;
 
+
+            ClearCostUI();
             if (_deleteModeEnabled) DeleteModeLogic();
             else BuildModeLogic();
 
@@ -80,7 +80,7 @@ namespace BuildSystem
 
         private bool IsRayHittingSomething(LayerMask layerMask, out RaycastHit hitInfo)
         {
-            return Physics.Raycast(_rayOrigin.position, cam.transform.forward, out hitInfo, _rayDistance, layerMask);
+            return Physics.Raycast(player.PlayerHead.position, cam.transform.forward, out hitInfo, _rayDistance, layerMask);
         }
 
         private void BuildModeLogic()
@@ -88,6 +88,8 @@ namespace BuildSystem
             UnassignTargetBuilding();
 
             if (_spawnedBuilding == null) return;
+
+            UpdateCostUI();
 
             if (Keyboard.current.rKey.wasPressedThisFrame)
             {
@@ -103,11 +105,11 @@ namespace BuildSystem
             else
             {
                 _spawnedBuilding.gameObject.SetActive(true);
-                _spawnedBuilding.transform.position = hitInfo.point 
+                _spawnedBuilding.transform.position = hitInfo.point
                     + new Vector3(0, 0.01f + _spawnedBuilding.Col.size.y * _spawnedBuilding.transform.lossyScale.y / 2)
                     - _spawnedBuilding.Col.center * _spawnedBuilding.transform.lossyScale.y;
 
-                if (_spawnedBuilding.IsColliding())
+                if (_spawnedBuilding.IsColliding() || !CheckIfCanAffordCurrentBuilding())
                 {
                     _spawnedBuilding.UpdateMaterial(_buildingMatNegative);
                     return;
@@ -117,11 +119,12 @@ namespace BuildSystem
 
                 if (Mouse.current.leftButton.wasPressedThisFrame)
                 {
+                    PayCurrentBuildingCost();
                     _spawnedBuilding.PlaceBuilding();
                     var dataCopy = _spawnedBuilding.AssignedData;
                     _spawnedBuilding = null;
                     ChoosePart(dataCopy);
-                    
+
                 }
             }
 
@@ -129,7 +132,7 @@ namespace BuildSystem
 
         private void DeleteModeLogic()
         {
-            if (!IsRayHittingSomething(_deleteModeLayerMask, out RaycastHit hitInfo)) 
+            if (!IsRayHittingSomething(_deleteModeLayerMask, out RaycastHit hitInfo))
             {
                 UnassignTargetBuilding();
                 return;
@@ -151,17 +154,17 @@ namespace BuildSystem
                 _targetBuilding = detectedBuilding;
             }
 
-            if(detectedBuilding == _targetBuilding && !_targetBuilding.FlaggedForDelete)
+            if (detectedBuilding == _targetBuilding && !_targetBuilding.FlaggedForDelete)
             {
                 _targetBuilding.FlagForDelete(_buildingMatNegative);
 
             }
 
-            if (Mouse.current.leftButton.wasPressedThisFrame) 
+            if (Mouse.current.leftButton.wasPressedThisFrame)
             {
                 ObjectPoolManager.ReturnObjectToPool(_targetBuilding.gameObject);
                 UnassignTargetBuilding();
-            } 
+            }
         }
 
         private void UnassignTargetBuilding()
@@ -171,6 +174,37 @@ namespace BuildSystem
                 _targetBuilding.RemoveDeleteFlag();
             }
             _targetBuilding = null;
+        }
+
+        private void UpdateCostUI()
+        {
+            //TODO: Fix this function
+        }
+
+        private void ClearCostUI()
+        {
+            //TODO: Fix this function
+        }
+
+        private bool CheckIfCanAffordCurrentBuilding()
+        {
+            foreach (ItemCost cost in _spawnedBuilding.AssignedData.Cost)
+            {
+                if (player.PlayerInventory.InventorySystem.AmountOfItem(cost.ItemRequired) < cost.AmountRequired)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private void PayCurrentBuildingCost()
+        {
+            foreach (ItemCost cost in _spawnedBuilding.AssignedData.Cost)
+            {
+                player.PlayerInventory.RemoveItemFromInventory(cost);
+            }
         }
     }
 }

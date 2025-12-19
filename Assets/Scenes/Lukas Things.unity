@@ -355,7 +355,7 @@ MonoBehaviour:
   _alignmentWeight: 1
   _cohesionWeight: 1
   _spawnRadius: 25
-  _spawnCenter: {x: 0, y: 0, z: 0}
+  _spawnCenter: {x: 0, y: 36.72, z: -17.74}
   _fishMesh: {fileID: 10208, guid: 0000000000000000e000000000000000, type: 0}
   _fishMaterial: {fileID: 2100000, guid: e9481c91dd92bad4ead7541d5ada3f12, type: 2}
 --- !u!4 &1310641129
@@ -383,7 +383,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 4525852725061259153, guid: cbc1e87d3d2a2f4448067cbbd6e3cb4b, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 244.9
+      value: 77
       objectReference: {fileID: 0}
     - target: {fileID: 4525852725061259153, guid: cbc1e87d3d2a2f4448067cbbd6e3cb4b, type: 3}
       propertyPath: m_LocalPosition.y
@@ -391,7 +391,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4525852725061259153, guid: cbc1e87d3d2a2f4448067cbbd6e3cb4b, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 129.3
+      value: -19
       objectReference: {fileID: 0}
     - target: {fileID: 4525852725061259153, guid: cbc1e87d3d2a2f4448067cbbd6e3cb4b, type: 3}
       propertyPath: m_LocalRotation.w
@@ -549,7 +549,7 @@ Transform:
   m_GameObject: {fileID: 1471827579}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 244.9, y: 20.289999, z: 128.8}
+  m_LocalPosition: {x: 77, y: 20.289999, z: -19.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 21130ce1880aa3e41b6deb6670c4bcc4, type: 3}
   m_Name: REC_BuildTool
   m_EditorClassIdentifier: 
-  ingredients:
-  - itemRequired: {fileID: 11400000, guid: d29f6547bf9a0924f8058fe8064e1c43, type: 2}
-    amountRequired: 1
-  craftedItem: {fileID: 11400000, guid: 354f09e291cacf640895872cc1552ba6, type: 2}
-  craftedAmount: 1
+  _ingredients:
+  - ItemRequired: {fileID: 11400000, guid: d29f6547bf9a0924f8058fe8064e1c43, type: 2}
+    AmountRequired: 1
+  _craftedItem: {fileID: 11400000, guid: 354f09e291cacf640895872cc1552ba6, type: 2}
+  _craftedAmount: 1
