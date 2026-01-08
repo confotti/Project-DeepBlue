@@ -26,31 +26,6 @@ public class GameTimeStamp
         this.second = timeStamp.second;
     }
 
-    // Uppdatera klockan
-    public void UpdateClock()
-    {
-        second++;
-
-        if (second >= 60)
-        {
-            second = 0;
-            minute++;
-        }
-
-        if (minute >= 60)
-        {
-            minute = 0;
-            hour++;
-        }
-
-        // 20-hour days 
-        if (hour >= 24)
-        {
-            hour = 0;
-            day++;
-        }
-    }
-
     // Convert to seconds
     public static int TimeStampInSeconds(GameTimeStamp ts)
     {
@@ -61,10 +36,5 @@ public class GameTimeStamp
         seconds += ts.minute * 60;
         seconds += ts.second;
         return seconds;
-    }
-
-    public static float TimeStampInHours(GameTimeStamp ts)
-    {
-        return ts.day * 24f + ts.hour + (ts.minute / 60f) + (ts.second / 3600f);
     }
 }

@@ -79,13 +79,6 @@ public class TimeManager : MonoBehaviour
         return new GameTimeStamp(day, hour, minute, second);
     }
 
-    public float GetDayFactor()
-    {
-        float hours = GameTimeStamp.TimeStampInHours(timestamp) % 24f;
-        float factor = Mathf.Cos((hours / 24f) * Mathf.PI * 2f) * 0.5f + 0.5f;
-        return factor;
-    }
-
     public GameTimeStamp GetGameTimeStamp()
     {
         return new GameTimeStamp(timestamp);

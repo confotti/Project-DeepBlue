@@ -22,5 +22,7 @@ public class StalkerPursuitState : State<StalkerBehaviour>
         //TODO: Probably create a state where it goes to player last seen position here instead. 
         if (!obj.PlayerInPursuitRange || !obj.PlayerInLineOfSight())
             obj.StateMachine.ChangeState(obj.WanderState);
+
+        obj.LookAtPoint.position = PlayerMovement.Instance.CameraHead.transform.position;
     }
 }

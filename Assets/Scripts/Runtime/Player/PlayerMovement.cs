@@ -32,6 +32,10 @@ public class PlayerMovement : MonoBehaviour
 
     private void Awake()
     {
+        Instance = this;
+
+        neckComparedToHead = transform.InverseTransformDirection(neckBone.transform.position) - transform.InverseTransformDirection(CameraHead.transform.position);
+
         InputHandler = GetComponent<PlayerInputHandler>();
         Rb = GetComponent<Rigidbody>();
         Col = GetComponent<CapsuleCollider>();
@@ -39,10 +43,6 @@ public class PlayerMovement : MonoBehaviour
         StandingState.Init(this, StateMachine);
         SwimmingState.Init(this, StateMachine);
         StateMachine.Initialize(StartStanding ? StandingState : SwimmingState);
-
-        neckComparedToHead = neckBone.transform.position - CameraHead.transform.position;
-
-        Instance = this;
     }
 
     private void OnEnable()
