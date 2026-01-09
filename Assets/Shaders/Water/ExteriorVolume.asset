@@ -423,7 +423,7 @@ MonoBehaviour:
   active: 1
   quality:
     m_OverrideState: 1
-    m_Value: 1
+    m_Value: 3
   threshold:
     m_OverrideState: 1
     m_Value: 0
@@ -446,13 +446,13 @@ MonoBehaviour:
     m_OverrideState: 0
     m_Value: 1
   m_Resolution:
-    m_OverrideState: 1
+    m_OverrideState: 0
     m_Value: 2
   m_HighQualityPrefiltering:
-    m_OverrideState: 1
+    m_OverrideState: 0
     m_Value: 0
   m_HighQualityFiltering:
-    m_OverrideState: 1
+    m_OverrideState: 0
     m_Value: 1
 --- !u!114 &1918416040923684496
 MonoBehaviour:
@@ -466,7 +466,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9008a067f4d626c4d8bc4bc48f04bb89, type: 3}
   m_Name: ScreenSpaceAmbientOcclusion
   m_EditorClassIdentifier: 
-  active: 1
+  active: 0
   quality:
     m_OverrideState: 1
     m_Value: 3
@@ -687,10 +687,10 @@ MonoBehaviour:
     m_Value: 100
   baseHeight:
     m_OverrideState: 1
-    m_Value: 2000
+    m_Value: 1800
   maximumHeight:
     m_OverrideState: 1
-    m_Value: 2200
+    m_Value: 2000
   meanFreePath:
     m_OverrideState: 1
     m_Value: 350
@@ -705,7 +705,7 @@ MonoBehaviour:
     m_Value: 0.75
   depthExtent:
     m_OverrideState: 1
-    m_Value: 400
+    m_Value: 250
   denoisingMode:
     m_OverrideState: 0
     m_Value: 2
