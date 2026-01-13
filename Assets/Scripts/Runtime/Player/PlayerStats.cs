@@ -2,10 +2,13 @@ using System.Collections.Generic;
 using System.Collections;
 using UnityEngine.UI;
 using UnityEngine;
-using TMPro; 
+using TMPro;
+using System;
 
 public class PlayerStats : MonoBehaviour
 {
+    public Action OnDeath;
+
     [SerializeField] private PlayerMovement playerMovement;
 
     [Header("Stats")]
@@ -33,10 +36,10 @@ public class PlayerStats : MonoBehaviour
         currentSanity = maxSanity;
         currentHealth = maxHealth;
 
-        //Börja med max values 
+        //Bï¿½rja med max values 
         oxygenBar.maxValue = maxOxygen;
 
-        //Sänka sanity overtime 
+        //Sï¿½nka sanity overtime 
         sanityCo = StartCoroutine(DecreaseStatOverTime(() => currentSanity, v => currentSanity = v, 40, 1));
     }
 
@@ -84,5 +87,6 @@ public class PlayerStats : MonoBehaviour
     public void ChangeHealth(int amount)
     {
         currentHealth = Mathf.Clamp(currentHealth + amount, 0, maxHealth);
+        if (currentHealth == 0) OnDeath?.Invoke();
     }
 }

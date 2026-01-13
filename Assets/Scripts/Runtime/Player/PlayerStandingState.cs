@@ -58,7 +58,7 @@ public class PlayerStandingState : State<PlayerMovement>
         RaycastHit hit;
         var a = obj.Col.bounds.center;
         a.y = obj.Col.bounds.min.y + obj.Col.radius * obj.transform.lossyScale.y;
-        if (Physics.SphereCast(a, obj.Col.radius * obj.transform.lossyScale.y, Vector3.down, out hit, _rideHeight * 1.5f, springLayerMask))
+        if (Physics.SphereCast(a, obj.Col.radius * obj.transform.lossyScale.y * 0.9f, Vector3.down, out hit, _rideHeight * 1.5f, springLayerMask))
         {
             grounded = true;
             springThing(hit);

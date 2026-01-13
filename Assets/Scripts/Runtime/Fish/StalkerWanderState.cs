@@ -35,11 +35,12 @@ public class StalkerWanderState : State<StalkerBehaviour>
 
         //Movement thingys here
         Wander();
+        AvoidPlayer();
         AvoidObstacles();
         obj.Rb.linearVelocity = obj.transform.forward * _wanderSpeed;
 
         obj.LookAtPoint.position = Vector3.Lerp(obj.LookAtPoint.position, obj.transform.position + obj.transform.forward * _wanderCircleDistance + _wanderTarget, 0.1f);
-        
+
     }
 
     private void Wander()
@@ -93,6 +94,20 @@ public class StalkerWanderState : State<StalkerBehaviour>
             Vector3 avoidDir = Vector3.Reflect(obj.transform.forward, hit.normal);
             _wanderTarget += avoidDir * 0.2f;
             Quaternion avoidRot = Quaternion.LookRotation(avoidDir);
+
+            obj.transform.rotation = Quaternion.Slerp(
+                obj.transform.rotation,
+                avoidRot,
+                _turnSpeed
+            );
+        }
+    }
+
+    void AvoidPlayer()
+    {
+        if (obj.TimeSinceLastAttack < 15 && obj.DistanceToPlayer < obj.PursuitState.PursuitDetectionRange)
+        {
+            Quaternion avoidRot = Quaternion.LookRotation(obj.transform.position - PlayerMovement.Instance.transform.position);
 
             obj.transform.rotation = Quaternion.Slerp(
                 obj.transform.rotation,

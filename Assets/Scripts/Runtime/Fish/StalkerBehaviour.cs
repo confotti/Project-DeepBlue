@@ -8,6 +8,11 @@ public class StalkerBehaviour : MonoBehaviour
 
     [SerializeField] public Transform LookAtPoint;
 
+    public Rigidbody Rb { get; private set; }
+
+    public float TimeSinceLastAttack = 100;
+
+
     public StateMachine<StalkerBehaviour> StateMachine = new();
 
 #if UNITY_EDITOR
@@ -21,7 +26,7 @@ public class StalkerBehaviour : MonoBehaviour
     public StalkerPursuitState PursuitState = new();
 
 
-    public Rigidbody Rb { get; private set; }
+
 
     private void OnValidate()
     {
@@ -42,6 +47,7 @@ public class StalkerBehaviour : MonoBehaviour
 
     void Update()
     {
+        TimeSinceLastAttack += Time.deltaTime;
         StateMachine.CurrentState.LogicUpdate();
     }
 
