@@ -187,6 +187,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: SeaUrchin_S
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 9e95590fa3212844a8d46347da6d936c, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -500,6 +504,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: TubeCoral_Cluster_M2
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 5edda914f4364304891fe966ffa0f12f, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -697,6 +705,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: TubeCoral_Single_S
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 33f22dd7ec9a7c648ab706fa0b2294d9, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -882,6 +894,10 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 82123778d094beb44bcd31d1bfb33134, type: 3}
       propertyPath: m_Name
       value: TubeCoral_Cluster_M1
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 82123778d094beb44bcd31d1bfb33134, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -2140,6 +2156,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: TubeCoral_Single_L
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 9edc7776646d1154e910c951fc3a8cf5, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -2208,10 +2228,14 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 3fb943e5dff354e409cfef9b8f596c9d, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: f68eaecf906b8bc4382fd46c167c3ed2, type: 2}
+      objectReference: {fileID: 2100000, guid: 33f2c3ebea2c932478d0a1fafca71397, type: 2}
     - target: {fileID: 919132149155446097, guid: 3fb943e5dff354e409cfef9b8f596c9d, type: 3}
       propertyPath: m_Name
       value: Lightgrass_M
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 3fb943e5dff354e409cfef9b8f596c9d, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -2286,6 +2310,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: SeaUrchin_L
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: e291e2dde07a5ff419ec0b1112195733, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -2358,6 +2386,10 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 32e8ff04353f8814f86e2449bea4cb18, type: 3}
       propertyPath: m_Name
       value: TubeCoral_Cluster_S1
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 32e8ff04353f8814f86e2449bea4cb18, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -3725,7 +3757,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1784791323
 Transform:
   m_ObjectHideFlags: 0
@@ -3960,6 +3992,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: StartVolume
       objectReference: {fileID: 0}
+    - target: {fileID: 5176005931226759352, guid: 6bb58f4521c6a8b4280f6350eedd24fc, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5765043360028516211, guid: 6bb58f4521c6a8b4280f6350eedd24fc, type: 3}
       propertyPath: m_LocalPosition.x
       value: 2333
@@ -4163,10 +4199,14 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 9e598dfc3e083244b8d60e3a9f58b770, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: f68eaecf906b8bc4382fd46c167c3ed2, type: 2}
+      objectReference: {fileID: 2100000, guid: 33f2c3ebea2c932478d0a1fafca71397, type: 2}
     - target: {fileID: 919132149155446097, guid: 9e598dfc3e083244b8d60e3a9f58b770, type: 3}
       propertyPath: m_Name
       value: Lightgrass_S
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 9e598dfc3e083244b8d60e3a9f58b770, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -4306,6 +4346,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: TubeCoral_Single_M
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 8252aab8bfc90504aa21ae5da7d276cd, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -4436,6 +4480,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: TubeCoral_Cluster_L1
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 4750dcc4eeb645449955f605e8fde730, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -4508,6 +4556,10 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 4b3ef37575343534f8162569a1165eb8, type: 3}
       propertyPath: m_Name
       value: TubeCoral_Cluster_L2
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 4b3ef37575343534f8162569a1165eb8, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
