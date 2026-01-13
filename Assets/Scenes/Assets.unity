@@ -8,8 +8,8 @@ OcclusionCullingSettings:
     smallestOccluder: 5
     smallestHole: 0.25
     backfaceThreshold: 100
-  m_SceneGUID: 00000000000000000000000000000000
-  m_OcclusionCullingData: {fileID: 0}
+  m_SceneGUID: 0fe6491c61424854dbe3b5f792e8f402
+  m_OcclusionCullingData: {fileID: 36300000, guid: b32f7ae0cb8b1e049b52d5ef11134e63, type: 2}
 --- !u!104 &2
 RenderSettings:
   m_ObjectHideFlags: 0
@@ -2923,34 +2923,6 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 0041c5d3198df4944be17939e9cfe21d, type: 2}
-    - target: {fileID: 6128415899391017587, guid: cbc1e87d3d2a2f4448067cbbd6e3cb4b, type: 3}
-      propertyPath: lengthInSec
-      value: 25
-      objectReference: {fileID: 0}
-    - target: {fileID: 6128415899391017587, guid: cbc1e87d3d2a2f4448067cbbd6e3cb4b, type: 3}
-      propertyPath: scalingMode
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 6128415899391017587, guid: cbc1e87d3d2a2f4448067cbbd6e3cb4b, type: 3}
-      propertyPath: moveWithTransform
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 6128415899391017587, guid: cbc1e87d3d2a2f4448067cbbd6e3cb4b, type: 3}
-      propertyPath: InitialModule.maxNumParticles
-      value: 2500
-      objectReference: {fileID: 0}
-    - target: {fileID: 6128415899391017587, guid: cbc1e87d3d2a2f4448067cbbd6e3cb4b, type: 3}
-      propertyPath: EmissionModule.rateOverTime.scalar
-      value: 100
-      objectReference: {fileID: 0}
-    - target: {fileID: 6128415899391017587, guid: cbc1e87d3d2a2f4448067cbbd6e3cb4b, type: 3}
-      propertyPath: InitialModule.startLifetime.scalar
-      value: 35
-      objectReference: {fileID: 0}
-    - target: {fileID: 6128415899391017587, guid: cbc1e87d3d2a2f4448067cbbd6e3cb4b, type: 3}
-      propertyPath: InitialModule.startLifetime.minScalar
-      value: 25
-      objectReference: {fileID: 0}
     - target: {fileID: 6140337040031076436, guid: cbc1e87d3d2a2f4448067cbbd6e3cb4b, type: 3}
       propertyPath: m_CastShadows
       value: 0
