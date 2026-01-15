@@ -145,6 +145,24 @@ public partial class @DefaultInputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""ItemPrimary"",
+                    ""type"": ""Button"",
+                    ""id"": ""13fd1e5f-a5e4-461f-b4ca-572f9f863f9d"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""ItemSecondary"",
+                    ""type"": ""Button"",
+                    ""id"": ""2af905dd-9080-49c7-b928-d1d330dd67ca"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -277,6 +295,28 @@ public partial class @DefaultInputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Crouch"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""50a19129-4cba-49c6-8ba3-5ede95aa5fb2"",
+                    ""path"": ""<Mouse>/leftButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ItemPrimary"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""3b581562-9685-4693-a623-dcd953d2165e"",
+                    ""path"": ""<Mouse>/rightButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ItemSecondary"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -416,6 +456,8 @@ public partial class @DefaultInputActions: IInputActionCollection2, IDisposable
         m_PlayerMovement_Jump = m_PlayerMovement.FindAction("Jump", throwIfNotFound: true);
         m_PlayerMovement_Run = m_PlayerMovement.FindAction("Run", throwIfNotFound: true);
         m_PlayerMovement_Crouch = m_PlayerMovement.FindAction("Crouch", throwIfNotFound: true);
+        m_PlayerMovement_ItemPrimary = m_PlayerMovement.FindAction("ItemPrimary", throwIfNotFound: true);
+        m_PlayerMovement_ItemSecondary = m_PlayerMovement.FindAction("ItemSecondary", throwIfNotFound: true);
         // Hotbar
         m_Hotbar = asset.FindActionMap("Hotbar", throwIfNotFound: true);
         m_Hotbar_HotbarSelection = m_Hotbar.FindAction("HotbarSelection", throwIfNotFound: true);
@@ -508,6 +550,8 @@ public partial class @DefaultInputActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_PlayerMovement_Jump;
     private readonly InputAction m_PlayerMovement_Run;
     private readonly InputAction m_PlayerMovement_Crouch;
+    private readonly InputAction m_PlayerMovement_ItemPrimary;
+    private readonly InputAction m_PlayerMovement_ItemSecondary;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player Movement".
     /// </summary>
@@ -543,6 +587,14 @@ public partial class @DefaultInputActions: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "PlayerMovement/Crouch".
         /// </summary>
         public InputAction @Crouch => m_Wrapper.m_PlayerMovement_Crouch;
+        /// <summary>
+        /// Provides access to the underlying input action "PlayerMovement/ItemPrimary".
+        /// </summary>
+        public InputAction @ItemPrimary => m_Wrapper.m_PlayerMovement_ItemPrimary;
+        /// <summary>
+        /// Provides access to the underlying input action "PlayerMovement/ItemSecondary".
+        /// </summary>
+        public InputAction @ItemSecondary => m_Wrapper.m_PlayerMovement_ItemSecondary;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -587,6 +639,12 @@ public partial class @DefaultInputActions: IInputActionCollection2, IDisposable
             @Crouch.started += instance.OnCrouch;
             @Crouch.performed += instance.OnCrouch;
             @Crouch.canceled += instance.OnCrouch;
+            @ItemPrimary.started += instance.OnItemPrimary;
+            @ItemPrimary.performed += instance.OnItemPrimary;
+            @ItemPrimary.canceled += instance.OnItemPrimary;
+            @ItemSecondary.started += instance.OnItemSecondary;
+            @ItemSecondary.performed += instance.OnItemSecondary;
+            @ItemSecondary.canceled += instance.OnItemSecondary;
         }
 
         /// <summary>
@@ -616,6 +674,12 @@ public partial class @DefaultInputActions: IInputActionCollection2, IDisposable
             @Crouch.started -= instance.OnCrouch;
             @Crouch.performed -= instance.OnCrouch;
             @Crouch.canceled -= instance.OnCrouch;
+            @ItemPrimary.started -= instance.OnItemPrimary;
+            @ItemPrimary.performed -= instance.OnItemPrimary;
+            @ItemPrimary.canceled -= instance.OnItemPrimary;
+            @ItemSecondary.started -= instance.OnItemSecondary;
+            @ItemSecondary.performed -= instance.OnItemSecondary;
+            @ItemSecondary.canceled -= instance.OnItemSecondary;
         }
 
         /// <summary>
@@ -816,6 +880,20 @@ public partial class @DefaultInputActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnCrouch(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "ItemPrimary" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnItemPrimary(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "ItemSecondary" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnItemSecondary(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "Hotbar" which allows adding and removing callbacks.

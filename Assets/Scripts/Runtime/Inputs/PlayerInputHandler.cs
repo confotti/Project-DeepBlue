@@ -14,6 +14,8 @@ public class PlayerInputHandler : MonoBehaviour
     private InputAction run => defaultInputActions.PlayerMovement.Run;
     private InputAction jump => defaultInputActions.PlayerMovement.Jump;
     private InputAction crouch => defaultInputActions.PlayerMovement.Crouch;
+    private InputAction itemPrimary => defaultInputActions.PlayerMovement.ItemPrimary;
+    private InputAction itemSecondary => defaultInputActions.PlayerMovement.ItemSecondary;
 
     public Vector2 Move { get { return movement.ReadValue<Vector2>(); } }
     public Vector2 Look { get { return look.ReadValue<Vector2>(); } }
@@ -22,7 +24,8 @@ public class PlayerInputHandler : MonoBehaviour
     public float SwimDown { get { return crouch.ReadValue<float>(); } }
     public Action OnInteract;
     public Action OnJump;
-    public Action<InputAction.CallbackContext> OnRun;
+    public Action OnItemPrimary;
+    public Action OnItemSecondary;
 
 
     //Hotbar stuff below
@@ -59,6 +62,11 @@ public class PlayerInputHandler : MonoBehaviour
         //crouch = defaultInputActions.PlayerMovement.Crouch;
         crouch.Enable();
 
+        itemPrimary.Enable();
+        itemSecondary.Enable();
+        itemPrimary.performed += ItemPrimary;
+        itemSecondary.performed += ItemSecondary;
+
         defaultInputActions.Hotbar.Enable();
         defaultInputActions.Hotbar.HotbarSelection.Enable();
         defaultInputActions.Hotbar.HotbarSelection.performed += HotbarSelection;
@@ -88,6 +96,16 @@ public class PlayerInputHandler : MonoBehaviour
     private void Jump(InputAction.CallbackContext context)
     {
         OnJump?.Invoke();
+    }
+
+    private void ItemPrimary(InputAction.CallbackContext context)
+    {
+        OnItemPrimary?.Invoke();
+    }
+
+    private void ItemSecondary(InputAction.CallbackContext context)
+    {
+        OnItemSecondary?.Invoke();
     }
 
     private void OnToggleLooking(bool enabled)
