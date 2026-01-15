@@ -4,7 +4,8 @@ using UnityEngine.InputSystem;
 
 public class HotbarDisplay : StaticInventoryDisplay
 {
-    public static Action<ItemBehaviour> EquipNewItem;
+    //public static Action<ItemBehaviour> EquipNewItem;
+    public static Action<InventorySlot> EquipNewSlot;
 
     private int _maxIndexSize = 9;
     private int _currentIndex = 0;
@@ -18,6 +19,7 @@ public class HotbarDisplay : StaticInventoryDisplay
 
         slots[_currentIndex].ToggleHighlight();
 
+        Equip();
         inventorySystem.OnInventorySlotChanged += OnInventorySlotChanged;
     }
 
@@ -93,7 +95,9 @@ public class HotbarDisplay : StaticInventoryDisplay
 
     private void Equip()
     {
-        if(slots[_currentIndex].AssignedInventorySlot.ItemData == null) EquipNewItem?.Invoke(null);
-        else EquipNewItem?.Invoke(slots[_currentIndex].AssignedInventorySlot.ItemData.itemPrefab);
+        //if(slots[_currentIndex].AssignedInventorySlot.ItemData == null) EquipNewItem?.Invoke(null);
+        //else EquipNewItem?.Invoke(slots[_currentIndex].AssignedInventorySlot.ItemData.itemPrefab);
+
+        EquipNewSlot?.Invoke(slots[_currentIndex].AssignedInventorySlot);
     }
 }

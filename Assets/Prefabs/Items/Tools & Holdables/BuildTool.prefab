@@ -121,16 +121,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 33e15316233f583479117778bc9d39bd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  player: {fileID: 0}
   _rotateSnapAngle: 45
   _rayDistance: 40
   _buildModeLayerMask:
     serializedVersion: 2
-    m_Bits: 65531
+    m_Bits: 49147
   _deleteModeLayerMask:
     serializedVersion: 2
     m_Bits: 32768
-  _defaultLayerInt: 15
-  _rayOrigin: {fileID: 0}
   _buildingMatPositive: {fileID: 2100000, guid: b1dc2d6921dee2f499d62b8fa671b600, type: 2}
   _buildingMatNegative: {fileID: 2100000, guid: 9a71bdd7947fe3340adcdc922b4a8c06, type: 2}
-  _spawnedBuilding: {fileID: 0}

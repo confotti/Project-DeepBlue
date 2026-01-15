@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class ItemBehaviour : MonoBehaviour
 {
-    public PlayerItemHandler player;
+    protected PlayerItemHandler player;
 
     public virtual void PrimaryInput() { }
     public virtual void SecondaryInput() { }

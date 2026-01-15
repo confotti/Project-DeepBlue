@@ -76,7 +76,8 @@ public class InventorySlot
     public void RemoveFromStack(int amount)
     {
         stackSize -= amount;
-        SlotChanged?.Invoke(this);
+        if (stackSize <= 0) ClearSlot();
+        else SlotChanged?.Invoke(this);
     }
 
     public bool SplitStack(out InventorySlot splitStack)

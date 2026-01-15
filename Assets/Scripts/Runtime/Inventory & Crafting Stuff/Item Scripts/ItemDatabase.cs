@@ -3,7 +3,7 @@ using UnityEngine;
 using System.Linq;
 using UnityEditor;
 
-[CreateAssetMenu(menuName = "Inventory System/Item Database")]
+//[CreateAssetMenu(menuName = "Inventory System/Item Database")]
 public class ItemDatabase : ScriptableObject
 {
     [SerializeField] private List<InventoryItemData> itemDatabase;
