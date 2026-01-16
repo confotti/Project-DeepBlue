@@ -24551,11 +24551,11 @@ Light:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4295250570465140574}
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 11
   m_Type: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 2176.8916
+  m_Intensity: 23809.75
   m_Range: 1000
   m_SpotAngle: 80
   m_InnerSpotAngle: 21.80208
@@ -24741,7 +24741,7 @@ MonoBehaviour:
   m_ShadowVariant: 0
   m_ShadowPrecision: 0
   useOldInspector: 0
-  useVolumetric: 1
+  useVolumetric: 0
   featuresFoldout: 1
   m_AreaLightEmissiveMeshShadowCastingMode: 0
   m_AreaLightEmissiveMeshMotionVectorGenerationMode: 0
@@ -29765,6 +29765,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   flashLight: {fileID: 8852788428525598849}
+  flashlightItemData: {fileID: 11400000, guid: a42c09bf4b0fb504091f9884a65b08c6, type: 2}
 --- !u!54 &8279320085652908750
 Rigidbody:
   m_ObjectHideFlags: 0
