@@ -62,11 +62,13 @@ public class Building : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        if (other.isTrigger) return;
         _collisionCount++;
     }
 
     private void OnTriggerExit(Collider other)
     {
+        if (other.isTrigger) return;
         _collisionCount--;
     }
 
