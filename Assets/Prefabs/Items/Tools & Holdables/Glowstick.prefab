@@ -194,8 +194,8 @@ Light:
   serializedVersion: 11
   m_Type: 2
   m_Color: {r: 0, g: 1, b: 0, a: 1}
-  m_Intensity: 3183.0989
-  m_Range: 100
+  m_Intensity: 3978.8735
+  m_Range: 50
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
   m_CookieSize: 10
@@ -243,10 +243,10 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_UseViewFrustumForShadowCasterCull: 1
   m_ForceVisible: 0
-  m_ShadowRadius: 0
+  m_ShadowRadius: 8
   m_ShadowAngle: 0
   m_LightUnit: 0
-  m_LuxAtDistance: 1
+  m_LuxAtDistance: 10
   m_EnableSpotReflector: 1
 --- !u!114 &8134371226562307091
 MonoBehaviour:
@@ -279,7 +279,7 @@ MonoBehaviour:
   m_ShapeWidth: 0.5
   m_ShapeHeight: 0.5
   m_AspectRatio: 1
-  m_ShapeRadius: 0.025
+  m_ShapeRadius: 8
   m_SoftnessScale: 1
   m_UseCustomSpotLightShadowCone: 0
   m_CustomSpotLightShadowCone: 30
@@ -380,7 +380,7 @@ MonoBehaviour:
   m_ShadowVariant: 0
   m_ShadowPrecision: 0
   useOldInspector: 0
-  useVolumetric: 1
+  useVolumetric: 0
   featuresFoldout: 1
   m_AreaLightEmissiveMeshShadowCastingMode: 0
   m_AreaLightEmissiveMeshMotionVectorGenerationMode: 0
