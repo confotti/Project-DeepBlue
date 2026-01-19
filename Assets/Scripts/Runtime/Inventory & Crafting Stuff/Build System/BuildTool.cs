@@ -106,7 +106,7 @@ namespace BuildSystem
             {
                 _spawnedBuilding.gameObject.SetActive(true);
                 _spawnedBuilding.transform.position = hitInfo.point
-                    + new Vector3(0, 1f + _spawnedBuilding.Col.size.y * _spawnedBuilding.transform.lossyScale.y / 2)
+                    + new Vector3(0, 0.1f + _spawnedBuilding.Col.size.y * _spawnedBuilding.transform.lossyScale.y / 2)
                     - _spawnedBuilding.Col.center * _spawnedBuilding.transform.lossyScale.y;
 
                 if (_spawnedBuilding.IsColliding() || !CheckIfCanAffordCurrentBuilding())
