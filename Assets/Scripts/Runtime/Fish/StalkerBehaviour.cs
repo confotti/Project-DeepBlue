@@ -76,6 +76,26 @@ public class StalkerBehaviour : MonoBehaviour
         return Vector3.Dot(transform.forward, (PlayerMovement.Instance.transform.position - transform.position).normalized) >= _fovThreshhold;
     }
 
+    public bool IsObservedByPlayer()
+    {
+        /*TODO: Probably make this include raycasts and shit: example (from chatgpt, not looked through)
+        
+            bool IsTrulyVisible(Camera cam, Renderer rend)
+            {
+                if (!GeometryUtility.TestPlanesAABB(
+                    GeometryUtility.CalculateFrustumPlanes(cam), rend.bounds))
+                    return false;
+
+                Vector3 direction = rend.bounds.center - cam.transform.position;
+                if (Physics.Raycast(cam.transform.position, direction, out RaycastHit hit))
+                    return hit.transform == rend.transform;
+
+                return false;
+            }
+        */
+        return GetComponent<Renderer>().isVisible;
+    }
+
 
 #if UNITY_EDITOR
     private void OnDrawGizmosSelected()
