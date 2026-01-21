@@ -9,6 +9,8 @@ public class PlayerStats : MonoBehaviour
 {
     public Action OnDeath;
 
+    public InventoryItemData oxygenTankItemData;
+
     [SerializeField] private PlayerMovement playerMovement;
 
     [Header("Stats")]
@@ -55,6 +57,13 @@ public class PlayerStats : MonoBehaviour
         {
             swimCheck = true;
             oxygenCo = StartCoroutine(DecreaseStatOverTime(() => currentOxygen, v => currentOxygen = v, 3, 3));
+        }
+
+        if (GetComponent<PlayerInventoryHolder>().InventorySystem.ContainsItem(oxygenTankItemData, out var ab))
+        {
+            maxOxygen = 75;
+            oxygenBar.maxValue = 75; 
+            currentOxygen = 75;
         }
 
         // Update UI
