@@ -15,7 +15,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &7714497666496104463
 Transform:
@@ -53,7 +53,7 @@ MeshCollider:
   serializedVersion: 5
   m_Convex: 0
   m_CookingOptions: 30
-  m_Mesh: {fileID: 5647417589637484068, guid: 114bd41e985056e4f8d89d9c899b8a81, type: 3}
+  m_Mesh: {fileID: -1962823463446108579, guid: ce8c2534a04a91d4bbc392535b551d05, type: 3}
 --- !u!1001 &4349840996245041190
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -105,7 +105,7 @@ PrefabInstance:
     - target: {fileID: -7273390306454378207, guid: ce8c2534a04a91d4bbc392535b551d05, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 817d9ddf94bd6044884a34a2296b9737, type: 2}
+      objectReference: {fileID: 2100000, guid: f1307f74922c44742946fa5434052cab, type: 2}
     - target: {fileID: -6296022110567944186, guid: ce8c2534a04a91d4bbc392535b551d05, type: 3}
       propertyPath: m_CastShadows
       value: 0
@@ -113,7 +113,7 @@ PrefabInstance:
     - target: {fileID: -6296022110567944186, guid: ce8c2534a04a91d4bbc392535b551d05, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 817d9ddf94bd6044884a34a2296b9737, type: 2}
+      objectReference: {fileID: 2100000, guid: f1307f74922c44742946fa5434052cab, type: 2}
     - target: {fileID: 919132149155446097, guid: ce8c2534a04a91d4bbc392535b551d05, type: 3}
       propertyPath: m_Name
       value: Cliff_round
@@ -125,7 +125,7 @@ PrefabInstance:
     - target: {fileID: 4870899903125522222, guid: ce8c2534a04a91d4bbc392535b551d05, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 817d9ddf94bd6044884a34a2296b9737, type: 2}
+      objectReference: {fileID: 2100000, guid: f1307f74922c44742946fa5434052cab, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:
