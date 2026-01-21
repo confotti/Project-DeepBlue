@@ -24,6 +24,8 @@ public class StalkerBehaviour : MonoBehaviour
     [Header("Red Gizmos"), SerializeField] private bool _showPursuitGizmos = true;
 #endif
     public StalkerPursuitState PursuitState = new();
+    public StalkerStalkState StalkState = new();
+    public StalkerScaredState ScaredState = new();
 
 
 
