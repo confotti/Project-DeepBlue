@@ -14,61 +14,70 @@ public class PlayerStats : MonoBehaviour
     [SerializeField] private PlayerMovement playerMovement;
 
     [Header("Stats")]
-    [SerializeField] private int maxOxygen = 45;
-    [SerializeField] private int maxSanity = 100;
-    [SerializeField] private int maxHealth = 100;
+    [SerializeField] private int _maxOxygen = 45;
+    [SerializeField] private float _oxygenGainPerSecond = 50;
+    [SerializeField] private float _timeToDrown = 5;
+    [SerializeField] private int _maxSanity = 100;
+    [SerializeField] private int _maxHealth = 100;
 
-    private int currentOxygen;
-    private int currentSanity;
-    private int currentHealth; 
+    private float _currentOxygen;
+    private float _currentDrownTime;
+    private int _currentSanity;
+    private int _currentHealth;
+
+    private bool _dead = false;
 
     Coroutine oxygenCo;
     Coroutine sanityCo;
 
-    bool swimCheck;
-
     [Header("UI")]
     [SerializeField] private Slider oxygenBar;
     [SerializeField] private TextMeshProUGUI oxygenText;
+    [SerializeField] private Image _dyingBlur;
 
     private void Start()
     {
         // Initialize stats
-        currentOxygen = maxOxygen;
-        currentSanity = maxSanity;
-        currentHealth = maxHealth;
+        _currentOxygen = _maxOxygen;
+        _currentSanity = _maxSanity;
+        _currentHealth = _maxHealth;
 
         //B�rja med max values 
-        oxygenBar.maxValue = maxOxygen;
+        oxygenBar.maxValue = _maxOxygen;
 
         //S�nka sanity overtime 
-        sanityCo = StartCoroutine(DecreaseStatOverTime(() => currentSanity, v => currentSanity = v, 40, 1));
+        //sanityCo = StartCoroutine(DecreaseStatOverTime(() => _currentSanity, v => _currentSanity = v, 40, 1));
+    }
+
+    private void OnDestroy()
+    {
+        _dyingBlur.material.SetFloat("_Scale", 3);
     }
 
     private void Update()
     {
-        if (!playerMovement.IsSwimming && swimCheck)
+        if (!playerMovement.IsSwimming)
         {
-            swimCheck = false;
-            StopCoroutine(oxygenCo);
-            currentOxygen = maxOxygen;
+            //StopCoroutine(oxygenCo);
+            ChangeOxygen(_oxygenGainPerSecond * Time.deltaTime);
         }
-        else if (playerMovement.IsSwimming && !swimCheck)
+        else if (playerMovement.IsSwimming)
         {
-            swimCheck = true;
-            oxygenCo = StartCoroutine(DecreaseStatOverTime(() => currentOxygen, v => currentOxygen = v, 3, 3));
+            //oxygenCo = StartCoroutine(DecreaseStatOverTime(() => _currentOxygen, v => _currentOxygen = v, 3, 3));
+            ChangeOxygen(-Time.deltaTime);
         }
+
+        ChangeDrownTime(_currentOxygen == 0 ? Time.deltaTime : -Time.deltaTime * 2.5f);
 
         if (GetComponent<PlayerInventoryHolder>().InventorySystem.ContainsItem(oxygenTankItemData, out var ab))
         {
-            maxOxygen = 75;
-            oxygenBar.maxValue = 75; 
-            currentOxygen = 75;
+            _maxOxygen = 75;
+            oxygenBar.maxValue = 75;
         }
 
         // Update UI
-        oxygenBar.value = currentOxygen;
-        oxygenText.text = currentOxygen.ToString();
+        oxygenBar.value = _currentOxygen;
+        oxygenText.text = Mathf.RoundToInt(_currentOxygen).ToString();
     }
 
     private IEnumerator DecreaseStatOverTime(System.Func<int> getter, System.Action<int> setter, int interval, int amount)
@@ -83,19 +92,31 @@ public class PlayerStats : MonoBehaviour
         }
     }
 
-    public void ChangeOxygen(int amount)
+    public void ChangeOxygen(float amount)
     {
-        currentOxygen = Mathf.Clamp(currentOxygen + amount, 0, maxOxygen);
+        _currentOxygen = Mathf.Clamp(_currentOxygen + amount, 0, _maxOxygen);
     }
 
     public void ChangeSanity(int amount)
     {
-        currentSanity = Mathf.Clamp(currentSanity + amount, 0, maxSanity);
+        _currentSanity = Mathf.Clamp(_currentSanity + amount, 0, _maxSanity);
     }
 
     public void ChangeHealth(int amount)
     {
-        currentHealth = Mathf.Clamp(currentHealth + amount, 0, maxHealth);
-        if (currentHealth == 0) OnDeath?.Invoke();
+        _currentHealth = Mathf.Clamp(_currentHealth + amount, 0, _maxHealth);
+        if (_currentHealth == 0) OnDeath?.Invoke();
     }
+
+    public void ChangeDrownTime(float amount)
+    {
+        _currentDrownTime = Mathf.Clamp(_currentDrownTime + amount, 0, _timeToDrown);
+        _dyingBlur.material.SetFloat("_Scale", (1 - (_currentDrownTime / _timeToDrown)) * 3);
+        if (_currentDrownTime == _timeToDrown)
+        {
+            _dead = true;
+            OnDeath?.Invoke();
+        } 
+    }
+    
 }
