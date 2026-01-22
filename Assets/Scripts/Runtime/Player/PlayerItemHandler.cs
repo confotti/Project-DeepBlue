@@ -38,6 +38,9 @@ public class PlayerItemHandler : MonoBehaviour
 
     private void OnItemPrimary()
     {
+        //If cursor is not locked a UI is probably open. Either way the item in hand should not be used at this point. 
+        if (Cursor.lockState != CursorLockMode.Locked) return;
+
         if(_currentItem != null) _currentItem.PrimaryInput();
     }
 

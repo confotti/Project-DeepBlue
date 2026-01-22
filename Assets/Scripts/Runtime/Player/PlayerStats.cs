@@ -13,10 +13,12 @@ public class PlayerStats : MonoBehaviour
 
     [SerializeField] private PlayerMovement playerMovement;
 
-    [Header("Stats")]
+    [Header("Stats")] 
     [SerializeField] private int _maxOxygen = 45;
     [SerializeField] private float _oxygenGainPerSecond = 50;
     [SerializeField] private float _timeToDrown = 5;
+    [SerializeField] private float _drownReduction = 2.5f;
+
     [SerializeField] private int _maxSanity = 100;
     [SerializeField] private int _maxHealth = 100;
 
@@ -26,9 +28,6 @@ public class PlayerStats : MonoBehaviour
     private int _currentHealth;
 
     private bool _dead = false;
-
-    Coroutine oxygenCo;
-    Coroutine sanityCo;
 
     [Header("UI")]
     [SerializeField] private Slider oxygenBar;
@@ -44,32 +43,27 @@ public class PlayerStats : MonoBehaviour
 
         //B�rja med max values 
         oxygenBar.maxValue = _maxOxygen;
-
-        //S�nka sanity overtime 
-        //sanityCo = StartCoroutine(DecreaseStatOverTime(() => _currentSanity, v => _currentSanity = v, 40, 1));
     }
 
     private void OnDestroy()
     {
-        _dyingBlur.material.SetFloat("_Scale", 3);
+        if(_dyingBlur) _dyingBlur.material.SetFloat("_Scale", 3);
     }
 
     private void Update()
     {
-        if (!playerMovement.IsSwimming)
+        if(!playerMovement.IsSwimming)
         {
-            //StopCoroutine(oxygenCo);
             ChangeOxygen(_oxygenGainPerSecond * Time.deltaTime);
         }
-        else if (playerMovement.IsSwimming)
+        else if(playerMovement.IsSwimming)
         {
-            //oxygenCo = StartCoroutine(DecreaseStatOverTime(() => _currentOxygen, v => _currentOxygen = v, 3, 3));
             ChangeOxygen(-Time.deltaTime);
         }
 
-        ChangeDrownTime(_currentOxygen == 0 ? Time.deltaTime : -Time.deltaTime * 2.5f);
+        ChangeDrownTime(_currentOxygen == 0 ? Time.deltaTime : -Time.deltaTime * _drownReduction);
 
-        if (GetComponent<PlayerInventoryHolder>().InventorySystem.ContainsItem(oxygenTankItemData, out var ab))
+        if(GetComponent<PlayerInventoryHolder>().InventorySystem.ContainsItem(oxygenTankItemData, out var ab))
         {
             _maxOxygen = 75;
             oxygenBar.maxValue = 75;
@@ -78,18 +72,6 @@ public class PlayerStats : MonoBehaviour
         // Update UI
         oxygenBar.value = _currentOxygen;
         oxygenText.text = Mathf.RoundToInt(_currentOxygen).ToString();
-    }
-
-    private IEnumerator DecreaseStatOverTime(System.Func<int> getter, System.Action<int> setter, int interval, int amount)
-    {
-        while (true)
-        {
-            yield return new WaitForSeconds(interval);
-
-            int current = getter();
-            if (current > 0)
-                setter(Mathf.Max(current - amount, 0));
-        }
     }
 
     public void ChangeOxygen(float amount)
@@ -105,18 +87,35 @@ public class PlayerStats : MonoBehaviour
     public void ChangeHealth(int amount)
     {
         _currentHealth = Mathf.Clamp(_currentHealth + amount, 0, _maxHealth);
-        if (_currentHealth == 0) OnDeath?.Invoke();
+        if(_currentHealth == 0) OnDeath?.Invoke();
     }
 
     public void ChangeDrownTime(float amount)
     {
         _currentDrownTime = Mathf.Clamp(_currentDrownTime + amount, 0, _timeToDrown);
-        _dyingBlur.material.SetFloat("_Scale", (1 - (_currentDrownTime / _timeToDrown)) * 3);
-        if (_currentDrownTime == _timeToDrown)
+        if(_dyingBlur) _dyingBlur.material.SetFloat("_Scale", (1 - (_currentDrownTime / _timeToDrown)) * 3);
+        if(_currentDrownTime == _timeToDrown)
         {
             _dead = true;
             OnDeath?.Invoke();
         } 
     }
-    
+
+
+
+    /*
+    private IEnumerator DecreaseStatOverTime(System.Func<int> getter, System.Action<int> setter, int interval, int amount)
+    {
+        while (true)
+        {
+            yield return new WaitForSeconds(interval);
+
+            int current = getter();
+            if (current > 0)
+                setter(Mathf.Max(current - amount, 0));
+        }
+    }
+
+    oxygenCo = StartCoroutine(DecreaseStatOverTime(() => _currentOxygen, v => _currentOxygen = v, 3, 3));
+    */
 }
