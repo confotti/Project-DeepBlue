@@ -1,15 +1,13 @@
 ﻿using System.Collections;
 using UnityEngine;
-using UnityEngine.Rendering;
-using UnityEngine.Rendering.HighDefinition;
+using TMPro; 
 
 public class TimeManager : MonoBehaviour
 {
     public static TimeManager Instance { get; private set; }
 
     [Header("Internal Clock")]
-    [SerializeField]
-    GameTimeStamp timestamp;
+    [SerializeField] GameTimeStamp timestamp;
 
     [Tooltip("Length of a full game day in real-time minutes")]
     public float realMinutesPerDay = 25f;
@@ -18,13 +16,17 @@ public class TimeManager : MonoBehaviour
     public Transform sunTransform;
     Vector3 sunAngle;
 
+    [Header("UI")]
+    [SerializeField] private TextMeshProUGUI clockText;
+
     // One game day = 24 in-game hours = 86,400 seconds
     private const float SecondsPerGameDay = 24f * 3600f;
-
     // Store total game time in seconds
     private float totalGameSeconds;
+    private float timeScale;
 
-    private float timeScale; 
+    private int lastDisplayedHour = -1;
+    private int lastDisplayedMinute = -1; 
 
     private void Awake()
     {
@@ -47,6 +49,8 @@ public class TimeManager : MonoBehaviour
 
         float realSecondsPerDay = realMinutesPerDay * 60f;
         timeScale = SecondsPerGameDay / realSecondsPerDay;
+
+        UpdateClockUI(); 
     }
 
     private void Update()
@@ -56,6 +60,7 @@ public class TimeManager : MonoBehaviour
         timestamp = SecondsToTimeStamp((int)totalGameSeconds);
 
         UpdateSunMovement();
+        UpdateClockUI();
     }
 
     void UpdateSunMovement()
@@ -70,12 +75,32 @@ public class TimeManager : MonoBehaviour
         sunTransform.rotation = Quaternion.Euler(sunAngle); 
     }
 
+    private void UpdateClockUI()
+    {
+        if (clockText == null) return;
+
+        // 5 minuter hopp 
+        int clockMinute = (timestamp.minute / 5) * 5;
+
+        if (timestamp.hour == lastDisplayedHour &&
+            clockMinute == lastDisplayedMinute)
+        {
+            return;
+        }
+
+        lastDisplayedHour = timestamp.hour;
+        lastDisplayedMinute = clockMinute;
+
+        clockText.text = $"{timestamp.hour:00}:{clockMinute:00}"; 
+    } 
+
     private GameTimeStamp SecondsToTimeStamp(int totalSeconds)
     {
         int day = totalSeconds / (24 * 3600);
         int hour = (totalSeconds / 3600) % 24;
         int minute = (totalSeconds / 60) % 60;
         int second = totalSeconds % 60;
+
         return new GameTimeStamp(day, hour, minute, second);
     }
 
