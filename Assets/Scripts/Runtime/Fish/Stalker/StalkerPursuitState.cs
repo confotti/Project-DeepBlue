@@ -29,7 +29,7 @@ public class StalkerPursuitState : State<StalkerBehaviour>
         base.LogicUpdate();
 
         //TODO: Probably create a state where it goes to player last seen position here instead. 
-        if (!obj.PlayerInPursuitRange || !obj.PlayerInLineOfSight())
+        if (!obj.PlayerInPursuitRange || !obj.PlayerInLineOfSight() || !PlayerMovement.Instance.IsSwimming)
         {
             obj.StateMachine.ChangeState(obj.WanderState);
             return;

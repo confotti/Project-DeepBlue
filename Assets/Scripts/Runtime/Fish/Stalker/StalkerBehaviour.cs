@@ -7,6 +7,7 @@ public class StalkerBehaviour : MonoBehaviour
     private float _fovThreshhold;
 
     [SerializeField] public Transform LookAtPoint;
+    [SerializeField] private Renderer _renderer;
 
     public Rigidbody Rb { get; private set; }
 
@@ -40,8 +41,10 @@ public class StalkerBehaviour : MonoBehaviour
         Rb = GetComponent<Rigidbody>();
         WanderState.Init(this, StateMachine);
         PursuitState.Init(this, StateMachine);
+        StalkState.Init(this, StateMachine);
+        ScaredState.Init(this, StateMachine);
 
-        StateMachine.Initialize(WanderState);
+        StateMachine.Initialize(StalkState);
 
         _fovThreshhold = Mathf.Cos(_fieldOfViewInspector * Mathf.Deg2Rad * 0.5f);
 
@@ -95,7 +98,7 @@ public class StalkerBehaviour : MonoBehaviour
                 return false;
             }
         */
-        return GetComponent<Renderer>().isVisible;
+        return (_renderer.isVisible && Vector3.Dot(PlayerMovement.Instance.CameraHead.transform.forward, transform.position - PlayerMovement.Instance.transform.position) > 0.5f); //0.5 is 60 degrees. 
     }
 
 

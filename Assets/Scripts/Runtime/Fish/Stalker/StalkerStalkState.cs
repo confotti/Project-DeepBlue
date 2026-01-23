@@ -1,5 +1,7 @@
+using System;
 using UnityEngine;
 
+[Serializable]
 public class StalkerStalkState : State<StalkerBehaviour>
 {
     [SerializeField] private float _getToPositionSpeed = 30;
@@ -15,13 +17,13 @@ public class StalkerStalkState : State<StalkerBehaviour>
     {
         if(Vector3.Distance(obj.transform.position, _targetPos) > 5) //Getting into stalkposition
         {
-            obj.Rb.angularVelocity = (_targetPos - obj.transform.position).normalized * _getToPositionSpeed;
+            obj.Rb.linearVelocity = (_targetPos - obj.transform.position).normalized * _getToPositionSpeed;
             obj.transform.LookAt(_targetPos);
         }
         else //Stalking
         {
             _currentStalk = Mathf.Min(_currentStalk + _stalkRate * Time.fixedDeltaTime, 1);
-            obj.Rb.angularVelocity = (_targetPos - obj.transform.position).normalized * _stalkSwimSpeed;
+            obj.Rb.linearVelocity = (_targetPos - obj.transform.position).normalized * _stalkSwimSpeed;
             obj.transform.LookAt(_targetPos);
 
             if (Vector3.Distance(obj.transform.position, PlayerMovement.Instance.transform.position) < _rangeToEnterPursuit)
@@ -37,6 +39,11 @@ public class StalkerStalkState : State<StalkerBehaviour>
         if (obj.IsObservedByPlayer())
         {
             obj.StateMachine.ChangeState(obj.ScaredState);
+            return;
+        }
+        if (!PlayerMovement.Instance.IsSwimming)
+        {
+            obj.StateMachine.ChangeState(obj.WanderState);
             return;
         }
 

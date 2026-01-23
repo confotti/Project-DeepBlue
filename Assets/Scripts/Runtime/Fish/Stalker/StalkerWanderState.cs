@@ -6,14 +6,14 @@ using Random = UnityEngine.Random;
 [Serializable]
 public class StalkerWanderState : State<StalkerBehaviour>
 {
-    [SerializeField] private float _wanderSpeed = 15f;
-    [SerializeField] private float _turnSpeed = 2f;
+    [SerializeField] protected float _wanderSpeed = 15f;
+    [SerializeField] private float _turnSpeed = 0.03f;
 
-    [SerializeField] private float _wanderCircleDistance = 2f;
-    [SerializeField] private float _wanderCircleRadius = 1f;
-    [SerializeField] private float _wanderJitter = 0.5f;
+    [SerializeField] private float _wanderCircleDistance = 20f;
+    [SerializeField] private float _wanderCircleRadius = 10f;
+    [SerializeField] private float _wanderJitter = 1f;
 
-    [SerializeField] private float _avoidDistance = 20f;
+    [SerializeField] private float _avoidDistance = 35f;
 
     private Vector3 _wanderTarget;
 
@@ -25,8 +25,12 @@ public class StalkerWanderState : State<StalkerBehaviour>
     {
         base.LogicUpdate();
 
-        if (obj.PlayerInPursuitRange && obj.PlayerInLineOfSight())
+        if (PlayerMovement.Instance.IsSwimming)
+            obj.StateMachine.ChangeState(obj.StalkState);
+
+        /*if (obj.PlayerInPursuitRange && obj.PlayerInLineOfSight())
             obj.StateMachine.ChangeState(obj.PursuitState);
+        */
     }
 
     public override void PhysicsUpdate()
@@ -35,15 +39,16 @@ public class StalkerWanderState : State<StalkerBehaviour>
 
         //Movement thingys here
         Wander();
-        AvoidPlayer();
+        if(obj.TimeSinceLastAttack < 15 && obj.DistanceToPlayer < obj.PursuitState.PursuitDetectionRange &&
+            Vector3.Dot(obj.transform.forward, (PlayerMovement.Instance.transform.position - obj.transform.position).normalized) > -0.18f) AvoidPlayer();
         AvoidObstacles();
-        obj.Rb.linearVelocity = obj.transform.forward * _wanderSpeed;
 
+        obj.Rb.linearVelocity = obj.transform.forward * _wanderSpeed;
         obj.LookAtPoint.position = Vector3.Lerp(obj.LookAtPoint.position, obj.transform.position + obj.transform.forward * _wanderCircleDistance + _wanderTarget, 0.1f);
 
     }
 
-    private void Wander()
+    protected void Wander()
     {
         // Add slight random jitter to the wander target
         _wanderTarget += new Vector3(
@@ -87,7 +92,7 @@ public class StalkerWanderState : State<StalkerBehaviour>
     }
     */
 
-    void AvoidObstacles()
+    protected void AvoidObstacles()
     {
         if (Physics.Raycast(obj.transform.position, obj.transform.forward, out RaycastHit hit, _avoidDistance))
         {
@@ -103,17 +108,15 @@ public class StalkerWanderState : State<StalkerBehaviour>
         }
     }
 
-    void AvoidPlayer()
+    protected void AvoidPlayer()
     {
-        if (obj.TimeSinceLastAttack < 15 && obj.DistanceToPlayer < obj.PursuitState.PursuitDetectionRange)
-        {
-            Quaternion avoidRot = Quaternion.LookRotation(obj.transform.position - PlayerMovement.Instance.transform.position);
+        Quaternion avoidRot = Quaternion.LookRotation(obj.transform.position - PlayerMovement.Instance.transform.position);
 
-            obj.transform.rotation = Quaternion.Slerp(
-                obj.transform.rotation,
-                avoidRot,
-                _turnSpeed
-            );
-        }
+        obj.transform.rotation = Quaternion.Slerp(
+            obj.transform.rotation,
+            avoidRot,
+            _turnSpeed
+        );
+
     }
 }

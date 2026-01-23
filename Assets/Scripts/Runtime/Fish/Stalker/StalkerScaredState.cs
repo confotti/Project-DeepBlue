@@ -1,7 +1,10 @@
+using System;
 using UnityEngine;
 
-public class StalkerScaredState : State<StalkerBehaviour>
+[Serializable]
+public class StalkerScaredState : StalkerWanderState
 {
+    [Header("Stalker things")]
     [SerializeField] private float _timeInScaredState = 5;
     private float _scaredTimer = 0;
 
@@ -12,6 +15,7 @@ public class StalkerScaredState : State<StalkerBehaviour>
 
     public override void LogicUpdate()
     {
+        Debug.Log(Vector3.Dot(obj.transform.forward, (PlayerMovement.Instance.transform.position - obj.transform.position).normalized));
         if (obj.IsObservedByPlayer())
         {
             _scaredTimer = _timeInScaredState;
@@ -19,9 +23,22 @@ public class StalkerScaredState : State<StalkerBehaviour>
         if(_scaredTimer <= 0)
         {
             obj.StateMachine.ChangeState(obj.StalkState);
-            return;
+            return; 
         }
         _scaredTimer -= Time.deltaTime;
             
+    }
+     
+    public override void PhysicsUpdate()
+    {
+        Wander();
+        if (Vector3.Dot(obj.transform.forward, (PlayerMovement.Instance.transform.position - obj.transform.position).normalized) > -0.18f)
+        {
+            AvoidPlayer();
+            Debug.Log("Avoiding stalk");
+        }
+        AvoidObstacles();
+
+        obj.Rb.linearVelocity = obj.transform.forward * _wanderSpeed;
     }
 }

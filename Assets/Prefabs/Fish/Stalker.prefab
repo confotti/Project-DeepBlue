@@ -79,6 +79,8 @@ MonoBehaviour:
     m_Bits: 49097
   _fieldOfViewInspector: 270
   LookAtPoint: {fileID: 8291110624590305647}
+  _renderer: {fileID: 3412992132805471757}
+  TimeSinceLastAttack: 100
   _showWanderGizmos: 1
   WanderState:
     _wanderSpeed: 15
@@ -91,6 +93,22 @@ MonoBehaviour:
   PursuitState:
     _pursuitSpeed: 25
     PursuitDetectionRange: 70
+    _attackRange: 5
+    _attackDamage: 20
+  StalkState:
+    _getToPositionSpeed: 50
+    _stalkSwimSpeed: 10
+    _stalkRate: 0.1
+    _rangeToEnterPursuit: 30
+    _stalkPositionDistance: 100
+  ScaredState:
+    _wanderSpeed: 15
+    _turnSpeed: 0.03
+    _wanderCircleDistance: 20
+    _wanderCircleRadius: 7
+    _wanderJitter: 1
+    _avoidDistance: 35
+    _timeInScaredState: 5
 --- !u!1 &4633504233531729596
 GameObject:
   m_ObjectHideFlags: 0
@@ -373,6 +391,11 @@ MonoBehaviour:
   - m_Rig: {fileID: 2181144321941369638}
     m_Active: 1
   m_Effectors: []
+--- !u!137 &3412992132805471757 stripped
+SkinnedMeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 3247935716957284633, guid: 194ece0fa4e0e134a9e8e5f96bf99262, type: 3}
+  m_PrefabInstance: {fileID: 166525505336002324}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &8122959253370245558 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8283547395174913698, guid: 194ece0fa4e0e134a9e8e5f96bf99262, type: 3}
