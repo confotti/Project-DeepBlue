@@ -9,10 +9,12 @@ public class FishBoidsTest : MonoBehaviour
     public int FishCount = 2000;
     public float CellSize = 2f;
 
+    [SerializeField] private float _fishMaxSpeed = 15f;
     [SerializeField] private float _neighborRadius = 10;
     [SerializeField] private float _separationWeight = 1.5f;
     [SerializeField] private float _alignmentWeight = 1f;
     [SerializeField] private float _cohesionWeight = 1f;
+    [SerializeField] private float _playerWeight = 1f;
 
     [SerializeField] private float _spawnRadius = 25f;
     [SerializeField] private Vector3 _spawnCenter;
@@ -58,7 +60,9 @@ public class FishBoidsTest : MonoBehaviour
             NeighborRadius = _neighborRadius,
             SeparationWeight = _separationWeight,
             AlignmentWeight = _alignmentWeight,
-            CohesionWeight = _cohesionWeight
+            CohesionWeight = _cohesionWeight,
+            PlayerPos = PlayerMovement.Instance.transform.position,
+            PlayerWeight = _playerWeight
         }.Schedule(FishCount, 64, buildJob);
 
         var integrateJob = new IntegrateJob
@@ -67,7 +71,7 @@ public class FishBoidsTest : MonoBehaviour
             Velocities = velocities,
             Accelerations = accelerations,
             DeltaTime = Time.deltaTime,
-            MaxSpeed = 5f
+            MaxSpeed = _fishMaxSpeed
         }.Schedule(FishCount, 64, steerJob);
 
         integrateJob.Complete();
@@ -166,6 +170,8 @@ struct BoidsSteeringJob : IJobParallelFor
     public float SeparationWeight;
     public float AlignmentWeight;
     public float CohesionWeight;
+    public float PlayerWeight;
+    public float3 PlayerPos;
 
     public void Execute(int index)
     {
@@ -175,6 +181,7 @@ struct BoidsSteeringJob : IJobParallelFor
         float3 separation = 0;
         float3 alignment = 0;
         float3 cohesion = 0;
+        float3 playerScare = 0;
         int count = 0;
 
         int hash = FishBoidsTest.Hash(pos, CellSize);
@@ -217,11 +224,19 @@ struct BoidsSteeringJob : IJobParallelFor
             alignment = alignment / count - vel;
             cohesion = (cohesion / count) - pos;
         }
+        
+        float3 playerOffset = pos - PlayerPos;
+        float playerDist = math.length(playerOffset);
+        if(playerDist < NeighborRadius)
+        {
+            playerScare += playerOffset / math.max (playerDist, 0.001f);
+        }
 
         Accelerations[index] =
             separation * SeparationWeight +
             alignment * AlignmentWeight +
-            cohesion * CohesionWeight;
+            cohesion * CohesionWeight +
+            playerScare * PlayerWeight;
     }
 }
 
