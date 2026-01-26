@@ -446,6 +446,14 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 776251319}
     - target: {fileID: 5731344407342504892, guid: cbc1e87d3d2a2f4448067cbbd6e3cb4b, type: 3}
+      propertyPath: _dyingBlur
+      value: 
+      objectReference: {fileID: 1682102834}
+    - target: {fileID: 5731344407342504892, guid: cbc1e87d3d2a2f4448067cbbd6e3cb4b, type: 3}
+      propertyPath: _healthBar
+      value: 
+      objectReference: {fileID: 1680564673}
+    - target: {fileID: 5731344407342504892, guid: cbc1e87d3d2a2f4448067cbbd6e3cb4b, type: 3}
       propertyPath: oxygenText
       value: 
       objectReference: {fileID: 1840180563}
@@ -1719,6 +1727,28 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   id: 8923187e-25a1-43cf-b688-64208f8413e3
+--- !u!114 &1680564673 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2677143636974061519, guid: 1735cfffb7976c2418760dbc0cae993e, type: 3}
+  m_PrefabInstance: {fileID: 1480990840}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1682102834 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7101888419530261940, guid: 1735cfffb7976c2418760dbc0cae993e, type: 3}
+  m_PrefabInstance: {fileID: 1480990840}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1720226494
 GameObject:
   m_ObjectHideFlags: 0

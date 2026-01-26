@@ -29749,7 +29749,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   oxygenTankItemData: {fileID: 11400000, guid: 2ac3ebd8e5a21ec459c5c0ef1e0a3ef7, type: 2}
-  finsItemData: {fileID: 0}
   playerMovement: {fileID: 5700871189913967699}
   _maxOxygen: 45
   _oxygenGainPerSecond: 50
@@ -29757,8 +29756,10 @@ MonoBehaviour:
   _drownReduction: 2.5
   _maxSanity: 100
   _maxHealth: 100
+  _uiPort: {fileID: 11400000, guid: 547b33ac66c9a604da2cbf09be2a3c4d, type: 2}
   oxygenBar: {fileID: 0}
   oxygenText: {fileID: 0}
+  _healthBar: {fileID: 0}
   _dyingBlur: {fileID: 0}
 --- !u!114 &8824337291799439041
 MonoBehaviour:

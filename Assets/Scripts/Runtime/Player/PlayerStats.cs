@@ -30,8 +30,10 @@ public class PlayerStats : MonoBehaviour
     private bool _dead = false;
 
     [Header("UI")]
+    [SerializeField] private UIPort _uiPort;
     [SerializeField] private Slider oxygenBar;
     [SerializeField] private TextMeshProUGUI oxygenText;
+    [SerializeField] private Image _healthBar;
     [SerializeField] private Image _dyingBlur;
 
     private void Start()
@@ -87,7 +89,8 @@ public class PlayerStats : MonoBehaviour
     public void ChangeHealth(int amount)
     {
         _currentHealth = Mathf.Clamp(_currentHealth + amount, 0, _maxHealth);
-        if(_currentHealth == 0) OnDeath?.Invoke();
+        if(_healthBar) _healthBar.fillAmount = _currentHealth / (float)_maxHealth;
+        if(_currentHealth == 0) Death();
     }
 
     public void ChangeDrownTime(float amount)
@@ -96,12 +99,35 @@ public class PlayerStats : MonoBehaviour
         if(_dyingBlur) _dyingBlur.material.SetFloat("_Scale", (1 - (_currentDrownTime / _timeToDrown)) * 3);
         if(_currentDrownTime == _timeToDrown)
         {
-            _dead = true;
-            OnDeath?.Invoke();
+            Death();
         } 
     }
 
+    private void Death()
+    {
+        _dead = true;
+        OnDeath?.Invoke();
+        //This has to disable player controls somehow
 
+        _uiPort.StartScreenFade(true, 2, DeathFadeOutDone);
+    }
+
+    private void DeathFadeOutDone()
+    {
+        //Respawn here. 
+        StartCoroutine(FadeWait(1));
+    }
+    
+    private void DeathFadeBackDone()
+    {
+        //Re-enable player controls and stuff. 
+    }
+
+    private IEnumerator FadeWait(float time)
+    {
+        yield return new WaitForSecondsRealtime(time);
+        _uiPort.StartScreenFade(false, 1, DeathFadeBackDone);
+    }
 
     /*
     private IEnumerator DecreaseStatOverTime(System.Func<int> getter, System.Action<int> setter, int interval, int amount)
