@@ -24555,7 +24555,7 @@ Light:
   serializedVersion: 11
   m_Type: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 23809.75
+  m_Intensity: 46340.95
   m_Range: 1000
   m_SpotAngle: 80
   m_InnerSpotAngle: 21.80208
@@ -24606,7 +24606,7 @@ Light:
   m_ForceVisible: 0
   m_ShadowRadius: 0.025
   m_ShadowAngle: 0
-  m_LightUnit: 0
+  m_LightUnit: 4
   m_LuxAtDistance: 1
   m_EnableSpotReflector: 1
 --- !u!114 &4973942391887593815
@@ -29682,6 +29682,8 @@ MonoBehaviour:
   SwimmingState:
     _swimmingSpeed: 24
     _swimmingFastSpeed: 40
+    _accelaration: 0.1
+    finsItemData: {fileID: 0}
   _mouseSensitivity: 0.15
   StartStanding: 0
   CameraHead: {fileID: 5577114592626121966}
@@ -29747,12 +29749,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   oxygenTankItemData: {fileID: 11400000, guid: 2ac3ebd8e5a21ec459c5c0ef1e0a3ef7, type: 2}
+  finsItemData: {fileID: 0}
   playerMovement: {fileID: 5700871189913967699}
-  maxOxygen: 45
-  maxSanity: 100
-  maxHealth: 100
+  _maxOxygen: 45
+  _oxygenGainPerSecond: 50
+  _timeToDrown: 5
+  _drownReduction: 2.5
+  _maxSanity: 100
+  _maxHealth: 100
   oxygenBar: {fileID: 0}
   oxygenText: {fileID: 0}
+  _dyingBlur: {fileID: 0}
 --- !u!114 &8824337291799439041
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -8,6 +8,8 @@ public class PlayerSwimmingState : State<PlayerMovement>
     [SerializeField] private float _swimmingFastSpeed = 40;
     [SerializeField, Range(0f, 1f)] private float _accelaration = 0.1f;
 
+    public InventoryItemData finsItemData;
+
     public override void PhysicsUpdate()
     {
         base.PhysicsUpdate();
@@ -23,6 +25,17 @@ public class PlayerSwimmingState : State<PlayerMovement>
                     obj.CameraHead.transform.rotation * new Vector3(obj.InputHandler.Move.x, 0, obj.InputHandler.Move.y)).normalized *
                     (obj.InputHandler.Run ? _swimmingFastSpeed : _swimmingSpeed);
         */
+    }
+
+    public override void LogicUpdate()
+    {
+        base.LogicUpdate();
+        
+        if(obj.GetComponent<PlayerInventoryHolder>().InventorySystem.ContainsItem(finsItemData, out var ab)) 
+        {
+            _swimmingSpeed = 28; 
+            _swimmingFastSpeed = 45;
+        }
     }
 
     public override void Enter()
