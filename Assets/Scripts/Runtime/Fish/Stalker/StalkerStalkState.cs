@@ -6,12 +6,29 @@ public class StalkerStalkState : State<StalkerBehaviour>
 {
     [SerializeField] private float _getToPositionSpeed = 30;
     [SerializeField] private float _stalkSwimSpeed = 10;
-    [SerializeField, Range(0, 1)] private float _stalkRate = 0.1f;
+    [SerializeField, Range(0, 1)] private float _gainStalkRate = 0.1f;
+    [SerializeField, Range(0, 0.2f)] private float _loseStalkOutsideStalkStateRate = 0.01f;
     [SerializeField] private float _rangeToEnterPursuit = 10;
     [SerializeField] private float _stalkPositionDistance = 100;
 
     private Vector3 _targetPos;
     private float _currentStalk;
+
+    private float _timeWhenLeftStalk;
+
+    public override void Enter()
+    {
+        base.Enter();
+
+        _currentStalk = Mathf.Max(0, _currentStalk - (Time.time - _timeWhenLeftStalk) * _loseStalkOutsideStalkStateRate);
+    }
+
+    public override void Exit()
+    {
+        base.Exit();
+
+        _timeWhenLeftStalk = Time.time;
+    }
 
     public override void PhysicsUpdate()
     {
@@ -22,7 +39,7 @@ public class StalkerStalkState : State<StalkerBehaviour>
         }
         else //Stalking
         {
-            _currentStalk = Mathf.Min(_currentStalk + _stalkRate * Time.fixedDeltaTime, 1);
+            _currentStalk = Mathf.Min(_currentStalk + _gainStalkRate * Time.fixedDeltaTime, 1);
             obj.Rb.linearVelocity = (_targetPos - obj.transform.position).normalized * _stalkSwimSpeed;
             obj.transform.LookAt(_targetPos);
 
