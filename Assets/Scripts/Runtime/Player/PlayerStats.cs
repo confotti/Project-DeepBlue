@@ -11,7 +11,11 @@ public class PlayerStats : MonoBehaviour
 
     public InventoryItemData oxygenTankItemData;
 
-    [SerializeField] private PlayerMovement playerMovement;
+    private PlayerMovement _playerMovement;
+    [Header("Respawn")]
+    [SerializeField] private GameObject _submarine;
+    [SerializeField] private Vector3 _respawnPositionOffset;
+    private Vector3 RespawnPoint => _submarine.transform.position + _respawnPositionOffset;
 
     [Header("Stats")] 
     [SerializeField] private int _maxOxygen = 45;
@@ -36,6 +40,11 @@ public class PlayerStats : MonoBehaviour
     [SerializeField] private Image _healthBar;
     [SerializeField] private Image _dyingBlur;
 
+    private void Awake()
+    {
+        _playerMovement = GetComponent<PlayerMovement>();
+    }
+
     private void Start()
     {
         // Initialize stats
@@ -54,11 +63,11 @@ public class PlayerStats : MonoBehaviour
 
     private void Update()
     {
-        if(!playerMovement.IsSwimming)
+        if(!_playerMovement.IsSwimming)
         {
             ChangeOxygen(_oxygenGainPerSecond * Time.deltaTime);
         }
-        else if(playerMovement.IsSwimming)
+        else if(_playerMovement.IsSwimming)
         {
             ChangeOxygen(-Time.deltaTime);
         }
@@ -116,6 +125,7 @@ public class PlayerStats : MonoBehaviour
     {
         //Respawn here. 
         StartCoroutine(FadeWait(1));
+        Respawn();
     }
     
     private void DeathFadeBackDone()
@@ -127,6 +137,12 @@ public class PlayerStats : MonoBehaviour
     {
         yield return new WaitForSecondsRealtime(time);
         _uiPort.StartScreenFade(false, 1, DeathFadeBackDone);
+    }
+
+    private void Respawn()
+    {
+        transform.position = RespawnPoint;
+        _playerMovement.StateMachine.ChangeState(_playerMovement.StandingState);
     }
 
     /*
@@ -144,4 +160,11 @@ public class PlayerStats : MonoBehaviour
 
     oxygenCo = StartCoroutine(DecreaseStatOverTime(() => _currentOxygen, v => _currentOxygen = v, 3, 3));
     */
+
+    private void OnDrawGizmosSelected()
+    {
+        if (!_submarine) return;
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireCube(RespawnPoint, Vector3.one);
+    }
 }

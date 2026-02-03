@@ -15,7 +15,6 @@ public class StalkerScaredState : StalkerWanderState
 
     public override void LogicUpdate()
     {
-        Debug.Log(Vector3.Dot(obj.transform.forward, (PlayerMovement.Instance.transform.position - obj.transform.position).normalized));
         if (obj.IsObservedByPlayer())
         {
             _scaredTimer = _timeInScaredState;

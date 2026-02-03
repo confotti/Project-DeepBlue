@@ -29749,7 +29749,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   oxygenTankItemData: {fileID: 11400000, guid: 2ac3ebd8e5a21ec459c5c0ef1e0a3ef7, type: 2}
-  playerMovement: {fileID: 5700871189913967699}
+  _submarine: {fileID: 0}
+  _respawnPositionOffset: {x: 0, y: 41, z: -46}
   _maxOxygen: 45
   _oxygenGainPerSecond: 50
   _timeToDrown: 5
