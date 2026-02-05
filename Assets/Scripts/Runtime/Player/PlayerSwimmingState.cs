@@ -41,7 +41,8 @@ public class PlayerSwimmingState : State<PlayerMovement>
     public override void Enter()
     {
         base.Enter();
-
+        
+        PlayerMovement.Instance.SetUnderwaterParticlesActive(true); 
         obj.Animator.SetBool("IsSwimming", true);
     }
 
@@ -49,6 +50,7 @@ public class PlayerSwimmingState : State<PlayerMovement>
     {
         base.Exit();
 
+        PlayerMovement.Instance.SetUnderwaterParticlesActive(false); 
         obj.Animator.SetBool("IsSwimming", false);
     }
 }

@@ -36,7 +36,7 @@ struct GPUSphereCollider
 
 // ---------- Buffers ----------
 RWStructuredBuffer<StalkNode>   _StalkNodesBuffer;
-StructuredBuffer<float3>         initialRootPositions;
+StructuredBuffer<float3>        initialRootPositions;
 
 RWStructuredBuffer<LeafSegment> _LeafSegmentsBuffer;  
 RWStructuredBuffer<LeafObject>  _LeafObjectsBuffer;
@@ -61,67 +61,89 @@ uint   _TotalLeafObjects;
 // ---------- Noise helpers ----------
 float hash(float3 p) { return frac(sin(dot(p, float3(127.1,311.7,74.7))) * 43758.5453); }
 uint hashU(uint x){ x = (x ^ 61u) ^ (x >> 16); x *= 9u; x = x ^ (x >> 4); x *= 0x27d4eb2du; x = x ^ (x >> 15); return x; }
+
 static const float3 grad3[12] = {
     float3(1,1,0), float3(-1,1,0), float3(1,-1,0), float3(-1,-1,0),
     float3(1,0,1), float3(-1,0,1), float3(1,0,-1), float3(-1,0,-1),
     float3(0,1,1), float3(0,-1,1), float3(0,1,-1), float3(0,-1,-1)
 };
+
 float fade(float t){ return t*t*t*(t*(t*6-15)+10); }
-float gradNoise3D(float3 pos){
+
+float gradNoise3D(float3 pos)
+{
     int3 pi = (int3)floor(pos);
     float3 pf = pos - floor(pos);
     float u = fade(pf.x), v = fade(pf.y), w = fade(pf.z);
-    uint aaa = hashU(hashU(hashU((uint)pi.x)+(uint)pi.y)+(uint)pi.z)%12;
-    uint aba = hashU(hashU(hashU((uint)pi.x)+(uint)(pi.y+1))+(uint)pi.z)%12;
-    uint aab = hashU(hashU(hashU((uint)pi.x)+(uint)pi.y)+(uint)(pi.z+1))%12;
-    uint abb = hashU(hashU(hashU((uint)pi.x)+(uint)(pi.y+1))+(uint)(pi.z+1))%12;
-    uint baa = hashU(hashU(hashU((uint)(pi.x+1))+(uint)pi.y)+(uint)pi.z)%12;
-    uint bba = hashU(hashU(hashU((uint)(pi.x+1))+(uint)(pi.y+1))+(uint)pi.z)%12;
-    uint bab = hashU(hashU(hashU((uint)(pi.x+1))+(uint)pi.y)+(uint)(pi.z+1))%12;
-    uint bbb = hashU(hashU(hashU((uint)(pi.x+1))+(uint)(pi.y+1))+(uint)(pi.z+1))%12;
-    float3 gaaa=grad3[aaa], gaba=grad3[aba], gaab=grad3[aab], gabb=grad3[abb];
-    float3 gbaa=grad3[baa], gbba=grad3[bba], gbab=grad3[bab], gbbb=grad3[bbb];
-    float x1 = lerp(dot(gaaa,pf), dot(gbaa,pf-float3(1,0,0)), u);
-    float x2 = lerp(dot(gaba,pf-float3(0,1,0)), dot(gbba,pf-float3(1,1,0)), u);
+
+    uint aaa = hashU(hashU(hashU((uint)pi.x) + (uint)pi.y) + (uint)pi.z) % 12;
+    uint aba = hashU(hashU(hashU((uint)pi.x) + (uint)(pi.y+1)) + (uint)pi.z) % 12;
+    uint aab = hashU(hashU(hashU((uint)pi.x) + (uint)pi.y) + (uint)(pi.z+1)) % 12;
+    uint abb = hashU(hashU(hashU((uint)pi.x) + (uint)(pi.y+1)) + (uint)(pi.z+1)) % 12;
+    uint baa = hashU(hashU(hashU((uint)(pi.x+1)) + (uint)pi.y) + (uint)pi.z) % 12;
+    uint bba = hashU(hashU(hashU((uint)(pi.x+1)) + (uint)(pi.y+1)) + (uint)pi.z) % 12;
+    uint bab = hashU(hashU(hashU((uint)(pi.x+1)) + (uint)pi.y) + (uint)(pi.z+1)) % 12;
+    uint bbb = hashU(hashU(hashU((uint)(pi.x+1)) + (uint)(pi.y+1)) + (uint)(pi.z+1)) % 12;
+
+    float3 gaaa = grad3[aaa], gaba = grad3[aba], gaab = grad3[aab], gabb = grad3[abb];
+    float3 gbaa = grad3[baa], gbba = grad3[bba], gbab = grad3[bab], gbbb = grad3[bbb];
+
+    float x1 = lerp(dot(gaaa, pf), dot(gbaa, pf - float3(1,0,0)), u);
+    float x2 = lerp(dot(gaba, pf - float3(0,1,0)), dot(gbba, pf - float3(1,1,0)), u);
     float y1 = lerp(x1, x2, v);
-    float x3 = lerp(dot(gaab,pf-float3(0,0,1)), dot(gbab,pf-float3(1,0,1)), u);
-    float x4 = lerp(dot(gabb,pf-float3(0,1,1)), dot(gbbb,pf-float3(1,1,1)), u);
+    float x3 = lerp(dot(gaab, pf - float3(0,0,1)), dot(gbab, pf - float3(1,0,1)), u);
+    float x4 = lerp(dot(gabb, pf - float3(0,1,1)), dot(gbbb, pf - float3(1,1,1)), u);
     float y2 = lerp(x3, x4, v);
+
     return lerp(y1, y2, w);
 }
 
 // ---------------- QUAT HELPERS ----------------
-float4 QuatFromAxisAngle(float3 axis, float angle){
-    float h=angle*0.5; float s=sin(h);
-    return float4(axis*s, cos(h));
+float4 QuatFromAxisAngle(float3 axis, float angle)
+{
+    float h = angle * 0.5;
+    float s = sin(h);
+    return float4(axis * s, cos(h));
 }
-float4 QuatMul(float4 a, float4 b){
-    return float4(a.w*b.xyz + b.w*a.xyz + cross(a.xyz,b.xyz), a.w*b.w - dot(a.xyz,b.xyz));
+
+float4 QuatMul(float4 a, float4 b)
+{
+    return float4(a.w * b.xyz + b.w * a.xyz + cross(a.xyz, b.xyz), a.w * b.w - dot(a.xyz, b.xyz));
 }
-float3 QuatRotate(float4 q, float3 v){
+
+float3 QuatRotate(float4 q, float3 v)
+{
     float3 t = 2.0 * cross(q.xyz, v);
     return v + q.w * t + cross(q.xyz, t);
 }
-float4 QuatFromTo(float3 f, float3 t){
-    f = normalize(f); t = normalize(t);
-    float c = dot(f,t);
-    if(c < -0.9999){
+
+float4 QuatFromTo(float3 f, float3 t)
+{
+    f = normalize(f);
+    t = normalize(t);
+    float c = dot(f, t);
+
+    if (c < -0.9999)
+    {
         float3 axis = normalize(cross(float3(0,1,0), f));
-        if(!all(isfinite(axis)) || length(axis)<1e-6) axis = normalize(cross(float3(1,0,0), f));
+        if (!all(isfinite(axis)) || length(axis) < 1e-6)
+            axis = normalize(cross(float3(1,0,0), f));
         return QuatFromAxisAngle(axis, 3.14159265);
     }
-    float3 axis = cross(f,t);
-    float s = sqrt((1+c)*2.0);
-    float invs = 1.0/s;
-    float4 q = float4(axis*invs, s*0.5);
-    return q / sqrt(dot(q,q));
-} 
+
+    float3 axis = cross(f, t);
+    float s = sqrt((1 + c) * 2.0);
+    float invs = 1.0 / s;
+    float4 q = float4(axis * invs, s * 0.5);
+    return q / sqrt(dot(q, q));
+}
 
 // ---------------- STALK UPDATE ----------------
 [numthreads(64,1,1)]
 void CS_StalkUpdate(uint id : SV_DispatchThreadID)
 {
     if (id >= _StalkNodesBuffer.Length) return;
+
     StalkNode node = _StalkNodesBuffer[id];
 
     uint stalkIndex = id / _NodesPerStalk;
@@ -155,34 +177,49 @@ void CS_StalkUpdate(uint id : SV_DispatchThreadID)
     // seabed collision using root Y
     node.currentPos.y = max(node.currentPos.y, rootPos.y);
 
-    // ---------- SPHERE COLLISION ----------
-    for(uint c=0; c<_ColliderCount; c++)
+    // Sphere collision
+    for (uint c = 0; c < _ColliderCount; c++)
     {
         GPUSphereCollider col = _SphereColliders[c];
         float3 dir = node.currentPos - col.position;
         float len = length(dir);
-        if(len < col.radius && len > 1e-5)
+        if (len < col.radius && len > 1e-5)
         {
             node.currentPos = col.position + normalize(dir) * col.radius;
         }
     }
 
     // constraints
-    int prevId = int(id) - 1;
-    int nextId = int(id) + 1;
+    int prevId = (int)id - 1;
+    int nextId = (int)id + 1;
     float3 correction = float3(0,0,0);
 
-    if(prevId >= 0 && (prevId / _NodesPerStalk) == (id / _NodesPerStalk))
+    if (prevId >= 0)
     {
-        float3 d = node.currentPos - _StalkNodesBuffer[prevId].currentPos;
-        float dist = length(d);
-        if(dist > 1e-6) correction -= (d / dist) * ((dist - _SegmentSpacing) * 0.5);
+        uint prevStalk = (uint)prevId / _NodesPerStalk;
+        if (prevStalk == (id / _NodesPerStalk))
+        {
+            float3 d = node.currentPos - _StalkNodesBuffer[prevId].currentPos;
+            float dist = length(d);
+            if (dist > 1e-6)
+            {
+                correction -= (d / dist) * ((dist - _SegmentSpacing) * 0.5);
+            }
+        }
     }
-    if(nextId < _StalkNodesBuffer.Length && (nextId / _NodesPerStalk) == (id / _NodesPerStalk))
+
+    if (nextId < (int)_StalkNodesBuffer.Length)
     {
-        float3 d = _StalkNodesBuffer[nextId].currentPos - node.currentPos;
-        float dist = length(d);
-        if(dist > 1e-6) correction += (d / dist) * ((dist - _SegmentSpacing) * 0.15);
+        uint nextStalk = (uint)nextId / _NodesPerStalk;
+        if (nextStalk == (id / _NodesPerStalk))
+        {
+            float3 d = _StalkNodesBuffer[nextId].currentPos - node.currentPos;
+            float dist = length(d);
+            if (dist > 1e-6)
+            {
+                correction += (d / dist) * ((dist - _SegmentSpacing) * 0.15);
+            }
+        }
     }
 
     float maxMove = 0.05;
@@ -191,7 +228,7 @@ void CS_StalkUpdate(uint id : SV_DispatchThreadID)
 
     // update direction + bend
     float3 prevDir = (prevId >= 0) ? normalize(node.currentPos - _StalkNodesBuffer[prevId].currentPos) : float3(0,1,0);
-    float3 nextDir = (nextId < _StalkNodesBuffer.Length) ? normalize(_StalkNodesBuffer[nextId].currentPos - node.currentPos) : float3(0,1,0);
+    float3 nextDir = (nextId < (int)_StalkNodesBuffer.Length) ? normalize(_StalkNodesBuffer[nextId].currentPos - node.currentPos) : float3(0,1,0);
     node.direction = normalize(lerp(node.direction, normalize(prevDir + nextDir), 0.2));
     node.bendAmount = length(nextDir - prevDir) * 5.0;
 
@@ -206,33 +243,35 @@ void CS_LeafUpdate(uint leafID : SV_DispatchThreadID)
 
     LeafObject lo = _LeafObjectsBuffer[leafID];
     int n0 = lo.stalkNodeIndex;
-    if (n0 < 0 || n0 >= _StalkNodesBuffer.Length) return;
+    if (n0 < 0 || n0 >= (int)_StalkNodesBuffer.Length) return;
 
     float3 p0 = _StalkNodesBuffer[n0].currentPos; 
     uint baseSeg = leafID * _LeafNodesPerLeaf;
 
-    for(uint j=0;j<_LeafNodesPerLeaf;j++)
+    // First pass: apply forces to all segments
+    for (uint j = 0; j < _LeafNodesPerLeaf; j++)
     {
         uint idx = baseSeg + j;
-        if(idx >= _LeafSegmentsBuffer.Length) break;
+        if (idx >= _LeafSegmentsBuffer.Length) break;
+
         LeafSegment seg = _LeafSegmentsBuffer[idx];
 
         float3 vel = (seg.currentPos - seg.previousPos) * _Damping;
         seg.previousPos = seg.currentPos;
 
-        float3 np = seg.currentPos * 0.1 + float3(0,_Time*(_WindFrequency*0.1),0);
+        float3 np = seg.currentPos * 0.1 + float3(0, _Time * (_WindFrequency * 0.1), 0);
         float3 wind = float3(
             gradNoise3D(np),
-            gradNoise3D(np+float3(20,20,20)),
-            gradNoise3D(np+float3(100,100,100))
-        ) * (_WindStrength*0.5);
+            gradNoise3D(np + float3(20,20,20)),
+            gradNoise3D(np + float3(100,100,100))
+        ) * (_WindStrength * 0.5);
 
-        seg.currentPos += vel + (_Gravity*_LeafGravity*_DeltaTime) + wind*_DeltaTime;
+        seg.currentPos += vel + (_Gravity * _LeafGravity * _DeltaTime) + wind * _DeltaTime;
         _LeafSegmentsBuffer[idx] = seg;
     }
 
-    // root attachment
-    if(baseSeg < _LeafSegmentsBuffer.Length)
+    // Root attachment
+    if (baseSeg < _LeafSegmentsBuffer.Length)
     {
         LeafSegment rootSeg = _LeafSegmentsBuffer[baseSeg];
         float3 attachOffset = float3(cos(lo.angleAroundStem), 0, sin(lo.angleAroundStem)) * 0.02;
@@ -240,43 +279,52 @@ void CS_LeafUpdate(uint leafID : SV_DispatchThreadID)
         _LeafSegmentsBuffer[baseSeg] = rootSeg;
     }
 
-    // segment constraints
+    // Segment constraints (distance constraints)
     float rest = _SegmentSpacing * 1.2;
-    for(uint j=1;j<_LeafNodesPerLeaf;j++)
+    for (uint j = 1; j < _LeafNodesPerLeaf; j++)
     {
-        uint idx = baseSeg+j;
-        uint prevIdx = idx-1;
-        if(idx >= _LeafSegmentsBuffer.Length) break;
+        uint idx = baseSeg + j;
+        uint prevIdx = idx - 1;
+
+        if (idx >= _LeafSegmentsBuffer.Length) break;
+
         LeafSegment seg = _LeafSegmentsBuffer[idx];
         LeafSegment prevSeg = _LeafSegmentsBuffer[prevIdx];
+
         float3 d = seg.currentPos - prevSeg.currentPos;
         float dist = length(d);
-        if(dist > 1e-6)
+
+        if (dist > 1e-6)
         {
-            float3 corr = d/dist * ((dist - rest)*0.5);
+            float3 corr = (d / dist) * ((dist - rest) * 0.5);
             seg.currentPos -= corr;
             prevSeg.currentPos += corr;
+            _LeafSegmentsBuffer[prevIdx] = prevSeg;
+            _LeafSegmentsBuffer[idx] = seg;
         }
-        _LeafSegmentsBuffer[prevIdx] = prevSeg;
-        _LeafSegmentsBuffer[idx] = seg;
     }
 
-    // orientation update
+    // Orientation update
     float3 curPos = p0;
     float3 curDir = float3(0,1,0);
-    for(uint j=1;j<_LeafNodesPerLeaf;j++)
+
+    for (uint j = 1; j < _LeafNodesPerLeaf; j++)
     {
-        uint idx = baseSeg+j;
-        if(idx >= _LeafSegmentsBuffer.Length) break;
+        uint idx = baseSeg + j;
+        if (idx >= _LeafSegmentsBuffer.Length) break;
+
         LeafSegment seg = _LeafSegmentsBuffer[idx];
         float3 dir = seg.currentPos - curPos;
-        if(length(dir)<1e-6) dir = curDir;
+
+        if (length(dir) < 1e-6) dir = curDir;
         dir = normalize(dir);
+
         curDir = dir;
         curPos = seg.currentPos;
     }
+
     lo.orientation = QuatFromTo(float3(0,1,0), curDir);
     lo.bendAxis = cross(float3(0,1,0), curDir);
-    lo.bendAngle = acos(clamp(dot(float3(0,1,0), curDir),-1,1));
-    _LeafObjectsBuffer[leafID] = lo;
+    lo.bendAngle = acos(clamp(dot(float3(0,1,0), curDir), -1.0, 1.0));
+    _LeafObjectsBuffer[leafID] = lo; 
 }
