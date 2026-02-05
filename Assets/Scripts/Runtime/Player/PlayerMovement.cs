@@ -8,6 +8,7 @@ public class PlayerMovement : MonoBehaviour
     public StateMachine<PlayerMovement> StateMachine = new();
     [SerializeField] public PlayerStandingState StandingState = new();
     [SerializeField] public PlayerSwimmingState SwimmingState = new();
+    [SerializeField] private GameObject underwaterParticles; 
 
     [SerializeField] private float _mouseSensitivity = 0.2f;
 
@@ -25,7 +26,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] public GameObject CameraHead;
     [SerializeField] private Animator _animator;
     public Animator Animator => _animator;
-    
+
     [SerializeField] private GameObject playerModel;
     [SerializeField] private GameObject neckBone;
     private Vector3 neckComparedToHead;
@@ -85,22 +86,29 @@ public class PlayerMovement : MonoBehaviour
         transform.rotation = xQuat;
     }
 
-/*
-    [System.Diagnostics.Conditional("UNITY_EDITOR")]
-    private void OnDrawGizmosSelected()
+    public void SetUnderwaterParticlesActive(bool active)
     {
-        Col = GetComponent<CapsuleCollider>();
-        var a = Col.bounds.center;
-        a.y = Col.bounds.min.y;
+        if (underwaterParticles == null) return;
 
-        Gizmos.color = Color.blue;
-        Gizmos.DrawLine(a, a + Vector3.down * rideHeight);
-        Gizmos.color = Color.red;
-        Gizmos.DrawLine(a + Vector3.down * rideHeight, a + Vector3.down * rideHeight * 1.5f);
-
-        Gizmos.color = Color.magenta;
-        Gizmos.DrawSphere(_hitPosition, 0.5f);
+        underwaterParticles.SetActive(active); 
     }
 
-    */
+/*
+            [System.Diagnostics.Conditional("UNITY_EDITOR")]
+            private void OnDrawGizmosSelected()
+            {
+                Col = GetComponent<CapsuleCollider>();
+                var a = Col.bounds.center;
+                a.y = Col.bounds.min.y;
+
+                Gizmos.color = Color.blue;
+                Gizmos.DrawLine(a, a + Vector3.down * rideHeight);
+                Gizmos.color = Color.red;
+                Gizmos.DrawLine(a + Vector3.down * rideHeight, a + Vector3.down * rideHeight * 1.5f);
+
+                Gizmos.color = Color.magenta;
+                Gizmos.DrawSphere(_hitPosition, 0.5f);
+            }
+
+            */
 }
