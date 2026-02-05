@@ -143,6 +143,9 @@ public class PlayerStats : MonoBehaviour
     {
         transform.position = RespawnPoint;
         _playerMovement.StateMachine.ChangeState(_playerMovement.StandingState);
+        _currentHealth = _maxHealth;
+        _currentOxygen = _maxOxygen;
+        _currentDrownTime = 0;
     }
 
     /*

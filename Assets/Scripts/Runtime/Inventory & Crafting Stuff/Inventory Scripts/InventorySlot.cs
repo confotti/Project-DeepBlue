@@ -36,7 +36,7 @@ public class InventorySlot
     }
 
     //Assigns an item to the slot
-    public void AssignItem(InventorySlot invSlot) 
+    public virtual void AssignItem(InventorySlot invSlot) 
     {
         itemData = invSlot.ItemData;
         itemID = itemData.ID;

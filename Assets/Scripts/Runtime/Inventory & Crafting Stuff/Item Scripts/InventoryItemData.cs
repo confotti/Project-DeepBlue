@@ -11,6 +11,7 @@ public class InventoryItemData : ScriptableObject
     [InspectorReadOnly] public int ID = -1;
     public string DisplayName;
     [TextArea(4, 4)] public string Description;
+    public EquipmentType EquipmentType = EquipmentType.None;
 
     public Sprite Icon;
     public int MaxStackSize = 1;

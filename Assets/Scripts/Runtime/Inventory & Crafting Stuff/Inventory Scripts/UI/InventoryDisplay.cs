@@ -42,7 +42,7 @@ public abstract class InventoryDisplay : MonoBehaviour
         bool isShiftPressed = Keyboard.current.leftShiftKey.isPressed;
 
         // Clicked slot has an item and mouse doesn't have an item. 
-        if (clickedUISlot.AssignedInventorySlot.ItemData != null && 
+        if (clickedUISlot.AssignedInventorySlot.ItemData != null &&
             mouseInventoryItem.AssignedInventorySlot.ItemData == null)
         {
             //If player is holding shift key, try to split the stack and put half on mouse. 
@@ -62,7 +62,8 @@ public abstract class InventoryDisplay : MonoBehaviour
         }
 
         // Clicked slot doesnt have an item, but mouse does - place the mouse item there
-        if(clickedUISlot.AssignedInventorySlot.ItemData == null &&
+        //TODO: Fix equipmentslot version so that it only works if the right equipment. AssignItem probably needs to return a bool
+        if (clickedUISlot.AssignedInventorySlot.ItemData == null &&
             mouseInventoryItem.AssignedInventorySlot.ItemData != null)
         {
             clickedUISlot.AssignedInventorySlot.AssignItem(mouseInventoryItem.AssignedInventorySlot);
@@ -102,6 +103,7 @@ public abstract class InventoryDisplay : MonoBehaviour
             }
 
             //If different - swap them
+            //TODO: Have to do an equipmentslot check here and only swap if the current mouse item can go on that equipmentslot. 
             else if (!isSameItem)
             {
                 SwapSlots(clickedUISlot);

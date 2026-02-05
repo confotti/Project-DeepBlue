@@ -34,7 +34,6 @@ public class StalkerScaredState : StalkerWanderState
         if (Vector3.Dot(obj.transform.forward, (PlayerMovement.Instance.transform.position - obj.transform.position).normalized) > -0.18f)
         {
             AvoidPlayer();
-            Debug.Log("Avoiding stalk");
         }
         AvoidObstacles();
 

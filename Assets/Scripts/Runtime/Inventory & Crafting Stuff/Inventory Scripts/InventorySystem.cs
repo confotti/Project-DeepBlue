@@ -71,7 +71,6 @@ public class InventorySystem
             //TODO: fix this
             //Currently doesnt check for max stackSize and just fills the first free slot with
             //whatever is left to add. Fix later
-            //Allegedly he fixes later, otherwise I will do it myself
         }
 
         remainingAmount = amountToAdd;
