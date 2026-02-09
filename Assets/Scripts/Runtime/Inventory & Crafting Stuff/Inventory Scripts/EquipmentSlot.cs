@@ -19,9 +19,16 @@ public class EquipmentSlot : InventorySlot
         {
             Debug.LogError($"Cannot assign {invSlot.ItemData.DisplayName} to {equipmentType} slot.");
             return;
-        }
+        } 
 
-        base.AssignItem(new InventorySlot(invSlot.ItemData, 1));
+        base.AssignItem(invSlot);
+    }
+
+    public override bool CanAssignItem(InventorySlot invSlot)
+    {
+        if (invSlot.ItemData.EquipmentType != equipmentType) return false;
+            
+        return true;
     }
 }
 

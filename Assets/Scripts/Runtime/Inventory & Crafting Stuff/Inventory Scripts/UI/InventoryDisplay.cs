@@ -64,7 +64,8 @@ public abstract class InventoryDisplay : MonoBehaviour
         // Clicked slot doesnt have an item, but mouse does - place the mouse item there
         //TODO: Fix equipmentslot version so that it only works if the right equipment. AssignItem probably needs to return a bool
         if (clickedUISlot.AssignedInventorySlot.ItemData == null &&
-            mouseInventoryItem.AssignedInventorySlot.ItemData != null)
+            mouseInventoryItem.AssignedInventorySlot.ItemData != null &&
+            clickedUISlot.AssignedInventorySlot.CanAssignItem(mouseInventoryItem.AssignedInventorySlot))
         {
             clickedUISlot.AssignedInventorySlot.AssignItem(mouseInventoryItem.AssignedInventorySlot);
             clickedUISlot.UpdateUISlot();
@@ -104,7 +105,7 @@ public abstract class InventoryDisplay : MonoBehaviour
 
             //If different - swap them
             //TODO: Have to do an equipmentslot check here and only swap if the current mouse item can go on that equipmentslot. 
-            else if (!isSameItem)
+            else if (!isSameItem && clickedUISlot.AssignedInventorySlot.CanAssignItem(mouseInventoryItem.AssignedInventorySlot))
             {
                 SwapSlots(clickedUISlot);
                 return;

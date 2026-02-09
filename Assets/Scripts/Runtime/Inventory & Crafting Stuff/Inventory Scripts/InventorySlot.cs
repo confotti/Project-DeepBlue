@@ -44,6 +44,11 @@ public class InventorySlot
         SlotChanged?.Invoke(this);
     }
 
+    public virtual bool CanAssignItem(InventorySlot invSlot)
+    {
+        return true;
+    }
+
     //Update slot directly, this or AssignItem may be redundant
     public void UpdateInventorySlot(InventoryItemData data, int amount) 
     {
