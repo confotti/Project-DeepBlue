@@ -417,7 +417,7 @@ MeshCollider:
   serializedVersion: 5
   m_Convex: 0
   m_CookingOptions: 30
-  m_Mesh: {fileID: -3298800115395149385, guid: 8d5ecb1d32afcf9419724ec0b49ce3a5, type: 3}
+  m_Mesh: {fileID: 3090468506097827619, guid: 8d5ecb1d32afcf9419724ec0b49ce3a5, type: 3}
 --- !u!1 &2537569183016277503
 GameObject:
   m_ObjectHideFlags: 0
@@ -1170,7 +1170,7 @@ Light:
   serializedVersion: 11
   m_Type: 2
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 3360
+  m_Intensity: 840
   m_Range: 70
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -1222,7 +1222,7 @@ Light:
   m_ShadowRadius: 7
   m_ShadowAngle: 0
   m_LightUnit: 2
-  m_LuxAtDistance: 4
+  m_LuxAtDistance: 2
   m_EnableSpotReflector: 1
 --- !u!114 &3543145607365077802
 MonoBehaviour:
@@ -1410,8 +1410,8 @@ Light:
   serializedVersion: 11
   m_Type: 2
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 3360
-  m_Range: 70
+  m_Intensity: 180
+  m_Range: 90
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
   m_CookieSize: 10
@@ -1462,7 +1462,7 @@ Light:
   m_ShadowRadius: 0.25
   m_ShadowAngle: 0
   m_LightUnit: 2
-  m_LuxAtDistance: 4
+  m_LuxAtDistance: 1
   m_EnableSpotReflector: 1
 --- !u!114 &3748745453923669613
 MonoBehaviour:
@@ -1650,7 +1650,7 @@ Light:
   serializedVersion: 11
   m_Type: 2
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 3360
+  m_Intensity: 840
   m_Range: 70
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -1702,7 +1702,7 @@ Light:
   m_ShadowRadius: 7
   m_ShadowAngle: 0
   m_LightUnit: 2
-  m_LuxAtDistance: 4
+  m_LuxAtDistance: 2
   m_EnableSpotReflector: 1
 --- !u!114 &6695364949385998914
 MonoBehaviour:
