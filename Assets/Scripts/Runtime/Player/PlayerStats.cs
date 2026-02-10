@@ -56,7 +56,7 @@ public class PlayerStats : MonoBehaviour
         oxygenBar.maxValue = _maxOxygen;
     }
 
-    private void OnDestroy()
+    private void OnDisable()
     {
         if(_dyingBlur) _dyingBlur.material.SetFloat("_Scale", 3);
     }
@@ -102,18 +102,27 @@ public class PlayerStats : MonoBehaviour
         if(_currentHealth == 0) Death();
     }
 
+    public void SetHealth(int amount)
+    {
+        _currentHealth = Mathf.Clamp(amount, 0, _maxHealth);
+        if(_healthBar) _healthBar.fillAmount = _currentHealth / (float)_maxHealth;
+        if(_currentHealth == 0) Death();
+    }
+
     public void ChangeDrownTime(float amount)
     {
         _currentDrownTime = Mathf.Clamp(_currentDrownTime + amount, 0, _timeToDrown);
-        if(_dyingBlur) _dyingBlur.material.SetFloat("_Scale", (1 - (_currentDrownTime / _timeToDrown)) * 3);
-        if(_currentDrownTime == _timeToDrown)
+        if (_dyingBlur) _dyingBlur.material.SetFloat("_Scale", (1 - (_currentDrownTime / _timeToDrown)) * 3);
+        if (_currentDrownTime == _timeToDrown)
         {
             Death();
-        } 
+        }
     }
 
     private void Death()
     {
+        if (_dead) return;
+
         _dead = true;
         OnDeath?.Invoke();
         //This has to disable player controls somehow
@@ -141,9 +150,11 @@ public class PlayerStats : MonoBehaviour
 
     private void Respawn()
     {
+        Debug.Log("Respawn");
         transform.position = RespawnPoint;
+        _dead = false;
         _playerMovement.StateMachine.ChangeState(_playerMovement.StandingState);
-        _currentHealth = _maxHealth;
+        SetHealth(_maxHealth);
         _currentOxygen = _maxOxygen;
         _currentDrownTime = 0;
     }
