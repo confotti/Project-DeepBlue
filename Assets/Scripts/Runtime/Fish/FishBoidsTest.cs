@@ -9,12 +9,16 @@ public class FishBoidsTest : MonoBehaviour
     public int FishCount = 2000;
     public float CellSize = 2f;
 
-    [SerializeField] private float _fishMaxSpeed = 15f;
+    [SerializeField] private float _normalSpeed = 15f;
+    [SerializeField] private float _scaredSpeed = 30f;
     [SerializeField] private float _neighborRadius = 10;
     [SerializeField] private float _separationWeight = 1.5f;
     [SerializeField] private float _alignmentWeight = 1f;
     [SerializeField] private float _cohesionWeight = 1f;
     [SerializeField] private float _playerWeight = 1f;
+    [SerializeField] private float _playerFearRadius = 8f;
+
+    [SerializeField, Range(0,1)] private float _speedRelaxRate = 0.02f;
 
     [SerializeField] private float _spawnRadius = 25f;
 
@@ -26,6 +30,7 @@ public class FishBoidsTest : MonoBehaviour
     NativeArray<float3> positions;
     NativeArray<float3> velocities;
     NativeArray<float3> accelerations;
+    NativeArray<float> maxSpeeds;
     NativeParallelMultiHashMap<int, int> spatialMap;
 
     void Start()
@@ -35,7 +40,13 @@ public class FishBoidsTest : MonoBehaviour
         positions = new NativeArray<float3>(FishCount, Allocator.Persistent);
         velocities = new NativeArray<float3>(FishCount, Allocator.Persistent);
         accelerations = new NativeArray<float3>(FishCount, Allocator.Persistent);
+
+        maxSpeeds = new NativeArray<float>(FishCount, Allocator.Persistent);
+        for (int i = 0; i < FishCount; i++)
+            maxSpeeds[i] = _normalSpeed;
+
         spatialMap = new NativeParallelMultiHashMap<int, int>(FishCount, Allocator.Persistent);
+        
 
         SpawnFishSphere();
     }
@@ -61,7 +72,12 @@ public class FishBoidsTest : MonoBehaviour
             AlignmentWeight = _alignmentWeight,
             CohesionWeight = _cohesionWeight,
             PlayerPos = PlayerMovement.Instance.transform.position,
-            PlayerWeight = _playerWeight
+            PlayerWeight = _playerWeight,
+            PlayerFearRadius = _playerFearRadius,
+            MaxSpeeds = maxSpeeds,
+            NormalMaxSpeed = _normalSpeed,
+            DashMaxSpeed = _scaredSpeed,
+            SpeedRelaxRate = _speedRelaxRate
         }.Schedule(FishCount, 64, buildJob);
 
         var integrateJob = new IntegrateJob
@@ -70,7 +86,7 @@ public class FishBoidsTest : MonoBehaviour
             Velocities = velocities,
             Accelerations = accelerations,
             DeltaTime = Time.deltaTime,
-            MaxSpeed = _fishMaxSpeed
+            MaxSpeeds = maxSpeeds
         }.Schedule(FishCount, 64, steerJob);
 
         integrateJob.Complete();
@@ -111,6 +127,7 @@ public class FishBoidsTest : MonoBehaviour
         velocities.Dispose();
         accelerations.Dispose();
         spatialMap.Dispose();
+        maxSpeeds.Dispose();
     }
 
     void SpawnFishSphere()
@@ -144,6 +161,8 @@ public class FishBoidsTest : MonoBehaviour
     }
 }
 
+
+
 [BurstCompile]
 struct BuildSpatialMapJob : IJobParallelFor
 {
@@ -157,6 +176,8 @@ struct BuildSpatialMapJob : IJobParallelFor
         Map.Add(hash, index);
     }
 }
+
+
 
 [BurstCompile]
 struct BoidsSteeringJob : IJobParallelFor
@@ -174,6 +195,13 @@ struct BoidsSteeringJob : IJobParallelFor
     public float PlayerWeight;
     public float3 PlayerPos;
 
+    public float PlayerFearRadius;
+    public NativeArray<float> MaxSpeeds;
+    public float NormalMaxSpeed;
+    public float DashMaxSpeed;
+    public float SpeedRelaxRate;
+    
+
     public void Execute(int index)
     {
         float3 pos = Positions[index];
@@ -182,55 +210,66 @@ struct BoidsSteeringJob : IJobParallelFor
         float3 separation = 0;
         float3 alignment = 0;
         float3 cohesion = 0;
-        float3 playerScare = 0;
         int count = 0;
 
         int hash = FishBoidsTest.Hash(pos, CellSize);
 
-         // 3×3×3 neighbor cell search
+        // 3×3×3 neighbor cell search
         for (int x = -1; x <= 1; x++)
-        for (int y = -1; y <= 1; y++)
-        for (int z = -1; z <= 1; z++)
-        {
-            float3 offsetCell = new float3(x, y, z) * CellSize;
-            int neighborHash = FishBoidsTest.Hash(pos + offsetCell, CellSize);
-
-            NativeParallelMultiHashMapIterator<int> it;
-            int other;
-
-            if (Map.TryGetFirstValue(neighborHash, out other, out it))
-            {
-                do
+            for (int y = -1; y <= 1; y++)
+                for (int z = -1; z <= 1; z++)
                 {
-                    if (other == index)
-                        continue;
+                    float3 offsetCell = new float3(x, y, z) * CellSize;
+                    int neighborHash = FishBoidsTest.Hash(pos + offsetCell, CellSize);
 
-                    float3 offset = Positions[other] - pos;
-                    float dist = math.length(offset);
+                    NativeParallelMultiHashMapIterator<int> it;
+                    int other;
 
-                    if (dist < NeighborRadius)
+                    if (Map.TryGetFirstValue(neighborHash, out other, out it))
                     {
-                        separation -= offset / math.max(dist, 0.001f);
-                        alignment += Velocities[other];
-                        cohesion += Positions[other];
-                        count++;
+                        do
+                        {
+                            if (other == index)
+                                continue;
+
+                            float3 offset = Positions[other] - pos;
+                            float dist = math.length(offset);
+
+                            if (dist < NeighborRadius)
+                            {
+                                separation -= offset / math.max(dist, 0.001f);
+                                alignment += Velocities[other];
+                                cohesion += Positions[other];
+                                count++;
+                            }
+                        }
+                        while (Map.TryGetNextValue(out other, ref it));
                     }
                 }
-                while (Map.TryGetNextValue(out other, ref it));
-            }
-        }
 
         if (count > 0)
         {
             alignment = alignment / count - vel;
             cohesion = (cohesion / count) - pos;
         }
-        
+
         float3 playerOffset = pos - PlayerPos;
         float playerDist = math.length(playerOffset);
-        if(playerDist < NeighborRadius)
+
+        float fear = math.saturate(1f - (playerDist / PlayerFearRadius));
+        float3 playerScare = math.normalizesafe(playerOffset) * fear;
+
+        if (playerDist < PlayerFearRadius)
         {
-            playerScare += playerOffset / math.max (playerDist, 0.001f);
+            MaxSpeeds[index] = DashMaxSpeed;
+        }
+        else
+        {
+            MaxSpeeds[index] = math.lerp(
+                MaxSpeeds[index],
+                NormalMaxSpeed,
+                SpeedRelaxRate
+            );
         }
 
         Accelerations[index] =
@@ -241,20 +280,24 @@ struct BoidsSteeringJob : IJobParallelFor
     }
 }
 
+
+
 [BurstCompile]
 struct IntegrateJob : IJobParallelFor
 {
     public NativeArray<float3> Positions;
     public NativeArray<float3> Velocities;
     [ReadOnly] public NativeArray<float3> Accelerations;
+    public NativeArray<float> MaxSpeeds;
 
     public float DeltaTime;
-    public float MaxSpeed;
 
     public void Execute(int index)
     {
         float3 vel = Velocities[index] + Accelerations[index] * DeltaTime;
-        vel = math.normalize(vel) * math.min(math.length(vel), MaxSpeed);
+        float speed = math.length(vel);
+        float maxSpeed = MaxSpeeds[index];
+        vel = math.normalizesafe(vel) * math.min(speed, maxSpeed);
 
         Velocities[index] = vel;
         Positions[index] += vel * DeltaTime;
