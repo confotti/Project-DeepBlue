@@ -17,7 +17,6 @@ public class FishBoidsTest : MonoBehaviour
     [SerializeField] private float _playerWeight = 1f;
 
     [SerializeField] private float _spawnRadius = 25f;
-    [SerializeField] private Vector3 _spawnCenter;
 
     [SerializeField] private Mesh _fishMesh;
     [SerializeField] private Material _fishMaterial;
@@ -119,12 +118,14 @@ public class FishBoidsTest : MonoBehaviour
         Unity.Mathematics.Random rng =
         new Unity.Mathematics.Random((uint)UnityEngine.Random.Range(1, int.MaxValue));
 
+        var spawnCenter = transform.position;
+
         for (int i = 0; i < FishCount; i++)
         {
             float3 dir = rng.NextFloat3Direction();
             float radius = math.pow(rng.NextFloat(), 1f / 3f) * _spawnRadius;
 
-            positions[i] = _spawnCenter + (Vector3)dir * radius;
+            positions[i] = spawnCenter + (Vector3)dir * radius;
             velocities[i] = rng.NextFloat3Direction() * rng.NextFloat(1f, 3f);
             accelerations[i] = float3.zero;
         }
@@ -139,7 +140,7 @@ public class FishBoidsTest : MonoBehaviour
     void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.blue;
-        Gizmos.DrawWireSphere(_spawnCenter, _spawnRadius);
+        Gizmos.DrawWireSphere(transform.position, _spawnRadius);
     }
 }
 
