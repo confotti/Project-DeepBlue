@@ -7,20 +7,6 @@ public class ItemSlotsDisplay : MonoBehaviour
     [SerializeField] protected MouseItemData mouseInventoryItem;
 
     //Pair up UI slots with the system slots. 
-    protected Dictionary<InventorySlot_UI, InventorySlot> slotDictionary; 
-
-    public Dictionary<InventorySlot_UI, InventorySlot> SlotDictionary => slotDictionary;
-
-    protected virtual void UpdateSlot(InventorySlot updatedSlot)
-    {
-        foreach (var slot in slotDictionary)
-        {
-            if (slot.Value == updatedSlot) //Slot value - the "under the hood" inventory slot. 
-            {
-                slot.Key.UpdateUISlot(); //Slot key - the UI representation of the value. 
-            }
-        }
-    }
 
     public void SlotClicked(InventorySlot_UI clickedUISlot)
     {

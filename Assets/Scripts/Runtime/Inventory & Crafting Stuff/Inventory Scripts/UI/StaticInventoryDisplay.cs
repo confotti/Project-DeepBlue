@@ -32,7 +32,6 @@ public class StaticInventoryDisplay : InventoryDisplay
         if (inventoryHolder != null)
         {
             inventorySystem = inventoryHolder.InventorySystem;
-            inventorySystem.OnInventorySlotChanged += UpdateSlot;
         }
         else Debug.LogWarning($"No inventory assigned to {this.gameObject}");
 
@@ -43,24 +42,16 @@ public class StaticInventoryDisplay : InventoryDisplay
     {
         base.Start();
 
-        if (inventorySystem != null) inventorySystem.OnInventorySlotChanged -= UpdateSlot;
         RefreshStaticDisplay();
     }
 
     public override void AssignSlots(InventorySystem invToDisplay, int offset)
     {
-        slotDictionary = new Dictionary<InventorySlot_UI, InventorySlot>();
 
         for (int i = 0; i < slots.Length; i++)
         {
-            slotDictionary.Add(slots[i], inventorySystem.InventorySlots[i]);
             slots[i].Init(inventorySystem.InventorySlots[i], this);
         }
-    }
-
-    private void OnDestroy()
-    {
-        inventorySystem.OnInventorySlotChanged -= UpdateSlot;
     }
 
 }

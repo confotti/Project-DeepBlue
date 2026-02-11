@@ -14,18 +14,20 @@ public class DynamicInventoryDisplay : InventoryDisplay
 
     }
 
+    void OnDisable()
+    {
+        ClearSlots();
+    }
+
     public void RefreshDynamicInventory(InventorySystem invToDisplay, int offset)
     {
         ClearSlots();
         inventorySystem = invToDisplay;
-        if(inventorySystem != null) inventorySystem.OnInventorySlotChanged += UpdateSlot;
         AssignSlots(invToDisplay, offset);
     }
 
     public override void AssignSlots(InventorySystem invToDisplay, int offset)
     {
-        slotDictionary = new Dictionary<InventorySlot_UI, InventorySlot>();
-
         if (invToDisplay == null) return;
 
         for (int i = offset; i < invToDisplay.InventorySize; i++)
@@ -33,7 +35,6 @@ public class DynamicInventoryDisplay : InventoryDisplay
             //var uiSlot = Instantiate(slotPrefab, transform);
             var uiSlot = ObjectPoolManager.SpawnObject(slotPrefab, gridParent, poolType: ObjectPoolManager.PoolType.UI);
 
-            slotDictionary.Add(uiSlot, invToDisplay.InventorySlots[i]);
             uiSlot.Init(invToDisplay.InventorySlots[i], this);
         }
     }
@@ -44,12 +45,6 @@ public class DynamicInventoryDisplay : InventoryDisplay
         {
             ObjectPoolManager.ReturnObjectToPool(gridParent.GetChild(i).gameObject, ObjectPoolManager.PoolType.UI);
         }
-
-        if (slotDictionary != null) slotDictionary.Clear();
     }
-
-    private void OnDisable()
-    {
-        if (inventorySystem != null) inventorySystem.OnInventorySlotChanged -= UpdateSlot;
-    }
+    
 }

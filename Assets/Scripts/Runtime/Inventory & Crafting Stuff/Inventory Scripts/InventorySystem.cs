@@ -28,7 +28,7 @@ public class InventorySystem
 
     public void InventorySlotChanged(InventorySlot slot)
     {
-        OnInventorySlotChanged(slot);
+        OnInventorySlotChanged?.Invoke(slot);
     }
 
     public void OnDestroy()

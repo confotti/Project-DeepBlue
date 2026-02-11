@@ -37,9 +37,11 @@ public class ObjectPoolManager : MonoBehaviour
 
         UI = new GameObject("UI");
         UI.transform.SetParent(emptyHolder.transform);
+        UI.SetActive(false);
 
         gameObjects = new GameObject("Game Objects");
         gameObjects.transform.SetParent(emptyHolder.transform);
+        gameObjects.SetActive(false);
 
         if (addToDontDestroyOnLoad) DontDestroyOnLoad(UI.transform.root);
     }
