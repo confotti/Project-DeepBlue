@@ -76,8 +76,8 @@ public class PlayerStats : MonoBehaviour
 
         if(GetComponent<PlayerInventoryHolder>().InventorySystem.ContainsItem(oxygenTankItemData, out var ab))
         {
-            _maxOxygen = 75;
-            oxygenBar.maxValue = 75;
+            _maxOxygen = 95;
+            oxygenBar.maxValue = 95;
         }
 
         // Update UI
