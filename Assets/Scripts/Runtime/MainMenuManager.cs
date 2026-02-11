@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class MainMenuManager : MonoBehaviour
@@ -23,7 +24,7 @@ public class MainMenuManager : MonoBehaviour
 
     private void NewGamePressed()
     {
-        
+        SceneManager.LoadScene(1);
     }
     
     private void OptionsPressed()

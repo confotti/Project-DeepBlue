@@ -1,11 +1,10 @@
 using UnityEngine;
 using UnityEngine.Rendering.HighDefinition;
 
+[ExecuteAlways]
 public class Floater : MonoBehaviour
 {
     public WaterSurface surface;
-
-    public bool PlayInEditor;
 
     WaterSearchParameters wsp = new();
     WaterSearchResult wsr = new();
@@ -13,7 +12,7 @@ public class Floater : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        
+
     }
 
     // Update is called once per frame
@@ -24,7 +23,7 @@ public class Floater : MonoBehaviour
         wsp.error = 0.01f;
         wsp.maxIterations = 8;
 
-        if(surface.ProjectPointOnWaterSurface(wsp, out wsr))
+        if (surface.ProjectPointOnWaterSurface(wsp, out wsr))
         {
             gameObject.transform.position = wsr.projectedPositionWS;
         }
