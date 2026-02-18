@@ -9,8 +9,6 @@ public class PlayerStats : MonoBehaviour
 {
     public Action OnDeath;
 
-    public InventoryItemData oxygenTankItemData;
-
     private PlayerMovement _playerMovement;
     [Header("Respawn")]
     [SerializeField] private GameObject _submarine;
@@ -18,7 +16,8 @@ public class PlayerStats : MonoBehaviour
     private Vector3 RespawnPoint => _submarine.transform.position + _respawnPositionOffset;
 
     [Header("Stats")] 
-    [SerializeField] private int _maxOxygen = 45;
+    [SerializeField] private int _baseMaxOxygen = 60;
+    [SerializeField, InspectorReadOnly] private int _currentMaxOxygen;
     [SerializeField] private float _oxygenGainPerSecond = 50;
     [SerializeField] private float _timeToDrown = 5;
     [SerializeField] private float _drownReduction = 2.5f;
@@ -43,17 +42,18 @@ public class PlayerStats : MonoBehaviour
     private void Awake()
     {
         _playerMovement = GetComponent<PlayerMovement>();
+        _currentMaxOxygen = _baseMaxOxygen;
     }
 
     private void Start()
     {
         // Initialize stats
-        _currentOxygen = _maxOxygen;
+        _currentOxygen = _currentMaxOxygen;
         _currentSanity = _maxSanity;
         _currentHealth = _maxHealth;
 
         //B�rja med max values 
-        oxygenBar.maxValue = _maxOxygen;
+        oxygenBar.maxValue = _currentMaxOxygen;
     }
 
     private void OnDisable()
@@ -74,12 +74,6 @@ public class PlayerStats : MonoBehaviour
 
         ChangeDrownTime(_currentOxygen == 0 ? Time.deltaTime : -Time.deltaTime * _drownReduction);
 
-        if(GetComponent<PlayerInventoryHolder>().InventorySystem.ContainsItem(oxygenTankItemData, out var ab))
-        {
-            _maxOxygen = 95;
-            oxygenBar.maxValue = 95;
-        }
-
         // Update UI
         oxygenBar.value = _currentOxygen;
         oxygenText.text = Mathf.RoundToInt(_currentOxygen).ToString();
@@ -87,7 +81,7 @@ public class PlayerStats : MonoBehaviour
 
     public void ChangeOxygen(float amount)
     {
-        _currentOxygen = Mathf.Clamp(_currentOxygen + amount, 0, _maxOxygen);
+        _currentOxygen = Mathf.Clamp(_currentOxygen + amount, 0, _currentMaxOxygen);
     }
 
     public void ChangeSanity(int amount)
@@ -119,6 +113,13 @@ public class PlayerStats : MonoBehaviour
         }
     }
 
+    public void SetOxygenModifier(int amountAdded)
+    {
+        _currentMaxOxygen = _baseMaxOxygen + amountAdded;
+        oxygenBar.maxValue = _currentMaxOxygen;
+    }
+
+#region Death
     private void Death()
     {
         if (_dead) return;
@@ -155,9 +156,10 @@ public class PlayerStats : MonoBehaviour
         _dead = false;
         _playerMovement.StateMachine.ChangeState(_playerMovement.StandingState);
         SetHealth(_maxHealth);
-        _currentOxygen = _maxOxygen;
+        _currentOxygen = _currentMaxOxygen;
         _currentDrownTime = 0;
     }
+#endregion
 
     /*
     private IEnumerator DecreaseStatOverTime(System.Func<int> getter, System.Action<int> setter, int interval, int amount)

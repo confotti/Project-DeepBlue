@@ -3,19 +3,20 @@ using UnityEngine.InputSystem;
 
 public class UIController : MonoBehaviour
 {
-    public DynamicInventoryDisplay inventoryPanel;
-    public DynamicInventoryDisplay playerInventoryPanel;
-    public CraftingDisplay craftingDisplay;
-    public BuildDisplay buildDisplay;
+    public DynamicInventoryDisplay DynamicInventoryPanel;
+    public DynamicInventoryDisplay PlayerInventoryPanel;
+    public GameObject EquipmentPanel;
+    public CraftingDisplay CraftingDisplay;
+    public BuildDisplay BuildDisplay;
 
     private void Awake()
     {
         Cursor.lockState = CursorLockMode.Locked;
 
-        inventoryPanel.gameObject.SetActive(false);
-        playerInventoryPanel.gameObject.SetActive(false);
-        craftingDisplay.gameObject.SetActive(false);
-        buildDisplay.gameObject.SetActive(false);
+        DynamicInventoryPanel.gameObject.SetActive(false);
+        PlayerInventoryPanel.gameObject.SetActive(false);
+        CraftingDisplay.gameObject.SetActive(false);
+        BuildDisplay.gameObject.SetActive(false);
     }
 
     private void OnEnable()
@@ -41,19 +42,21 @@ public class UIController : MonoBehaviour
 
         ToggleLooking(true);
 
-        if (inventoryPanel.gameObject.activeInHierarchy) inventoryPanel.gameObject.SetActive(false);
+        DynamicInventoryPanel.gameObject.SetActive(false);
 
-        if (playerInventoryPanel.gameObject.activeInHierarchy) playerInventoryPanel.gameObject.SetActive(false);
+        PlayerInventoryPanel.gameObject.SetActive(false);
+        
+        EquipmentPanel.SetActive(false);
 
-        if (craftingDisplay.gameObject.activeInHierarchy) craftingDisplay.gameObject.SetActive(false);
+        CraftingDisplay.gameObject.SetActive(false);
 
-        if(buildDisplay.gameObject.activeInHierarchy) buildDisplay.gameObject.SetActive(false);
+        BuildDisplay.gameObject.SetActive(false);
     }
 
     private void DisplayInventory(InventorySystem invToDisplay, int offset)
     {
-        inventoryPanel.gameObject.SetActive(true);
-        inventoryPanel.RefreshDynamicInventory(invToDisplay, offset);
+        DynamicInventoryPanel.gameObject.SetActive(true);
+        DynamicInventoryPanel.RefreshDynamicInventory(invToDisplay, offset);
 
         ToggleLooking(false);
     }
@@ -61,8 +64,9 @@ public class UIController : MonoBehaviour
     
     private void DisplayPlayerInventory(InventorySystem invToDisplay, int offset)
     {
-        playerInventoryPanel.gameObject.SetActive(true);
-        playerInventoryPanel.RefreshDynamicInventory(invToDisplay, offset);
+        PlayerInventoryPanel.gameObject.SetActive(true);
+        PlayerInventoryPanel.RefreshDynamicInventory(invToDisplay, offset);
+        EquipmentPanel.SetActive(true);
 
         ToggleLooking(false);
     }
@@ -70,16 +74,16 @@ public class UIController : MonoBehaviour
     
     private void DisplayCraftingWindow(CraftingBench craftingToDisplay)
     {
-        craftingDisplay.gameObject.SetActive(true);
-        craftingDisplay.DisplayCraftingWindow(craftingToDisplay);
+        CraftingDisplay.gameObject.SetActive(true);
+        CraftingDisplay.DisplayCraftingWindow(craftingToDisplay);
 
         ToggleLooking(false);
     }
 
     private void DisplayBuildWindow()
     {
-        buildDisplay.gameObject.SetActive(true);
-        buildDisplay.DisplayBuildWindow();
+        BuildDisplay.gameObject.SetActive(true);
+        BuildDisplay.DisplayBuildWindow();
 
         ToggleLooking(false);
     }

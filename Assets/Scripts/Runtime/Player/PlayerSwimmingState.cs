@@ -4,11 +4,11 @@ using UnityEngine;
 [Serializable]
 public class PlayerSwimmingState : State<PlayerMovement>
 {
-    [SerializeField] private float _swimmingSpeed = 20;
-    [SerializeField] private float _swimmingFastSpeed = 40;
+    [SerializeField] private float _baseSwimSpeed = 24;
+    private float _swimmingSpeed = 24;
+    private float _swimmingFastSpeed = 40;
+    [SerializeField] private float _baseSwimmingFastSpeed = 40;
     [SerializeField, Range(0f, 1f)] private float _accelaration = 0.1f;
-
-    public InventoryItemData finsItemData;
 
     public override void PhysicsUpdate()
     {
@@ -31,11 +31,6 @@ public class PlayerSwimmingState : State<PlayerMovement>
     {
         base.LogicUpdate();
         
-        if(obj.GetComponent<PlayerInventoryHolder>().InventorySystem.ContainsItem(finsItemData, out var ab)) 
-        {
-            _swimmingSpeed = 28; 
-            _swimmingFastSpeed = 45;
-        }
     }
 
     public override void Enter()
@@ -52,5 +47,16 @@ public class PlayerSwimmingState : State<PlayerMovement>
 
         PlayerMovement.Instance.SetUnderwaterParticlesActive(false); 
         obj.Animator.SetBool("IsSwimming", false);
+    }
+
+    public void SetSwimSpeedsModifiers(float slowSpeed, float fastSpeed)
+    {
+        _swimmingSpeed = _baseSwimSpeed + slowSpeed;
+        _swimmingFastSpeed = _baseSwimmingFastSpeed + fastSpeed;
+    }
+
+    public void SetSwimSpeedsModifiers(float modifier)
+    {
+        SetSwimSpeedsModifiers(modifier, modifier);
     }
 }

@@ -9,7 +9,7 @@ public class ItemSlotsDisplay : MonoBehaviour
     [SerializeField] protected MouseItemData mouseInventoryItem;
 
 
-    public void SlotClicked(InventorySlot_UI clickedUISlot)
+    public virtual void SlotClicked(InventorySlot_UI clickedUISlot)
     {
         // TODO: fix so this uses a more reasonable input thing, so instead of hard-coding it like this, make it based on the input action asset
         // Also, maybe swap it so it's a rightclick thing and not a shift thing, but IDK

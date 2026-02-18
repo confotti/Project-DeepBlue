@@ -8,13 +8,10 @@ public class InventorySlot_UI : ParentItemSlot_UI
     [SerializeField] private GameObject _slotHighlight;
 
     [SerializeField] private InventorySlot assignedInventorySlot;
-    [SerializeField] private EquipmentType _equipmentType = EquipmentType.None;
 
     public InventorySlot AssignedInventorySlot => assignedInventorySlot;
 
     private Button button;
-
-    
     
     public ItemSlotsDisplay ParentDisplay { get; private set; }
 
@@ -38,7 +35,7 @@ public class InventorySlot_UI : ParentItemSlot_UI
         button?.onClick.RemoveListener(OnUISlotClick);
     }
 
-    void OnDisable()
+    public virtual void OnDisable()
     {
         if (assignedInventorySlot != null)
         {
@@ -79,7 +76,7 @@ public class InventorySlot_UI : ParentItemSlot_UI
     }
 
     //Clears out the slot and updates UI. 
-    public void ClearSlot()
+    public virtual void ClearSlot()
     {
         //assignedInventorySlot.ClearSlot();
         itemSprite.sprite = null;

@@ -29716,6 +29716,7 @@ GameObject:
   - component: {fileID: 4965256134547741428}
   - component: {fileID: 5731344407342504892}
   - component: {fileID: 8824337291799439041}
+  - component: {fileID: 4363546466055748074}
   - component: {fileID: 8279320085652908750}
   - component: {fileID: 3146864349786084419}
   m_Layer: 12
@@ -29779,10 +29780,9 @@ MonoBehaviour:
       serializedVersion: 2
       m_Bits: 49129
   SwimmingState:
-    _swimmingSpeed: 24
-    _swimmingFastSpeed: 40
+    _baseSwimSpeed: 24
+    _baseSwimmingFastSpeed: 40
     _accelaration: 0.1
-    finsItemData: {fileID: 11400000, guid: 6740a6d3b21a97741a2382d1c8fb351c, type: 2}
   underwaterParticles: {fileID: 6462767427473286527}
   _mouseSensitivity: 0.1
   StartStanding: 1
@@ -29848,10 +29848,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8898d704939e4e14eb4b6bd0f98cf833, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  oxygenTankItemData: {fileID: 11400000, guid: 2ac3ebd8e5a21ec459c5c0ef1e0a3ef7, type: 2}
   _submarine: {fileID: 0}
   _respawnPositionOffset: {x: 0, y: 41, z: -46}
-  _maxOxygen: 60
+  _baseMaxOxygen: 60
+  _currentMaxOxygen: 0
   _oxygenGainPerSecond: 50
   _timeToDrown: 5
   _drownReduction: 2.5
@@ -29876,6 +29876,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   flashLight: {fileID: 8852788428525598849}
   flashlightItemData: {fileID: 11400000, guid: a42c09bf4b0fb504091f9884a65b08c6, type: 2}
+--- !u!114 &4363546466055748074
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5083573799768335632}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2352cf7e45ec98246920fb5a20bddfd1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mouseInventoryItem: {fileID: 0}
+  _playerEquipmentDisplay: {fileID: 0}
 --- !u!54 &8279320085652908750
 Rigidbody:
   m_ObjectHideFlags: 0
