@@ -4898,9 +4898,6 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 7a004c20d67a23b4b9656839f92543c2, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 7410381267377106773}
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 7a004c20d67a23b4b9656839f92543c2, type: 3}
-      insertIndex: -1
       addedObject: {fileID: 3377813155955360960}
   m_SourcePrefab: {fileID: 100100000, guid: 7a004c20d67a23b4b9656839f92543c2, type: 3}
 --- !u!4 &3896840191438361174 stripped
@@ -4913,19 +4910,6 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 7a004c20d67a23b4b9656839f92543c2, type: 3}
   m_PrefabInstance: {fileID: 3575544728346391997}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &7410381267377106773
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4422406386228807916}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 250114c5969386e4c90b9858b5eb34bd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  repairTorchItemData: {fileID: 11400000, guid: b6379be75b05ead4299aac104aec4b8b, type: 2}
 --- !u!65 &3377813155955360960
 BoxCollider:
   m_ObjectHideFlags: 0
