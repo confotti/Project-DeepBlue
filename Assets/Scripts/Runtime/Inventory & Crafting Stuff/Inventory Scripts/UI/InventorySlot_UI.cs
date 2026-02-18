@@ -8,10 +8,13 @@ public class InventorySlot_UI : ParentItemSlot_UI
     [SerializeField] private GameObject _slotHighlight;
 
     [SerializeField] private InventorySlot assignedInventorySlot;
+    [SerializeField] private EquipmentType _equipmentType = EquipmentType.None;
+
     public InventorySlot AssignedInventorySlot => assignedInventorySlot;
 
     private Button button;
 
+    
     
     public ItemSlotsDisplay ParentDisplay { get; private set; }
 

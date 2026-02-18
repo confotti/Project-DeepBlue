@@ -2,11 +2,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+//Not really a reason to have this on every parent display. Could definitely remake it so there's one script that handles all of this instead of every parent having to handle their own slots. 
+
 public class ItemSlotsDisplay : MonoBehaviour
 {
     [SerializeField] protected MouseItemData mouseInventoryItem;
 
-    //Pair up UI slots with the system slots. 
 
     public void SlotClicked(InventorySlot_UI clickedUISlot)
     {
@@ -35,7 +36,6 @@ public class ItemSlotsDisplay : MonoBehaviour
         }
 
         // Clicked slot doesnt have an item, but mouse does - place the mouse item there
-        //TODO: Fix equipmentslot version so that it only works if the right equipment. AssignItem probably needs to return a bool
         if (clickedUISlot.AssignedInventorySlot.ItemData == null &&
             mouseInventoryItem.AssignedInventorySlot.ItemData != null &&
             clickedUISlot.AssignedInventorySlot.CanAssignItem(mouseInventoryItem.AssignedInventorySlot))
@@ -77,7 +77,6 @@ public class ItemSlotsDisplay : MonoBehaviour
             }
 
             //If different - swap them
-            //TODO: Have to do an equipmentslot check here and only swap if the current mouse item can go on that equipmentslot. 
             else if (!isSameItem && clickedUISlot.AssignedInventorySlot.CanAssignItem(mouseInventoryItem.AssignedInventorySlot))
             {
                 SwapSlots(clickedUISlot);
