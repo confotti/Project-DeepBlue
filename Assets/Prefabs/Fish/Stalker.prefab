@@ -98,7 +98,8 @@ MonoBehaviour:
   StalkState:
     _getToPositionSpeed: 50
     _stalkSwimSpeed: 10
-    _stalkRate: 0.1
+    _gainStalkRate: 0.1
+    _loseStalkOutsideStalkStateRate: 0.01
     _rangeToEnterPursuit: 30
     _stalkPositionDistance: 100
   ScaredState:
