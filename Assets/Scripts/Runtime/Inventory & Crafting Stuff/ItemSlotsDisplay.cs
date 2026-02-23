@@ -86,7 +86,7 @@ public class ItemSlotsDisplay : MonoBehaviour
     }
 
         //Swaps what is on the mouse and what is on the clicked slot. 
-    private void SwapSlots(InventorySlot_UI clickedUISlot)
+    protected virtual void SwapSlots(InventorySlot_UI clickedUISlot)
     {
         var clonedSlot = new InventorySlot(mouseInventoryItem.AssignedInventorySlot.ItemData,
             mouseInventoryItem.AssignedInventorySlot.StackSize);

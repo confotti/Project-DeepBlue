@@ -16,7 +16,8 @@ MonoBehaviour:
   DisplayName: Fins
   Description: 
   EquipmentType: 2
-  equipmentValue: 4
+  EquipmentEffects:
+  - {fileID: 11400000, guid: 3c2d8e11de84d944ca276cc286518ceb, type: 2}
   Icon: {fileID: 21300000, guid: 0224f7e91765cf940a8fff5822c0d502, type: 3}
   MaxStackSize: 1
   itemPrefab: {fileID: 0}

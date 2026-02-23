@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class PlayerEquipmentHandler : ItemSlotsDisplay
 {
@@ -25,31 +26,72 @@ public class PlayerEquipmentHandler : ItemSlotsDisplay
 
     void Start()
     {
-        UpdateEquipmentStats();
+        EquipAllEquipmentEffects();
     }
 
     public override void SlotClicked(InventorySlot_UI clickedUISlot)
     {
-        base.SlotClicked(clickedUISlot);
+        
+        // Clicked slot has an item and mouse doesn't have an item. 
+        if (clickedUISlot.AssignedInventorySlot.ItemData != null &&
+            mouseInventoryItem.AssignedInventorySlot.ItemData == null)
+        {
+            //Picks up if player is not trying to split or it is to few to split
+            mouseInventoryItem.UpdateMouseSlot(clickedUISlot.AssignedInventorySlot);
 
-        UpdateEquipmentStats();
+            //This is new
+            clickedUISlot.AssignedInventorySlot.ItemData.RemoveAllEquipmentEffects(_playerStats);
+
+            clickedUISlot.AssignedInventorySlot.ClearSlot();
+            return;
+
+        }
+
+        // Clicked slot doesnt have an item, but mouse does - place the mouse item there
+        if (clickedUISlot.AssignedInventorySlot.ItemData == null &&
+            mouseInventoryItem.AssignedInventorySlot.ItemData != null &&
+            clickedUISlot.AssignedInventorySlot.CanAssignItem(mouseInventoryItem.AssignedInventorySlot))
+        {
+            clickedUISlot.AssignedInventorySlot.AssignItem(mouseInventoryItem.AssignedInventorySlot);
+            clickedUISlot.UpdateUISlot();
+
+            //This is new in this base class
+            clickedUISlot.AssignedInventorySlot.ItemData.ApplyAllEquipmentEffects(_playerStats);
+
+            mouseInventoryItem.ClearSlot();
+            return;
+        }
+
+        //Both slots have an item - decide what to do
+        //This cannot have multiple of the same item on an equipmentslot right now, but that is probably the way it's gonna be either way. 
+        if (clickedUISlot.AssignedInventorySlot.ItemData != null && mouseInventoryItem.AssignedInventorySlot.ItemData != null 
+            && clickedUISlot.AssignedInventorySlot.CanAssignItem(mouseInventoryItem.AssignedInventorySlot))
+        {
+            SwapSlots(clickedUISlot);
+            return;
+        }
     }
 
-    private void UpdateEquipmentStats()
+    protected override void SwapSlots(InventorySlot_UI clickedUISlot)
+    {
+        var clonedSlot = new InventorySlot(mouseInventoryItem.AssignedInventorySlot.ItemData,
+            mouseInventoryItem.AssignedInventorySlot.StackSize);
+        mouseInventoryItem.ClearSlot();
+
+        mouseInventoryItem.UpdateMouseSlot(clickedUISlot.AssignedInventorySlot);
+
+        //If you swap from one oxygen tank to another it will clamp you between 0 and baseOxygen, which might not be the best. 
+        clickedUISlot.AssignedInventorySlot.ItemData.RemoveAllEquipmentEffects(_playerStats);
+        clickedUISlot.AssignedInventorySlot.AssignItem(clonedSlot);
+        clickedUISlot.AssignedInventorySlot.ItemData.ApplyAllEquipmentEffects(_playerStats);
+    }
+
+    private void EquipAllEquipmentEffects()
     {
         foreach(var slot in _equipmentSlotsUI)
         {
-            if(slot._equipmentType == EquipmentType.OxygenTank)
-            {
-                if(slot.AssignedInventorySlot.ItemData == null) _playerStats.SetOxygenModifier(0);
-                else _playerStats.SetOxygenModifier((int)slot.AssignedInventorySlot.ItemData.equipmentValue);
-            }
-
-            else if(slot._equipmentType == EquipmentType.Feet)
-            {
-                if(slot.AssignedInventorySlot.ItemData == null) GetComponent<PlayerMovement>().SwimmingState.SetSwimSpeedsModifiers(0);
-                else GetComponent<PlayerMovement>().SwimmingState.SetSwimSpeedsModifiers(slot.AssignedInventorySlot.ItemData.equipmentValue, slot.AssignedInventorySlot.ItemData.equipmentValue + 1);
-            }
+            if(slot == null) continue;
+            slot.AssignedInventorySlot.ItemData.ApplyAllEquipmentEffects(_playerStats);
         }
     }
 }

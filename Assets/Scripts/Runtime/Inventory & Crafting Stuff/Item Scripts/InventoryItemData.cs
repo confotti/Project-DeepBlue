@@ -12,7 +12,7 @@ public class InventoryItemData : ScriptableObject
     public string DisplayName;
     [TextArea(4, 4)] public string Description;
     public EquipmentType EquipmentType = EquipmentType.None;
-    public float equipmentValue = 0;
+    public EquipmentEffectsBase[] EquipmentEffects;
 
     public Sprite Icon;
     public int MaxStackSize = 1;
@@ -24,6 +24,22 @@ public class InventoryItemData : ScriptableObject
         {
             MaxStackSize = 1;
             Debug.LogWarning("Max Stack Size cannot be less than 1");
+        }
+    }
+
+    public void ApplyAllEquipmentEffects(PlayerStats stats)
+    {
+        foreach (var effect in EquipmentEffects)
+        {
+            effect.ApplyEquipmentEffect(stats);
+        }
+    }
+
+    public void RemoveAllEquipmentEffects(PlayerStats stats)
+    {
+        foreach (var effect in EquipmentEffects)
+        {
+            effect.RemoveEquipmentEffect(stats);
         }
     }
 }
