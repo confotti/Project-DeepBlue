@@ -3,38 +3,49 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [System.Serializable]
-public class GameTimeStamp
+public struct GameTimeStamp
 {
-    public int day;
-    public int hour;
-    public int minute;
-    public int second;
+    public int Day;
+    public int Hour;
+    public int Minute;
+    public int Second;
 
     public GameTimeStamp(int day, int hour, int minute, int second)
     {
-        this.day = day;
-        this.hour = hour;
-        this.minute = minute;
-        this.second = second;
+        Day = day;
+        Hour = hour;
+        Minute = minute;
+        Second = second;
     }
 
     public GameTimeStamp(GameTimeStamp timeStamp)
     {
-        this.day = timeStamp.day;
-        this.hour = timeStamp.hour;
-        this.minute = timeStamp.minute;
-        this.second = timeStamp.second;
+        Day = timeStamp.Day;
+        Hour = timeStamp.Hour;
+        Minute = timeStamp.Minute;
+        Second = timeStamp.Second;
     }
 
-    // Convert to seconds
-    public static int TimeStampInSeconds(GameTimeStamp ts)
+    public void AddOneSecond()
     {
-        // 1 day = 20 hours
-        int seconds = 0;
-        seconds += ts.day * 24 * 60 * 60;
-        seconds += ts.hour * 60 * 60;
-        seconds += ts.minute * 60;
-        seconds += ts.second;
-        return seconds;
+        Second++;
+
+        if (Second == 60)
+        {
+            Second = 0;
+            Minute++;
+
+            if (Minute == 60)
+            {
+                Minute = 0;
+                Hour++;
+
+                if (Hour == 24)
+                {
+                    Hour = 0;
+                    Day++;
+                }
+            }
+        }
     }
 }

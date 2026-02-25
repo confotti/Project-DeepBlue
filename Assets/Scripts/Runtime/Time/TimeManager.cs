@@ -1,111 +1,106 @@
 ﻿using System.Collections;
 using UnityEngine;
-using TMPro; 
+using TMPro;
+using System;
 
 public class TimeManager : MonoBehaviour
 {
     public static TimeManager Instance { get; private set; }
 
     [Header("Internal Clock")]
-    [SerializeField] GameTimeStamp timestamp;
+    [SerializeField] private GameTimeStamp _timestamp;
 
     [Tooltip("Length of a full game day in real-time minutes")]
     public float realMinutesPerDay = 25f;
 
     [Header("Day and Night Cycle")]
     public Transform sunTransform;
-    Vector3 sunAngle;
 
     [Header("UI")]
-    [SerializeField] private TextMeshProUGUI clockText;
+    [SerializeField] private TextMeshProUGUI _clockText;
 
     // One game day = 24 in-game hours = 86,400 seconds
     private const float SecondsPerGameDay = 24f * 3600f;
     // Store total game time in seconds
-    private float totalGameSeconds;
-    private float timeScale;
+    private float _accumulatedSeconds;
+    private float _timeScale;
 
-    private int lastDisplayedHour = -1;
-    private int lastDisplayedMinute = -1; 
+    public event Action<int> OnMinuteChanged;
+    public event Action<int> OnHourChanged;
 
     private void Awake()
     {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(this);
-        }
-        else
-        {
-            Instance = this;
-        }
+        if (Instance != null && Instance != this) Destroy(this);
+        else Instance = this;
     }
 
     private void Start()
     {
         // Start at Day 1, 8:00:00 
-        timestamp = new GameTimeStamp(1, 8, 0, 0);
-
-        totalGameSeconds = GameTimeStamp.TimeStampInSeconds(timestamp);
+        _timestamp = new GameTimeStamp(1, 8, 0, 0);
 
         float realSecondsPerDay = realMinutesPerDay * 60f;
-        timeScale = SecondsPerGameDay / realSecondsPerDay;
+        _timeScale = SecondsPerGameDay / realSecondsPerDay;
 
-        UpdateClockUI(); 
+        UpdateClockUI();
     }
 
     private void Update()
     {
-        totalGameSeconds += Time.deltaTime * timeScale;
+        _accumulatedSeconds += Time.deltaTime * _timeScale;
 
-        timestamp = SecondsToTimeStamp((int)totalGameSeconds);
+        while(_accumulatedSeconds >= 1f)
+        {
+            _accumulatedSeconds -= 1f;
+            TickOneSecond();
+        }
+    }
+
+    private void TickOneSecond()
+    {
+        _timestamp.AddOneSecond();
+
+        if (_timestamp.Second == 0)
+        {
+            OnMinuteChanged?.Invoke(_timestamp.Minute);
+            UpdateClockUI();
+
+            if (_timestamp.Minute == 0)
+            {
+                OnHourChanged?.Invoke(_timestamp.Hour);
+            }
+        }
 
         UpdateSunMovement();
-        UpdateClockUI();
     }
 
     void UpdateSunMovement()
     {
-        float dayProgress = (totalGameSeconds % SecondsPerGameDay) / SecondsPerGameDay;
+        float dayProgress = (_timestamp.Hour * 3600 + _timestamp.Minute * 60 + _timestamp.Second) / SecondsPerGameDay;
 
         // Full 360° rotation in one 24-hour day
         float sunRotation = dayProgress * 360f;
 
         // Rotate around X, står rakt upp vid 12
-        sunAngle = new Vector3(sunRotation - 90f, 170f, 0f);
-        sunTransform.rotation = Quaternion.Euler(sunAngle); 
+        sunTransform.rotation = Quaternion.Euler(sunRotation - 90f, 170f, 0f);
     }
 
     private void UpdateClockUI()
     {
-        if (clockText == null) return;
+        if (_clockText == null) return;
 
-        // 5 minuter hopp 
-        int clockMinute = (timestamp.minute / 5) * 5;
-
-        if (timestamp.hour == lastDisplayedHour &&
-            clockMinute == lastDisplayedMinute)
-        {
-            return;
-        }
-
-        lastDisplayedHour = timestamp.hour;
-        lastDisplayedMinute = clockMinute;
-
-        clockText.text = $"{timestamp.hour:00}:{clockMinute:00}"; 
-    } 
-
-    private GameTimeStamp SecondsToTimeStamp(int totalSeconds)
-    {
-        int day = totalSeconds / (24 * 3600);
-        int hour = (totalSeconds / 3600) % 24;
-        int minute = (totalSeconds / 60) % 60;
-        int second = totalSeconds % 60;
-
-        return new GameTimeStamp(day, hour, minute, second);
+        _clockText.text = $"{_timestamp.Hour:00}:{_timestamp.Minute - (_timestamp.Minute % 5):00}";
     }
 
     public GameTimeStamp GetGameTimeStamp()
     {
-        return new GameTimeStamp(timestamp);
+        return new GameTimeStamp(_timestamp);
+    }
+    
+
+    //Allows pausing time if we need to
+    public void SetTimeScale(float timeScale)
+    {
+        _timeScale = timeScale;
     }
 }

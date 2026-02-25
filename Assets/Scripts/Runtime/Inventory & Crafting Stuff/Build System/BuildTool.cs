@@ -13,6 +13,7 @@ namespace BuildSystem
         [SerializeField] private Material _buildingMatNegative;
 
         private bool _deleteModeEnabled = false;
+        private bool _canPlaceBuilding = false;
 
         private Camera cam;
 
@@ -35,6 +36,18 @@ namespace BuildSystem
             BuildDisplay.OnPartChosen -= ChoosePart;
         }
 
+        override public void PrimaryInput()
+        {
+            if (_canPlaceBuilding)
+            {
+                PayCurrentBuildingCost();
+                _spawnedBuilding.PlaceBuilding();
+                var dataCopy = _spawnedBuilding.AssignedData;
+                _spawnedBuilding = null;
+                ChoosePart(dataCopy);
+            }
+        }
+
         public override void SecondaryInput()
         {
             BuildDisplay.OnBuildDisplayRequested?.Invoke();
@@ -53,6 +66,8 @@ namespace BuildSystem
 
         private void Update()
         {
+            _canPlaceBuilding = false;
+
             if (Keyboard.current.qKey.wasPressedThisFrame) _deleteModeEnabled = !_deleteModeEnabled;
 
 
@@ -109,7 +124,7 @@ namespace BuildSystem
             {
                 _spawnedBuilding.gameObject.SetActive(true);
                 _spawnedBuilding.transform.position = hitInfo.point
-                    + new Vector3(0, 0.1f + _spawnedBuilding.Col.size.y * _spawnedBuilding.transform.lossyScale.y / 2)
+                    + new Vector3(0, 0.05f + _spawnedBuilding.Col.size.y * _spawnedBuilding.transform.lossyScale.y / 2)
                     - _spawnedBuilding.Col.center * _spawnedBuilding.transform.lossyScale.y;
 
                 if (_spawnedBuilding.IsColliding() || !CheckIfCanAffordCurrentBuilding())
@@ -119,16 +134,8 @@ namespace BuildSystem
                 }
 
                 _spawnedBuilding.UpdateMaterial(_buildingMatPositive);
-
-                if (Mouse.current.leftButton.wasPressedThisFrame)
-                {
-                    PayCurrentBuildingCost();
-                    _spawnedBuilding.PlaceBuilding();
-                    var dataCopy = _spawnedBuilding.AssignedData;
-                    _spawnedBuilding = null;
-                    ChoosePart(dataCopy);
-
-                }
+                _canPlaceBuilding = true;
+                
             }
 
         }

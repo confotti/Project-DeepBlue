@@ -38,7 +38,7 @@ public class LightBehaviour : MonoBehaviour, IInteractable
         if (TimeManager.Instance == null) return;
 
         GameTimeStamp time = TimeManager.Instance.GetGameTimeStamp();
-        float hours = time.hour + time.minute / 60f;
+        float hours = time.Hour + time.Minute / 60f;
 
         bool isNight = hours >= fogManager.nightStartHour || hours <= fogManager.dayStartHour;
 

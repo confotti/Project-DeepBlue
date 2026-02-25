@@ -90,7 +90,7 @@ public class PlayerEquipmentHandler : ItemSlotsDisplay
     {
         foreach(var slot in _equipmentSlotsUI)
         {
-            if(slot == null) continue;
+            if(slot == null || slot.AssignedInventorySlot == null || slot.AssignedInventorySlot.ItemData == null) continue;
             slot.AssignedInventorySlot.ItemData.ApplyAllEquipmentEffects(_playerStats);
         }
     }

@@ -32,7 +32,7 @@ public class FogManager : MonoBehaviour
         if (TimeManager.Instance == null) return;
 
         GameTimeStamp time = TimeManager.Instance.GetGameTimeStamp();
-        float hours = time.hour + time.minute / 60f;
+        float hours = time.Hour + time.Minute / 60f;
 
         // Compute fogFactor (0 = night, 1 = day)
         float fogFactor = GetFogBlendFactor(hours);
