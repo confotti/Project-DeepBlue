@@ -35,21 +35,24 @@ namespace BuildSystem
             BuildDisplay.OnPartChosen -= ChoosePart;
         }
 
-        public override void OnEquip(PlayerItemHandler player)
+        public override void SecondaryInput()
         {
-            base.OnEquip(player);
+            BuildDisplay.OnBuildDisplayRequested?.Invoke();
         }
 
         public override void OnUnequip()
         {
             base.OnUnequip();
 
-            if (_spawnedBuilding != null) ObjectPoolManager.ReturnObjectToPool(_spawnedBuilding.gameObject);
+            if (_spawnedBuilding != null)
+            {
+                ObjectPoolManager.ReturnObjectToPool(_spawnedBuilding.gameObject);
+                _spawnedBuilding = null;
+            } 
         }
 
         private void Update()
         {
-            if (Mouse.current.rightButton.wasPressedThisFrame) BuildDisplay.OnBuildDisplayRequested?.Invoke();
             if (Keyboard.current.qKey.wasPressedThisFrame) _deleteModeEnabled = !_deleteModeEnabled;
 
 

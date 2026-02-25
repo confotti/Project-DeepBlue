@@ -1,16 +1,22 @@
 using UnityEngine;
 
-public class RepairTorch : MonoBehaviour
+public class RepairTorch : ItemBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
+    [SerializeField] private float _rayDistance = 20;
+    [SerializeField] private LayerMask _layerMask;
 
-    // Update is called once per frame
-    void Update()
+    public override void PrimaryInput()
     {
-        
+        RaycastHit hitInfo;
+        Physics.Raycast(player.PlayerHead.position, player.PlayerHead.transform.forward, out hitInfo, _rayDistance, _layerMask);
+
+        if (hitInfo.collider.TryGetComponent<CrackRepair>(out var crackRepair))
+        {
+            crackRepair.Repair();
+        }
+        else
+        {
+            Debug.Log("No crack to repair");
+        }
     }
 }
