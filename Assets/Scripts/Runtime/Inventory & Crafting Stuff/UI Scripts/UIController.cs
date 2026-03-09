@@ -8,6 +8,11 @@ public class UIController : MonoBehaviour
     public GameObject EquipmentPanel;
     public CraftingDisplay CraftingDisplay;
     public BuildDisplay BuildDisplay;
+    public EscapeMenu EscapeMenu;
+
+    private bool AnyUIOpen => DynamicInventoryPanel.gameObject.activeSelf || PlayerInventoryPanel.gameObject.activeSelf || 
+        EquipmentPanel.gameObject.activeSelf || CraftingDisplay.gameObject.activeSelf || BuildDisplay.gameObject.activeSelf ||
+        EscapeMenu.gameObject.activeSelf;
 
     private void Awake()
     {
@@ -25,6 +30,8 @@ public class UIController : MonoBehaviour
         PlayerInventoryHolder.OnPlayerInventoryDisplayRequested += DisplayPlayerInventory;
         CraftingDisplay.OnCraftingDisplayRequested += DisplayCraftingWindow;
         BuildDisplay.OnBuildDisplayRequested += DisplayBuildWindow;
+
+        EscapeMenu.OnContinuePressed += EscapeContinuePressed;
     }
 
     private void OnDisable()
@@ -33,6 +40,8 @@ public class UIController : MonoBehaviour
         PlayerInventoryHolder.OnPlayerInventoryDisplayRequested -= DisplayPlayerInventory;
         CraftingDisplay.OnCraftingDisplayRequested -= DisplayCraftingWindow;
         BuildDisplay.OnBuildDisplayRequested -= DisplayBuildWindow;
+
+        EscapeMenu.OnContinuePressed -= EscapeContinuePressed;
     }
 
     void Update()
@@ -40,17 +49,12 @@ public class UIController : MonoBehaviour
         //TODO: Implement with input action asset
         if (!Keyboard.current.escapeKey.wasPressedThisFrame) return;
 
-        ToggleLooking(true);
-
-        DynamicInventoryPanel.gameObject.SetActive(false);
-
-        PlayerInventoryPanel.gameObject.SetActive(false);
-        
-        EquipmentPanel.SetActive(false);
-
-        CraftingDisplay.gameObject.SetActive(false);
-
-        BuildDisplay.gameObject.SetActive(false);
+        if(AnyUIOpen) CloseAllUI();
+        else
+        {
+            EscapeMenu.gameObject.SetActive(true);
+            UpdateLookingState();
+        }
     }
 
     private void DisplayInventory(InventorySystem invToDisplay, int offset)
@@ -58,7 +62,7 @@ public class UIController : MonoBehaviour
         DynamicInventoryPanel.gameObject.SetActive(true);
         DynamicInventoryPanel.RefreshDynamicInventory(invToDisplay, offset);
 
-        ToggleLooking(false);
+        UpdateLookingState();
     }
 
     
@@ -68,7 +72,7 @@ public class UIController : MonoBehaviour
         PlayerInventoryPanel.RefreshDynamicInventory(invToDisplay, offset);
         EquipmentPanel.SetActive(true);
 
-        ToggleLooking(false);
+        UpdateLookingState();
     }
 
     
@@ -77,7 +81,7 @@ public class UIController : MonoBehaviour
         CraftingDisplay.gameObject.SetActive(true);
         CraftingDisplay.DisplayCraftingWindow(craftingToDisplay);
 
-        ToggleLooking(false);
+        UpdateLookingState();
     }
 
     private void DisplayBuildWindow()
@@ -85,14 +89,33 @@ public class UIController : MonoBehaviour
         BuildDisplay.gameObject.SetActive(true);
         BuildDisplay.DisplayBuildWindow();
 
-        ToggleLooking(false);
+        UpdateLookingState();
     }
 
-    private void ToggleLooking(bool enabled)
+    private void UpdateLookingState()
     {
-        if (enabled) Cursor.lockState = CursorLockMode.Locked;
+        if (!AnyUIOpen) Cursor.lockState = CursorLockMode.Locked;
         else Cursor.lockState = CursorLockMode.None;
-        PlayerInputHandler.ToggleLooking?.Invoke(enabled);
+        PlayerInputHandler.ToggleLooking?.Invoke(!AnyUIOpen);
+    }
+
+    private void CloseAllUI()
+    {
+        DynamicInventoryPanel.gameObject.SetActive(false);
+        PlayerInventoryPanel.gameObject.SetActive(false);
+        EquipmentPanel.SetActive(false);
+        CraftingDisplay.gameObject.SetActive(false);
+        BuildDisplay.gameObject.SetActive(false);
+        EscapeMenu.gameObject.SetActive(false);
+
+        UpdateLookingState();
+    }
+
+    private void EscapeContinuePressed()
+    {
+        EscapeMenu.gameObject.SetActive(false);
+
+        UpdateLookingState();
     }
     
 }
