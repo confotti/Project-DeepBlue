@@ -444,6 +444,34 @@ public partial class @DefaultInputActions: IInputActionCollection2, IDisposable
                     ""isPartOfComposite"": false
                 }
             ]
+        },
+        {
+            ""name"": ""Build Tool"",
+            ""id"": ""7fa7bddd-78ac-48a9-8469-70a8538744e0"",
+            ""actions"": [
+                {
+                    ""name"": ""Rotate"",
+                    ""type"": ""Button"",
+                    ""id"": ""293a67c8-c6a0-4057-a0ff-8a59a59432f3"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                }
+            ],
+            ""bindings"": [
+                {
+                    ""name"": """",
+                    ""id"": ""b78e9a32-b1ab-4832-a758-613502c2d4e9"",
+                    ""path"": ""<Keyboard>/r"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Rotate"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                }
+            ]
         }
     ],
     ""controlSchemes"": []
@@ -463,12 +491,16 @@ public partial class @DefaultInputActions: IInputActionCollection2, IDisposable
         m_Hotbar_HotbarSelection = m_Hotbar.FindAction("HotbarSelection", throwIfNotFound: true);
         m_Hotbar_HotbarNext = m_Hotbar.FindAction("HotbarNext", throwIfNotFound: true);
         m_Hotbar_HotbarPrevious = m_Hotbar.FindAction("HotbarPrevious", throwIfNotFound: true);
+        // Build Tool
+        m_BuildTool = asset.FindActionMap("Build Tool", throwIfNotFound: true);
+        m_BuildTool_Rotate = m_BuildTool.FindAction("Rotate", throwIfNotFound: true);
     }
 
     ~@DefaultInputActions()
     {
         UnityEngine.Debug.Assert(!m_PlayerMovement.enabled, "This will cause a leak and performance issues, DefaultInputActions.PlayerMovement.Disable() has not been called.");
         UnityEngine.Debug.Assert(!m_Hotbar.enabled, "This will cause a leak and performance issues, DefaultInputActions.Hotbar.Disable() has not been called.");
+        UnityEngine.Debug.Assert(!m_BuildTool.enabled, "This will cause a leak and performance issues, DefaultInputActions.BuildTool.Disable() has not been called.");
     }
 
     /// <summary>
@@ -831,6 +863,102 @@ public partial class @DefaultInputActions: IInputActionCollection2, IDisposable
     /// Provides a new <see cref="HotbarActions" /> instance referencing this action map.
     /// </summary>
     public HotbarActions @Hotbar => new HotbarActions(this);
+
+    // Build Tool
+    private readonly InputActionMap m_BuildTool;
+    private List<IBuildToolActions> m_BuildToolActionsCallbackInterfaces = new List<IBuildToolActions>();
+    private readonly InputAction m_BuildTool_Rotate;
+    /// <summary>
+    /// Provides access to input actions defined in input action map "Build Tool".
+    /// </summary>
+    public struct BuildToolActions
+    {
+        private @DefaultInputActions m_Wrapper;
+
+        /// <summary>
+        /// Construct a new instance of the input action map wrapper class.
+        /// </summary>
+        public BuildToolActions(@DefaultInputActions wrapper) { m_Wrapper = wrapper; }
+        /// <summary>
+        /// Provides access to the underlying input action "BuildTool/Rotate".
+        /// </summary>
+        public InputAction @Rotate => m_Wrapper.m_BuildTool_Rotate;
+        /// <summary>
+        /// Provides access to the underlying input action map instance.
+        /// </summary>
+        public InputActionMap Get() { return m_Wrapper.m_BuildTool; }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Enable()" />
+        public void Enable() { Get().Enable(); }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Disable()" />
+        public void Disable() { Get().Disable(); }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.enabled" />
+        public bool enabled => Get().enabled;
+        /// <summary>
+        /// Implicitly converts an <see ref="BuildToolActions" /> to an <see ref="InputActionMap" /> instance.
+        /// </summary>
+        public static implicit operator InputActionMap(BuildToolActions set) { return set.Get(); }
+        /// <summary>
+        /// Adds <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
+        /// </summary>
+        /// <param name="instance">Callback instance.</param>
+        /// <remarks>
+        /// If <paramref name="instance" /> is <c>null</c> or <paramref name="instance"/> have already been added this method does nothing.
+        /// </remarks>
+        /// <seealso cref="BuildToolActions" />
+        public void AddCallbacks(IBuildToolActions instance)
+        {
+            if (instance == null || m_Wrapper.m_BuildToolActionsCallbackInterfaces.Contains(instance)) return;
+            m_Wrapper.m_BuildToolActionsCallbackInterfaces.Add(instance);
+            @Rotate.started += instance.OnRotate;
+            @Rotate.performed += instance.OnRotate;
+            @Rotate.canceled += instance.OnRotate;
+        }
+
+        /// <summary>
+        /// Removes <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
+        /// </summary>
+        /// <remarks>
+        /// Calling this method when <paramref name="instance" /> have not previously been registered has no side-effects.
+        /// </remarks>
+        /// <seealso cref="BuildToolActions" />
+        private void UnregisterCallbacks(IBuildToolActions instance)
+        {
+            @Rotate.started -= instance.OnRotate;
+            @Rotate.performed -= instance.OnRotate;
+            @Rotate.canceled -= instance.OnRotate;
+        }
+
+        /// <summary>
+        /// Unregisters <param cref="instance" /> and unregisters all input action callbacks via <see cref="BuildToolActions.UnregisterCallbacks(IBuildToolActions)" />.
+        /// </summary>
+        /// <seealso cref="BuildToolActions.UnregisterCallbacks(IBuildToolActions)" />
+        public void RemoveCallbacks(IBuildToolActions instance)
+        {
+            if (m_Wrapper.m_BuildToolActionsCallbackInterfaces.Remove(instance))
+                UnregisterCallbacks(instance);
+        }
+
+        /// <summary>
+        /// Replaces all existing callback instances and previously registered input action callbacks associated with them with callbacks provided via <param cref="instance" />.
+        /// </summary>
+        /// <remarks>
+        /// If <paramref name="instance" /> is <c>null</c>, calling this method will only unregister all existing callbacks but not register any new callbacks.
+        /// </remarks>
+        /// <seealso cref="BuildToolActions.AddCallbacks(IBuildToolActions)" />
+        /// <seealso cref="BuildToolActions.RemoveCallbacks(IBuildToolActions)" />
+        /// <seealso cref="BuildToolActions.UnregisterCallbacks(IBuildToolActions)" />
+        public void SetCallbacks(IBuildToolActions instance)
+        {
+            foreach (var item in m_Wrapper.m_BuildToolActionsCallbackInterfaces)
+                UnregisterCallbacks(item);
+            m_Wrapper.m_BuildToolActionsCallbackInterfaces.Clear();
+            AddCallbacks(instance);
+        }
+    }
+    /// <summary>
+    /// Provides a new <see cref="BuildToolActions" /> instance referencing this action map.
+    /// </summary>
+    public BuildToolActions @BuildTool => new BuildToolActions(this);
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "Player Movement" which allows adding and removing callbacks.
     /// </summary>
@@ -923,5 +1051,20 @@ public partial class @DefaultInputActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnHotbarPrevious(InputAction.CallbackContext context);
+    }
+    /// <summary>
+    /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "Build Tool" which allows adding and removing callbacks.
+    /// </summary>
+    /// <seealso cref="BuildToolActions.AddCallbacks(IBuildToolActions)" />
+    /// <seealso cref="BuildToolActions.RemoveCallbacks(IBuildToolActions)" />
+    public interface IBuildToolActions
+    {
+        /// <summary>
+        /// Method invoked when associated input action "Rotate" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnRotate(InputAction.CallbackContext context);
     }
 }

@@ -53,9 +53,18 @@ namespace BuildSystem
             BuildDisplay.OnBuildDisplayRequested?.Invoke();
         }
 
+        public override void OnEquip(PlayerItemHandler player)
+        {
+            base.OnEquip(player);
+
+            player.InputHandler.OnBuildToolRotate += Rotate;
+        }
+
         public override void OnUnequip()
         {
             base.OnUnequip();
+
+            player.InputHandler.OnBuildToolRotate -= Rotate;
 
             if (_spawnedBuilding != null)
             {
@@ -108,12 +117,6 @@ namespace BuildSystem
             if (_spawnedBuilding == null) return;
 
             UpdateCostUI();
-
-            if (Keyboard.current.rKey.wasPressedThisFrame)
-            {
-                _spawnedBuilding.transform.Rotate(0, _rotateSnapAngle, 0);
-                _lastRotation = _spawnedBuilding.transform.rotation;
-            }
 
             if (!IsRayHittingSomething(_buildModeLayerMask, out RaycastHit hitInfo))
             {
@@ -215,6 +218,13 @@ namespace BuildSystem
             {
                 player.PlayerInventory.RemoveItemFromInventory(cost);
             }
+        }
+
+        private void Rotate()
+        {
+            if (_spawnedBuilding == null) return;
+            _spawnedBuilding.transform.Rotate(0, _rotateSnapAngle, 0);
+            _lastRotation = _spawnedBuilding.transform.rotation;
         }
     }
 }

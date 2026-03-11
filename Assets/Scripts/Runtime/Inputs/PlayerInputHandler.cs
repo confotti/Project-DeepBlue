@@ -32,6 +32,9 @@ public class PlayerInputHandler : MonoBehaviour
     public static Action<int> OnHotbarSelection;
     public static Action<int> OnHotbarChange;
 
+    //BuildTool stuff
+    public Action OnBuildToolRotate;
+
     private void Awake()
     {
         defaultInputActions = new DefaultInputActions();
@@ -62,17 +65,24 @@ public class PlayerInputHandler : MonoBehaviour
         //crouch = defaultInputActions.PlayerMovement.Crouch;
         crouch.Enable();
 
+        //Item stuff
         itemPrimary.Enable();
         itemSecondary.Enable();
         itemPrimary.performed += ItemPrimary;
         itemSecondary.performed += ItemSecondary;
 
+        //Hotbar stuff
         defaultInputActions.Hotbar.Enable();
         defaultInputActions.Hotbar.HotbarSelection.Enable();
         defaultInputActions.Hotbar.HotbarSelection.performed += HotbarSelection;
 
         defaultInputActions.Hotbar.HotbarNext.performed += HotbarNext;
         defaultInputActions.Hotbar.HotbarPrevious.performed += HotbarPrevious;
+
+        //Specific item stuff
+        defaultInputActions.BuildTool.Enable();
+        defaultInputActions.BuildTool.Rotate.Enable();
+        defaultInputActions.BuildTool.Rotate.performed += BuildToolRotate;
     }
 
     private void OnDisable()
@@ -129,6 +139,11 @@ public class PlayerInputHandler : MonoBehaviour
     private void HotbarPrevious(InputAction.CallbackContext context)
     {
         OnHotbarChange?.Invoke(-1);
+    }
+
+    private void BuildToolRotate(InputAction.CallbackContext context)
+    {
+        OnBuildToolRotate?.Invoke();
     }
 
 

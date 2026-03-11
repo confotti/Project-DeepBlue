@@ -358,6 +358,34 @@
                     "isPartOfComposite": false
                 }
             ]
+        },
+        {
+            "name": "Build Tool",
+            "id": "7fa7bddd-78ac-48a9-8469-70a8538744e0",
+            "actions": [
+                {
+                    "name": "Rotate",
+                    "type": "Button",
+                    "id": "293a67c8-c6a0-4057-a0ff-8a59a59432f3",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "b78e9a32-b1ab-4832-a758-613502c2d4e9",
+                    "path": "<Keyboard>/r",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Rotate",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
         }
     ],
     "controlSchemes": []

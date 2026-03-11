@@ -10,6 +10,7 @@ public class PlayerItemHandler : MonoBehaviour
     private PlayerInventoryHolder _playerInventory;
     public PlayerInventoryHolder PlayerInventory => _playerInventory;
     private PlayerInputHandler _inputHandler;
+    public PlayerInputHandler InputHandler => _inputHandler;
 
     [SerializeField] private Transform _playerHead;
     public Transform PlayerHead => _playerHead;
