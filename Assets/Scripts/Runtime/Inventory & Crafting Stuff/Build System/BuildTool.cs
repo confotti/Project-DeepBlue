@@ -40,6 +40,7 @@ namespace BuildSystem
         {
             if (_canPlaceBuilding)
             {
+                //TODO: Should probably set the sub or whatever you're building on as the parent (they will not stay in the sub once it starts moving). 
                 PayCurrentBuildingCost();
                 _spawnedBuilding.PlaceBuilding();
                 var dataCopy = _spawnedBuilding.AssignedData;
@@ -64,7 +65,7 @@ namespace BuildSystem
         {
             base.OnUnequip();
 
-            player.InputHandler.OnBuildToolRotate -= Rotate;
+            _player.InputHandler.OnBuildToolRotate -= Rotate;
 
             if (_spawnedBuilding != null)
             {
@@ -77,7 +78,7 @@ namespace BuildSystem
         {
             _canPlaceBuilding = false;
 
-            if (Keyboard.current.qKey.wasPressedThisFrame) _deleteModeEnabled = !_deleteModeEnabled;
+            //if (Keyboard.current.qKey.wasPressedThisFrame) _deleteModeEnabled = !_deleteModeEnabled;
 
 
             ClearCostUI();
@@ -107,7 +108,7 @@ namespace BuildSystem
 
         private bool IsRayHittingSomething(LayerMask layerMask, out RaycastHit hitInfo)
         {
-            return Physics.Raycast(player.PlayerHead.position, cam.transform.forward, out hitInfo, _rayDistance, layerMask);
+            return Physics.Raycast(_player.PlayerHead.position, cam.transform.forward, out hitInfo, _rayDistance, layerMask);
         }
 
         private void BuildModeLogic()
@@ -125,6 +126,7 @@ namespace BuildSystem
             }
             else
             {
+                Debug.Log("Hej hej");
                 _spawnedBuilding.gameObject.SetActive(true);
                 _spawnedBuilding.transform.position = hitInfo.point
                     + new Vector3(0, 0.05f + _spawnedBuilding.Col.size.y * _spawnedBuilding.transform.lossyScale.y / 2)
@@ -203,7 +205,7 @@ namespace BuildSystem
         {
             foreach (ItemCost cost in _spawnedBuilding.AssignedData.Cost)
             {
-                if (player.PlayerInventory.InventorySystem.AmountOfItem(cost.ItemRequired) < cost.AmountRequired)
+                if (_player.PlayerInventory.InventorySystem.AmountOfItem(cost.ItemRequired) < cost.AmountRequired)
                 {
                     return false;
                 }
@@ -216,7 +218,7 @@ namespace BuildSystem
         {
             foreach (ItemCost cost in _spawnedBuilding.AssignedData.Cost)
             {
-                player.PlayerInventory.RemoveItemFromInventory(cost);
+                _player.PlayerInventory.RemoveItemFromInventory(cost);
             }
         }
 

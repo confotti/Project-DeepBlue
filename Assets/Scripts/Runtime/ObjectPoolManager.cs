@@ -149,7 +149,8 @@ public class ObjectPoolManager : MonoBehaviour
             {
                 cloneToPrefabMap.Add(obj, objectToSpawn);
             }
-
+            
+            obj.transform.SetParent(null);
             obj.transform.position = spawnPos;
             obj.transform.rotation = spawnRotation;
             obj.SetActive(true);

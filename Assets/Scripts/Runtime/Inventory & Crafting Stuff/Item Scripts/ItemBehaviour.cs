@@ -2,14 +2,14 @@ using UnityEngine;
 
 public class ItemBehaviour : MonoBehaviour
 {
-    protected PlayerItemHandler player;
+    protected PlayerItemHandler _player;
 
     public virtual void PrimaryInput() { }
     public virtual void SecondaryInput() { }
 
     public virtual void OnEquip(PlayerItemHandler player)
     {
-        this.player = player;
+        _player = player;
     }
     public virtual void OnUnequip() 
     {

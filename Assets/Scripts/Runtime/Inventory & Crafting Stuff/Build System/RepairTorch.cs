@@ -8,7 +8,7 @@ public class RepairTorch : ItemBehaviour
     public override void PrimaryInput()
     {
         RaycastHit hitInfo;
-        Physics.Raycast(player.PlayerHead.position, player.PlayerHead.transform.forward, out hitInfo, _rayDistance, _layerMask);
+        Physics.Raycast(_player.PlayerHead.position, _player.PlayerHead.transform.forward, out hitInfo, _rayDistance, _layerMask);
 
         if (hitInfo.collider.TryGetComponent<CrackRepair>(out var crackRepair))
         {

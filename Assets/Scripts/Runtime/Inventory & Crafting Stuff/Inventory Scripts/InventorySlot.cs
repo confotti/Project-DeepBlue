@@ -4,7 +4,7 @@ using UnityEngine;
 [System.Serializable]
 public class InventorySlot
 {
-    [NonSerialized] private InventoryItemData itemData; //Reference to the data
+    [SerializeField] private InventoryItemData itemData; //Reference to the data
     [SerializeField, InspectorReadOnly] private int itemID = -1;
     [SerializeField] private int stackSize; //Current stack size - how many we have in this slot
 
