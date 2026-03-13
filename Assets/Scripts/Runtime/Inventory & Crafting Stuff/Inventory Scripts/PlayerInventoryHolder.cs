@@ -11,6 +11,11 @@ public class PlayerInventoryHolder : InventoryHolder
     [SerializeField] private int playerHotbarSize = 10;
     public static UnityAction OnPlayerInventoryChanged;
 
+    void OnValidate()
+    {
+        foreach (InventorySlot slot in inventorySystem.InventorySlots) slot.AssignItem(slot);
+    }
+
     private void Start()
     {
         SaveLoad.currentSavedata = new SaveData();
