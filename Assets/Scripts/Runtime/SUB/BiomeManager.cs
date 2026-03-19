@@ -66,4 +66,4 @@ public class BiomeManager : MonoBehaviour
         SceneManager.UnloadSceneAsync(biome.sceneName);
     }
 }
-}
+
