@@ -68,13 +68,18 @@ public class SubmarineController : MonoBehaviour
         }
     }
 
+
     public void StartSub()
     {
+        /*
         if (!isRunning)
         {
             isRunning = true;
             splineAnimate.Play();
         }
+        */
+
+        BiomeSubSplineHolder.prevInstance.FixExitSpline(Vector3.zero);
     }
 
     public void StopSub()
