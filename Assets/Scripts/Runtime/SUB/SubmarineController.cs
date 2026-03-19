@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Unity.Entities.UniversalDelegates;
+using UnityEngine;
 using UnityEngine.Splines;
 
 public class SubmarineController : MonoBehaviour
@@ -25,10 +26,14 @@ public class SubmarineController : MonoBehaviour
     {
         if (isRunning)
         {
+            /*
             currentSpeed = Mathf.Lerp(
                 currentSpeed, maxSpeed, velocity * Time.deltaTime);
 
             UpdatePathSpeed(currentSpeed);
+            */
+            
+            transform.position += new Vector3(0, 0, velocity * Time.deltaTime);
         }
         else
         {
@@ -40,8 +45,8 @@ public class SubmarineController : MonoBehaviour
             }
 
             currentSpeed = Mathf.Lerp(
-                currentSpeed, 0f, brake * Time.deltaTime); 
-                
+                currentSpeed, 0f, brake * Time.deltaTime);
+
             UpdatePathSpeed(currentSpeed);
         }
     }
