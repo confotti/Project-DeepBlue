@@ -72,9 +72,9 @@ public class SubmarineController : MonoBehaviour
 
     public void StartSub()
     {
-        BiomeSubSplineHolder.prevInstance.FixExitSpline(Vector3.zero);
+        //BiomeSubSplineHolder.prevInstance.FixExitSpline(Vector3.zero);
 
-        //splineAnimate.Container=BiomeSubSplineHolder.
+        //splineAnimate.Container = BiomeSubSplineHolder.
 
     }
 

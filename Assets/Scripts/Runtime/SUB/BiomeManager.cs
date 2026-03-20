@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -9,8 +10,11 @@ public class BiomeManager : MonoBehaviour
     [Serializable]
     public class Biome
     {
-        public string sceneName;
+        public SceneAsset scene;
     }
+
+    public static Action CommandStartLoading;
+    public static Action OnFinishLoadingBiome;
 
     public List<Biome> Biomes;
 
@@ -19,19 +23,6 @@ public class BiomeManager : MonoBehaviour
     private bool isLoadingNextBiome = false;
 
     private bool readyToUnloadPrevious = false;
-
-    void Update()
-    {
-
-        if (!isLoadingNextBiome)
-        {
-            if (nextBiome != null && nextBiome != currentBiome)
-            {
-                LoadBiome(nextBiome);
-            }
-        }
-    }
-
 
     private void LoadBiome(Biome biome)
     {
@@ -45,10 +36,17 @@ public class BiomeManager : MonoBehaviour
     private IEnumerator LoadBiomeAsync(Biome biome)
     {
         // Start loading the new biome scene asynchronously
-        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(biome.sceneName, LoadSceneMode.Additive);
+        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(biome.scene.name, LoadSceneMode.Additive);
 
         // Wait until the scene is fully loaded
-        while (!asyncLoad.isDone || !readyToUnloadPrevious)
+        while (!readyToUnloadPrevious)
+        {
+            yield return null;
+        }
+
+        OnFinishLoadingBiome?.Invoke();
+
+        while (!readyToUnloadPrevious)
         {
             yield return null;
         }
@@ -69,7 +67,6 @@ public class BiomeManager : MonoBehaviour
     private void UnloadBiome(Biome biome)
     {
         // Unload the scene for the current biome
-        SceneManager.UnloadSceneAsync(biome.sceneName);
+        SceneManager.UnloadSceneAsync(biome.scene.name);
     }
 }
-
