@@ -21,6 +21,6 @@ public class BiomeSubSplineHolder : MonoBehaviour
 
     public void FixExitSpline(Vector3 whereTo)
     {
-        prevInstance.exitSpline.Spline.Add(new BezierKnot(whereTo));
+        //prevInstance.exitSpline.Spline.Add(new BezierKnot(whereTo));
     }
 }

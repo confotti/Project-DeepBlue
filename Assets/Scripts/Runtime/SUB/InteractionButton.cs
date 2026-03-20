@@ -11,7 +11,7 @@ public class InteractionButton : MonoBehaviour, IInteractable
 
     public void Interact(PlayerInteract interactor)
     {
-        submarine.ToggleSub();
+        submarine.StartSub();
     }
 
     public void EndInteraction()

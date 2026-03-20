@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -5,6 +6,7 @@ using UnityEngine.SceneManagement;
 
 public class BiomeManager : MonoBehaviour
 {
+    [Serializable]
     public class Biome
     {
         public string sceneName;
@@ -15,6 +17,8 @@ public class BiomeManager : MonoBehaviour
     private Biome currentBiome = null;
     private Biome nextBiome = null;
     private bool isLoadingNextBiome = false;
+
+    private bool readyToUnloadPrevious = false;
 
     void Update()
     {
@@ -44,7 +48,7 @@ public class BiomeManager : MonoBehaviour
         AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(biome.sceneName, LoadSceneMode.Additive);
 
         // Wait until the scene is fully loaded
-        while (!asyncLoad.isDone)
+        while (!asyncLoad.isDone || !readyToUnloadPrevious)
         {
             yield return null;
         }
@@ -58,6 +62,8 @@ public class BiomeManager : MonoBehaviour
         // Set the new biome as the current biome
         currentBiome = biome;
         isLoadingNextBiome = false;
+
+        readyToUnloadPrevious = false;
     }
 
     private void UnloadBiome(Biome biome)

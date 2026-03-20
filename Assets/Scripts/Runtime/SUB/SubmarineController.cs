@@ -26,14 +26,11 @@ public class SubmarineController : MonoBehaviour
     {
         if (isRunning)
         {
-            /*
             currentSpeed = Mathf.Lerp(
                 currentSpeed, maxSpeed, velocity * Time.deltaTime);
 
             UpdatePathSpeed(currentSpeed);
-            */
-            
-            transform.position += new Vector3(0, 0, velocity * Time.deltaTime);
+
         }
         else
         {
@@ -44,8 +41,7 @@ public class SubmarineController : MonoBehaviour
                 return;
             }
 
-            currentSpeed = Mathf.Lerp(
-                currentSpeed, 0f, brake * Time.deltaTime);
+            currentSpeed = Mathf.Lerp(currentSpeed, 0f, brake * Time.deltaTime);
 
             UpdatePathSpeed(currentSpeed);
         }
@@ -53,7 +49,7 @@ public class SubmarineController : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.tag.Equals(playerTag))
+        if (other.CompareTag(playerTag))
         {
             other.gameObject.transform.parent = sub;
         }
@@ -76,28 +72,15 @@ public class SubmarineController : MonoBehaviour
 
     public void StartSub()
     {
-        /*
-        if (!isRunning)
-        {
-            isRunning = true;
-            splineAnimate.Play();
-        }
-        */
-
         BiomeSubSplineHolder.prevInstance.FixExitSpline(Vector3.zero);
+
+        //splineAnimate.Container=BiomeSubSplineHolder.
+
     }
 
     public void StopSub()
     {
         isRunning = false;
-    }
-
-    public void ToggleSub()
-    {
-        if (isRunning)
-            StopSub();
-        else
-            StartSub();
     }
 
     private void UpdatePathSpeed(float newSpeed)
