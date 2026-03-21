@@ -15,7 +15,7 @@ MonoBehaviour:
   active: 1
   mode:
     m_OverrideState: 1
-    m_Value: 1
+    m_Value: 0
   meteringMode:
     m_OverrideState: 0
     m_Value: 2
@@ -24,13 +24,13 @@ MonoBehaviour:
     m_Value: 1
   fixedExposure:
     m_OverrideState: 1
-    m_Value: 4.2
+    m_Value: -1.6
   compensation:
     m_OverrideState: 0
     m_Value: 0
   limitMin:
     m_OverrideState: 1
-    m_Value: -0.6
+    m_Value: -1.7
   limitMax:
     m_OverrideState: 1
     m_Value: 14
@@ -200,12 +200,10 @@ MonoBehaviour:
   components:
   - {fileID: -8075041343399620118}
   - {fileID: 7879906963843830384}
-  - {fileID: 3884085445312726101}
   - {fileID: 1469905032442258176}
   - {fileID: 4624770114631576748}
   - {fileID: 254486641261711594}
   - {fileID: -3954223887793760378}
-  - {fileID: 7925904792828083273}
 --- !u!114 &254486641261711594
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -280,76 +278,6 @@ MonoBehaviour:
   m_HighQualityFiltering:
     m_OverrideState: 0
     m_Value: 1
---- !u!114 &3884085445312726101
-MonoBehaviour:
-  m_ObjectHideFlags: 3
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f086a068d4c5889438831b3ae9afc11c, type: 3}
-  m_Name: Tonemapping
-  m_EditorClassIdentifier: 
-  active: 1
-  mode:
-    m_OverrideState: 1
-    m_Value: 2
-  useFullACES:
-    m_OverrideState: 1
-    m_Value: 1
-  toeStrength:
-    m_OverrideState: 0
-    m_Value: 0
-  toeLength:
-    m_OverrideState: 0
-    m_Value: 0.5
-  shoulderStrength:
-    m_OverrideState: 0
-    m_Value: 0
-  shoulderLength:
-    m_OverrideState: 0
-    m_Value: 0.5
-  shoulderAngle:
-    m_OverrideState: 0
-    m_Value: 0
-  gamma:
-    m_OverrideState: 0
-    m_Value: 1
-  lutTexture:
-    m_OverrideState: 0
-    m_Value: {fileID: 0}
-  lutContribution:
-    m_OverrideState: 0
-    m_Value: 1
-  neutralHDRRangeReductionMode:
-    m_OverrideState: 0
-    m_Value: 2
-  acesPreset:
-    m_OverrideState: 0
-    m_Value: 3
-  fallbackMode:
-    m_OverrideState: 0
-    m_Value: 1
-  hueShiftAmount:
-    m_OverrideState: 0
-    m_Value: 0
-  detectPaperWhite:
-    m_OverrideState: 0
-    m_Value: 0
-  paperWhite:
-    m_OverrideState: 0
-    m_Value: 300
-  detectBrightnessLimits:
-    m_OverrideState: 0
-    m_Value: 1
-  minNits:
-    m_OverrideState: 0
-    m_Value: 0.005
-  maxNits:
-    m_OverrideState: 0
-    m_Value: 1000
 --- !u!114 &4624770114631576748
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -481,70 +409,3 @@ MonoBehaviour:
   directionalLightsOnly:
     m_OverrideState: 0
     m_Value: 0
---- !u!114 &7925904792828083273
-MonoBehaviour:
-  m_ObjectHideFlags: 3
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aaa3b8214f75b354e9ba2caadd022259, type: 3}
-  m_Name: DepthOfField
-  m_EditorClassIdentifier: 
-  active: 1
-  quality:
-    m_OverrideState: 1
-    m_Value: 3
-  focusMode:
-    m_OverrideState: 1
-    m_Value: 2
-  focusDistance:
-    m_OverrideState: 0
-    m_Value: 10
-  focusDistanceMode:
-    m_OverrideState: 0
-    m_Value: 0
-  nearFocusStart:
-    m_OverrideState: 1
-    m_Value: 0
-  nearFocusEnd:
-    m_OverrideState: 1
-    m_Value: 400
-  farFocusStart:
-    m_OverrideState: 1
-    m_Value: 400
-  farFocusEnd:
-    m_OverrideState: 1
-    m_Value: 550
-  m_NearSampleCount:
-    m_OverrideState: 1
-    m_Value: 4
-  m_NearMaxBlur:
-    m_OverrideState: 1
-    m_Value: 0
-  m_FarSampleCount:
-    m_OverrideState: 1
-    m_Value: 12
-  m_FarMaxBlur:
-    m_OverrideState: 1
-    m_Value: 8
-  m_Resolution:
-    m_OverrideState: 1
-    m_Value: 2
-  m_HighQualityFiltering:
-    m_OverrideState: 1
-    m_Value: 1
-  m_PhysicallyBased:
-    m_OverrideState: 1
-    m_Value: 0
-  m_AdaptiveSamplingWeight:
-    m_OverrideState: 0
-    m_Value: 0.75
-  m_LimitManualRangeNearBlur:
-    m_OverrideState: 1
-    m_Value: 0
-  coCStabilization:
-    m_OverrideState: 0
-    m_Value: 1
