@@ -7,13 +7,18 @@ public class LightBehaviour : MonoBehaviour, IInteractable
 {
     [Header("Lights Settings")]
     public List<GameObject> lightSources = new List<GameObject>();
+    public List<GameObject> warningLights = new List<GameObject>();
 
     [Header("Night Settings")]
     [SerializeField] private FogManager fogManager;
     [SerializeField] [Range(0f, 24f)] private float lightOffStartHourOffset = 0f;
 
-    private bool lightOn = true;
+    [Header("Events")]
+    public UnityEvent onFirstInteract;
+
+    private bool lightOn = false;
     private bool nightEventTriggered = false;
+    private bool hasInteracted = false;
 
     private List<GameObject> currentlyDisabledLights = new List<GameObject>();
 
@@ -26,12 +31,27 @@ public class LightBehaviour : MonoBehaviour, IInteractable
     public void Interact(PlayerInteract interactor)
     {
         lightOn = !lightOn;
+        SetLights(lightOn);
 
-        foreach (var obj in lightSources)
-            obj.SetActive(lightOn);
+        if (!hasInteracted)
+        {
+            hasInteracted = true;
+            onFirstInteract?.Invoke();
+        }
     }
 
     public void EndInteraction() { }
+
+    private void SetLights(bool normalLightsOn)
+    {
+        foreach (var obj in lightSources)
+            if (obj != null)
+                obj.SetActive(normalLightsOn);
+
+        foreach (var obj in warningLights)
+            if (obj != null)
+                obj.SetActive(!normalLightsOn);
+    }
 
     private void Update()
     {
@@ -104,7 +124,7 @@ public class LightBehaviour : MonoBehaviour, IInteractable
             yield return new WaitForSeconds(Random.Range(0.05f, 0.15f));
         }
 
-        lightObj.SetActive(false); 
+        lightObj.SetActive(false);
     }
 
     private void RestoreLights()
@@ -114,7 +134,9 @@ public class LightBehaviour : MonoBehaviour, IInteractable
             if (obj != null)
                 obj.SetActive(true);
         }
+
         currentlyDisabledLights.Clear();
+        SetLights(lightOn);
     }
 
     private bool IsTimeInRange(float currentHour, float startHour, float endHour)
@@ -124,4 +146,4 @@ public class LightBehaviour : MonoBehaviour, IInteractable
         else
             return currentHour >= startHour || currentHour < endHour;
     }
-}
+} 

@@ -24968,7 +24968,7 @@ Light:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4295250570465140574}
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 11
   m_Type: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -30139,9 +30139,9 @@ MonoBehaviour:
   inventorySize: 26
   inventorySystem:
     inventorySlots:
-    - itemData: {fileID: 11400000, guid: a42c09bf4b0fb504091f9884a65b08c6, type: 2}
+    - itemData: {fileID: 0}
       itemID: 9
-      stackSize: 1
+      stackSize: -1
   playerHotbarSize: 6
 --- !u!114 &4965256134547741428
 MonoBehaviour:

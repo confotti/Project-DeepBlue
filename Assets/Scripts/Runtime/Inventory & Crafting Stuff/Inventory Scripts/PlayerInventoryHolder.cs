@@ -47,7 +47,8 @@ public class PlayerInventoryHolder : InventoryHolder
 
         if (inventorySystem.AddToInventory(data, amount, out int remainingAmount))
         {
-            amountRemaining = 0;
+            amountRemaining = 0; 
+            OnPlayerInventoryChanged?.Invoke(); 
             return true;
         }
 

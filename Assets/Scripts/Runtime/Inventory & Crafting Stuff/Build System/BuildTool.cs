@@ -43,7 +43,16 @@ namespace BuildSystem
                 //TODO: Should probably set the sub or whatever you're building on as the parent (they will not stay in the sub once it starts moving). 
                 PayCurrentBuildingCost();
                 _spawnedBuilding.PlaceBuilding();
+                FindObjectOfType<UpdateTutorialText>()?.OnWorkbenchBuilt();
                 var dataCopy = _spawnedBuilding.AssignedData;
+
+                _spawnedBuilding.PlaceBuilding();
+
+                if (dataCopy.name == "Crafting Table") 
+                {
+                    FindObjectOfType<UpdateTutorialText>()?.OnWorkbenchBuilt();
+                }
+
                 _spawnedBuilding = null;
                 ChoosePart(dataCopy);
             }

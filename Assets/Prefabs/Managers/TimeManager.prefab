@@ -45,14 +45,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8116b28f2d62ffa4b980b74b490899ea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  timestamp:
-    day: 0
-    hour: 0
-    minute: 0
-    second: 0
-  realMinutesPerDay: 12
+  _timestamp:
+    Day: 0
+    Hour: 0
+    Minute: 0
+    Second: 0
+  realMinutesPerDay: 1
   sunTransform: {fileID: 0}
-  clockText: {fileID: 0}
+  _clockText: {fileID: 0}
 --- !u!114 &2565490484661556428
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -71,8 +71,9 @@ MonoBehaviour:
   duskStartHour: 20
   fogLerpSpeed: 0.5
   dayAttenuation: 250
-  nightAttenuation: 100
+  nightAttenuation: 150
   fogVolume:
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
