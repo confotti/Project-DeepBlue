@@ -7360,6 +7360,7 @@ GameObject:
   - component: {fileID: 2311701707252195775}
   - component: {fileID: 5625301156303026849}
   - component: {fileID: 9086226259501332289}
+  - component: {fileID: 7521591665015607725}
   m_Layer: 9
   m_Name: LightSwitch
   m_TagString: Untagged
@@ -7488,21 +7489,22 @@ MonoBehaviour:
   - {fileID: 6724791377165466822}
   fogManager: {fileID: 0}
   lightOffStartHourOffset: 0
-  onFirstInteract:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: UpdateTutorialText, Assembly-CSharp
-        m_MethodName: ActivateTutorial
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+--- !u!114 &7521591665015607725
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6764667911469755225}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6aaa2442c08b39849ba460796e1b48c1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  DisplayName: Engine
+  ActivateOnStart: 1
+  WorldOffset: {x: 0, y: 1.25, z: 0}
+  preset: {fileID: 11400000, guid: 5752eaa08a2a9b5408b9d99099b1940b, type: 2}
 --- !u!1 &6889527734952853601
 GameObject:
   m_ObjectHideFlags: 0
@@ -14832,8 +14834,32 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 7088364132318393226, guid: d467d87ae5074f9468a309bc0ddc4a7b, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3704258813208849369}
   m_SourcePrefab: {fileID: 100100000, guid: d467d87ae5074f9468a309bc0ddc4a7b, type: 3}
+--- !u!1 &598996156127645679 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7088364132318393226, guid: d467d87ae5074f9468a309bc0ddc4a7b, type: 3}
+  m_PrefabInstance: {fileID: 7642294433515650149}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &3704258813208849369
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 598996156127645679}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6aaa2442c08b39849ba460796e1b48c1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  DisplayName: Hammer
+  ActivateOnStart: 0
+  WorldOffset: {x: 0, y: 1.25, z: 0}
+  preset: {fileID: 11400000, guid: 5752eaa08a2a9b5408b9d99099b1940b, type: 2}
 --- !u!4 &8482443481746706558 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2285949736163879963, guid: d467d87ae5074f9468a309bc0ddc4a7b, type: 3}

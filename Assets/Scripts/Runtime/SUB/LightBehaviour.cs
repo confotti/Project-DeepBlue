@@ -1,5 +1,5 @@
+﻿using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -13,9 +13,6 @@ public class LightBehaviour : MonoBehaviour, IInteractable
     [SerializeField] private FogManager fogManager;
     [SerializeField] [Range(0f, 24f)] private float lightOffStartHourOffset = 0f;
 
-    [Header("Events")]
-    public UnityEvent onFirstInteract;
-
     private bool lightOn = false;
     private bool nightEventTriggered = false;
     private bool hasInteracted = false;
@@ -25,8 +22,11 @@ public class LightBehaviour : MonoBehaviour, IInteractable
     private float nightDuration;
     private float lightsRestoreHour;
 
-    public string InteractText => throw new System.NotImplementedException();
+    public string InteractText => "Toggle Lights";
     public UnityAction<IInteractable> OnInteractionComplete { get; set; }
+
+    // ✅ Event for first interaction
+    public event System.Action OnFirstInteract;
 
     public void Interact(PlayerInteract interactor)
     {
@@ -36,7 +36,7 @@ public class LightBehaviour : MonoBehaviour, IInteractable
         if (!hasInteracted)
         {
             hasInteracted = true;
-            onFirstInteract?.Invoke();
+            OnFirstInteract?.Invoke(); // notify tutorial
         }
     }
 
@@ -121,7 +121,7 @@ public class LightBehaviour : MonoBehaviour, IInteractable
             yield return new WaitForSeconds(Random.Range(0.05f, 0.15f));
 
             lightObj.SetActive(true);
-            yield return new WaitForSeconds(Random.Range(0.05f, 0.15f));
+            yield return new WaitForSeconds(Random.Range(0.05f, 0.15f)); 
         }
 
         lightObj.SetActive(false);
@@ -146,4 +146,4 @@ public class LightBehaviour : MonoBehaviour, IInteractable
         else
             return currentHour >= startHour || currentHour < endHour;
     }
-} 
+}
