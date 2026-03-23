@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using TMPro;
 using WrightAngle.Waypoint;
+using BuildSystem;
 
 public class UpdateTutorialText : MonoBehaviour
 {
@@ -15,6 +16,10 @@ public class UpdateTutorialText : MonoBehaviour
     [SerializeField] private InventoryItemData flashlight;
     [SerializeField] private InventoryItemData hammer;
 
+    [Header("Buildings")]
+    [SerializeField] private BuildingData workbenchData;
+    [SerializeField] private BuildingData smelterData; 
+
     [Header("Waypoints")]
     [SerializeField] private WaypointTarget lightSwitchWaypoint;
     [SerializeField] private WaypointTarget flashlighthWaypoint;
@@ -28,7 +33,6 @@ public class UpdateTutorialText : MonoBehaviour
     private PlayerInventoryHolder inventory;
     private bool isActive = false;
 
-    // Track whether each gear item has ever been collected
     private bool flashlightCollected = false;
     private bool hammerCollected = false;
     private bool oxygenTankCollected = false;
@@ -37,9 +41,13 @@ public class UpdateTutorialText : MonoBehaviour
     {
         InteractWithLight,
         CollectGear,
-        ExitSubmarine, 
-        CollectMineral, 
+        ExitSubmarine,
+        CollectMineral,
         CollectResources,
+        BuildWorkbench,
+        BuildSmelter,
+        CollectCopperIngot,
+        UpgradeWorkbench,
         Done
     }
 
@@ -58,11 +66,16 @@ public class UpdateTutorialText : MonoBehaviour
     private void OnEnable()
     {
         PlayerInventoryHolder.OnPlayerInventoryChanged += UpdateText;
+        BuildTool.OnBuildingPlaced += OnBuildingBuilt;
+
+        if (lightSwitch != null)
+            lightSwitch.OnFirstInteract += OnLightInteracted;
     }
 
     private void OnDisable()
     {
         PlayerInventoryHolder.OnPlayerInventoryChanged -= UpdateText;
+        BuildTool.OnBuildingPlaced -= OnBuildingBuilt;
 
         if (lightSwitch != null)
             lightSwitch.OnFirstInteract -= OnLightInteracted;
@@ -77,9 +90,6 @@ public class UpdateTutorialText : MonoBehaviour
 
         currentStep = TutorialStep.InteractWithLight;
 
-        if (lightSwitch != null)
-            lightSwitch.OnFirstInteract += OnLightInteracted;
-
         lightSwitchWaypoint?.ActivateWaypoint();
 
         UpdateText();
@@ -87,7 +97,6 @@ public class UpdateTutorialText : MonoBehaviour
 
     private void Update()
     {
-        // Continuous check for ExitSubmarine step
         if (isActive && currentStep == TutorialStep.ExitSubmarine)
         {
             CheckExitSubStep();
@@ -101,7 +110,7 @@ public class UpdateTutorialText : MonoBehaviour
         switch (currentStep)
         {
             case TutorialStep.InteractWithLight:
-                tutorialText.text = "Reset the engine"; 
+                tutorialText.text = "Reset the engine";
                 break;
 
             case TutorialStep.CollectGear:
@@ -113,11 +122,27 @@ public class UpdateTutorialText : MonoBehaviour
                 break;
 
             case TutorialStep.CollectMineral:
-                HandleCollectMineral(); 
+                HandleCollectMineral();
                 break;
 
             case TutorialStep.CollectResources:
                 HandleCollectResources();
+                break;
+
+            case TutorialStep.BuildWorkbench:
+                tutorialText.text = "Build a Workbench";
+                break;
+
+            case TutorialStep.BuildSmelter:
+                tutorialText.text = "Build a Smelter";
+                break;
+
+            case TutorialStep.CollectCopperIngot:
+                tutorialText.text = "Collect a Copper Ingot";
+                break;
+
+            case TutorialStep.UpgradeWorkbench:
+                tutorialText.text = "Upgrade the Workbench";
                 break;
 
             case TutorialStep.Done:
@@ -144,7 +169,6 @@ public class UpdateTutorialText : MonoBehaviour
 
     private void HandleCollectGear()
     {
-        // Count items in inventory (persistent once picked up)
         flashlightCollected |= GetItemCount(flashlight) > 0;
         hammerCollected |= GetItemCount(hammer) > 0;
         oxygenTankCollected |= GetItemCount(oxygenTank) > 0;
@@ -154,12 +178,10 @@ public class UpdateTutorialText : MonoBehaviour
             $"Hammer: {(hammerCollected ? 1 : 0)}/1\n" +
             $"Oxygen Tank: {(oxygenTankCollected ? 1 : 0)}/1";
 
-        // Deactivate waypoints for collected items
         if (flashlightCollected) flashlighthWaypoint?.DeactivateWaypoint();
         if (hammerCollected) hammerWaypoint?.DeactivateWaypoint();
         if (oxygenTankCollected) oxygenTankWaypoint?.DeactivateWaypoint();
 
-        // Move to next step if all gear collected
         if (flashlightCollected && hammerCollected && oxygenTankCollected)
         {
             currentStep = TutorialStep.ExitSubmarine;
@@ -173,7 +195,7 @@ public class UpdateTutorialText : MonoBehaviour
 
         if (PlayerMovement.Instance.IsSwimming)
         {
-            currentStep = TutorialStep.CollectMineral; 
+            currentStep = TutorialStep.CollectMineral;
             resourceWaypoint?.ActivateWaypoint();
             UpdateText();
         }
@@ -183,10 +205,9 @@ public class UpdateTutorialText : MonoBehaviour
     {
         int limestoneCount = GetItemCount(limestone);
 
-        tutorialText.text =
-            $"Collect resources:\nLimestone: {limestoneCount}/1";
+        tutorialText.text = $"Collect resources:\nLimestone: {limestoneCount}/1";
 
-        if (limestoneCount >= 1) 
+        if (limestoneCount >= 1)
         {
             currentStep = TutorialStep.CollectResources;
             UpdateText();
@@ -203,10 +224,31 @@ public class UpdateTutorialText : MonoBehaviour
 
         if (limestoneCount >= 4 && tinCount >= 2)
         {
-            currentStep = TutorialStep.Done;
+            currentStep = TutorialStep.BuildWorkbench;
             UpdateText();
         }
     }
+
+    private void OnBuildingBuilt(BuildingData builtData)
+    {
+        if (!isActive) return;
+
+        // 🔨 Workbench step → Smelter step
+        if (currentStep == TutorialStep.BuildWorkbench && builtData == workbenchData)
+        {
+            currentStep = TutorialStep.BuildSmelter;
+            UpdateText();
+            return;
+        }
+
+        // 🔥 Smelter step → Next step
+        if (currentStep == TutorialStep.BuildSmelter && builtData == smelterData)
+        {
+            currentStep = TutorialStep.CollectCopperIngot;
+            UpdateText();
+            return;
+        }
+    } 
 
     private int GetItemCount(InventoryItemData item)
     {
@@ -221,15 +263,4 @@ public class UpdateTutorialText : MonoBehaviour
 
         return count;
     }
-
-    public void OnWorkbenchBuilt()
-    {
-        if (!isActive) return;
-
-        if (currentStep == TutorialStep.CollectResources)
-        {
-            currentStep = TutorialStep.Done;
-            UpdateText();
-        }
-    } 
 } 

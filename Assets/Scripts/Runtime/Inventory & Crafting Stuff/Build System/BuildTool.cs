@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using System;
 
 namespace BuildSystem
 {
@@ -11,6 +12,9 @@ namespace BuildSystem
         [SerializeField] private LayerMask _deleteModeLayerMask;
         [SerializeField] private Material _buildingMatPositive;
         [SerializeField] private Material _buildingMatNegative;
+
+        // ✅ EVENT: Fired whenever a building is placed
+        public static Action<BuildingData> OnBuildingPlaced;
 
         private bool _deleteModeEnabled = false;
         private bool _canPlaceBuilding = false;
@@ -36,7 +40,7 @@ namespace BuildSystem
             BuildDisplay.OnPartChosen -= ChoosePart;
         }
 
-        override public void PrimaryInput()
+        public override void PrimaryInput()
         {
             if (_canPlaceBuilding)
             {
@@ -46,16 +50,13 @@ namespace BuildSystem
 
                 _spawnedBuilding.PlaceBuilding();
 
-                // Only trigger tutorial if it's the crafting table
-                if (dataCopy.name == "Crafting Table")
-                {
-                    FindObjectOfType<UpdateTutorialText>()?.OnWorkbenchBuilt();
-                }
+                // ✅ Notify systems (tutorial, quests, etc.)
+                OnBuildingPlaced?.Invoke(dataCopy);
 
                 _spawnedBuilding = null;
                 ChoosePart(dataCopy);
             }
-        } 
+        }
 
         public override void SecondaryInput()
         {
@@ -65,7 +66,6 @@ namespace BuildSystem
         public override void OnEquip(PlayerItemHandler player)
         {
             base.OnEquip(player);
-
             player.InputHandler.OnBuildToolRotate += Rotate;
         }
 
@@ -79,20 +79,19 @@ namespace BuildSystem
             {
                 ObjectPoolManager.ReturnObjectToPool(_spawnedBuilding.gameObject);
                 _spawnedBuilding = null;
-            } 
+            }
         }
 
         private void Update()
         {
             _canPlaceBuilding = false;
 
-            //if (Keyboard.current.qKey.wasPressedThisFrame) _deleteModeEnabled = !_deleteModeEnabled;
-
-
             ClearCostUI();
-            if (_deleteModeEnabled) DeleteModeLogic();
-            else BuildModeLogic();
 
+            if (_deleteModeEnabled)
+                DeleteModeLogic();
+            else
+                BuildModeLogic();
         }
 
         private void ChoosePart(BuildingData data)
@@ -116,7 +115,13 @@ namespace BuildSystem
 
         private bool IsRayHittingSomething(LayerMask layerMask, out RaycastHit hitInfo)
         {
-            return Physics.Raycast(_player.PlayerHead.position, cam.transform.forward, out hitInfo, _rayDistance, layerMask);
+            return Physics.Raycast(
+                _player.PlayerHead.position,
+                cam.transform.forward,
+                out hitInfo,
+                _rayDistance,
+                layerMask
+            );
         }
 
         private void BuildModeLogic()
@@ -129,15 +134,19 @@ namespace BuildSystem
 
             if (!IsRayHittingSomething(_buildModeLayerMask, out RaycastHit hitInfo))
             {
-                //_spawnedBuilding.UpdateMaterial(_buildingMatNegative);
                 _spawnedBuilding.gameObject.SetActive(false);
             }
             else
             {
-                Debug.Log("Hej hej");
                 _spawnedBuilding.gameObject.SetActive(true);
-                _spawnedBuilding.transform.position = hitInfo.point
-                    + new Vector3(0, 0.05f + _spawnedBuilding.Col.size.y * _spawnedBuilding.transform.lossyScale.y / 2)
+
+                _spawnedBuilding.transform.position =
+                    hitInfo.point
+                    + new Vector3(
+                        0,
+                        0.05f + _spawnedBuilding.Col.size.y * _spawnedBuilding.transform.lossyScale.y / 2,
+                        0
+                    )
                     - _spawnedBuilding.Col.center * _spawnedBuilding.transform.lossyScale.y;
 
                 if (_spawnedBuilding.IsColliding() || !CheckIfCanAffordCurrentBuilding())
@@ -148,9 +157,7 @@ namespace BuildSystem
 
                 _spawnedBuilding.UpdateMaterial(_buildingMatPositive);
                 _canPlaceBuilding = true;
-                
             }
-
         }
 
         private void DeleteModeLogic()
@@ -169,7 +176,8 @@ namespace BuildSystem
                 return;
             }
 
-            if (_targetBuilding == null) _targetBuilding = detectedBuilding;
+            if (_targetBuilding == null)
+                _targetBuilding = detectedBuilding;
 
             if (detectedBuilding != _targetBuilding && _targetBuilding.FlaggedForDelete)
             {
@@ -180,7 +188,6 @@ namespace BuildSystem
             if (detectedBuilding == _targetBuilding && !_targetBuilding.FlaggedForDelete)
             {
                 _targetBuilding.FlagForDelete(_buildingMatNegative);
-
             }
 
             if (Mouse.current.leftButton.wasPressedThisFrame)
@@ -196,17 +203,18 @@ namespace BuildSystem
             {
                 _targetBuilding.RemoveDeleteFlag();
             }
+
             _targetBuilding = null;
         }
 
         private void UpdateCostUI()
         {
-            //TODO: Fix this function
+            // TODO
         }
 
         private void ClearCostUI()
         {
-            //TODO: Fix this function
+            // TODO
         }
 
         private bool CheckIfCanAffordCurrentBuilding()
@@ -233,8 +241,9 @@ namespace BuildSystem
         private void Rotate()
         {
             if (_spawnedBuilding == null) return;
+
             _spawnedBuilding.transform.Rotate(0, _rotateSnapAngle, 0);
             _lastRotation = _spawnedBuilding.transform.rotation;
         }
     }
-}
+} 
