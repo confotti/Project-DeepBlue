@@ -13,8 +13,11 @@ public class BiomeManager : MonoBehaviour
         public SceneAsset scene;
     }
 
-    public static Action CommandStartLoading;
+    public static Action CommandStartLoadingNextBiome;
+    public static Action<int> OnChooseNextBiome;
     public static Action OnFinishLoadingBiome;
+
+    public static BiomeSubSplineHolder BiomeSubSplineHolder;
 
     public List<Biome> Biomes;
 
@@ -24,13 +27,41 @@ public class BiomeManager : MonoBehaviour
 
     private bool readyToUnloadPrevious = false;
 
+    void OnEnable()
+    {
+        CommandStartLoadingNextBiome += LoadNextBiome;
+        OnChooseNextBiome += ChooseNextBiome;
+    }
+
+    void OnDisable()
+    {
+        CommandStartLoadingNextBiome -= LoadNextBiome;
+        OnChooseNextBiome -= ChooseNextBiome;
+    }
+
     private void LoadBiome(Biome biome)
     {
+        if (biome == currentBiome)
+        {
+            Debug.LogWarning("Cannot load the same biome that is currently loaded.");
+            return;
+        }
+        else if (biome == null)
+        {
+            Debug.LogWarning("Biome to be loaded cannot be null");
+            return;
+        }
+
         // Start loading the biome asynchronously
         isLoadingNextBiome = true;
 
         // Load the new biome asynchronously
         StartCoroutine(LoadBiomeAsync(biome));
+    }
+
+    private void LoadNextBiome()
+    {
+        LoadBiome(nextBiome);
     }
 
     private IEnumerator LoadBiomeAsync(Biome biome)
@@ -39,7 +70,7 @@ public class BiomeManager : MonoBehaviour
         AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(biome.scene.name, LoadSceneMode.Additive);
 
         // Wait until the scene is fully loaded
-        while (!readyToUnloadPrevious)
+        while (!asyncLoad.isDone)
         {
             yield return null;
         }
@@ -68,5 +99,22 @@ public class BiomeManager : MonoBehaviour
     {
         // Unload the scene for the current biome
         SceneManager.UnloadSceneAsync(biome.scene.name);
+    }
+
+    private void ChooseNextBiome(int index)
+    {
+        if (index < 0 || index > Biomes.Count - 1)
+        {
+            Debug.LogWarning("Index is outside of Biomes count");
+            return;
+        }
+
+        if (Biomes[index] == currentBiome)
+        {
+            Debug.LogWarning("Cannot choose the same biome that is currently loaded");
+            return;
+        }
+
+        nextBiome = Biomes[index];
     }
 }

@@ -9,7 +9,7 @@ public class SubmarineController : MonoBehaviour
 
     [SerializeField] private float velocity = 2f;
     [SerializeField] private float brake = 2f;
-    [SerializeField] private float maxSpeed = 5.5f;
+    [SerializeField] private float maxSpeed = 20.5f;
     private float currentSpeed = 0f;
 
     [Header("Player Follow")]
