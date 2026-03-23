@@ -40,15 +40,14 @@ namespace BuildSystem
         {
             if (_canPlaceBuilding)
             {
-                //TODO: Should probably set the sub or whatever you're building on as the parent (they will not stay in the sub once it starts moving). 
                 PayCurrentBuildingCost();
-                _spawnedBuilding.PlaceBuilding();
-                FindObjectOfType<UpdateTutorialText>()?.OnWorkbenchBuilt();
+
                 var dataCopy = _spawnedBuilding.AssignedData;
 
                 _spawnedBuilding.PlaceBuilding();
 
-                if (dataCopy.name == "Crafting Table") 
+                // Only trigger tutorial if it's the crafting table
+                if (dataCopy.name == "Crafting Table")
                 {
                     FindObjectOfType<UpdateTutorialText>()?.OnWorkbenchBuilt();
                 }
@@ -56,7 +55,7 @@ namespace BuildSystem
                 _spawnedBuilding = null;
                 ChoosePart(dataCopy);
             }
-        }
+        } 
 
         public override void SecondaryInput()
         {

@@ -32,7 +32,7 @@ namespace WrightAngle.Waypoint
 
         [Tooltip("Distance threshold (in meters) at which display switches from meters to kilometers.")]
         [Min(1f)]
-        public float MetersToKilometersThreshold = 1000f;
+        public float MetersToKilometersThreshold = 100f;
 
         [Header("Imperial Configuration")]
         [Tooltip("Suffix appended to feet values (e.g., 'ft', ' ft', ' feet').")]
@@ -90,6 +90,10 @@ namespace WrightAngle.Waypoint
         [Min(0f)]
         public float CloseDistanceThreshold = 10f;
 
+        [Header("Unit Scale")]
+        [Tooltip("How many real meters one Unity unit represents.")]
+        public float UnitsToMeters = 0.1f; 
+
         [Tooltip("Distance (in world units) at which the 'far' color is applied.")]
         [Min(0f)]
         public float FarDistanceThreshold = 100f;
@@ -108,15 +112,17 @@ namespace WrightAngle.Waypoint
         /// <returns>A formatted string representing the distance with appropriate suffix.</returns>
         public string FormatDistance(float distanceInMeters)
         {
+            float scaledDistance = distanceInMeters * UnitsToMeters;
+
             if (UnitSystem == MeasurementSystem.Metric)
             {
-                return FormatMetric(distanceInMeters);
+                return FormatMetric(scaledDistance);
             }
             else
             {
-                return FormatImperial(distanceInMeters);
+                return FormatImperial(scaledDistance);
             }
-        }
+        } 
 
         /// <summary>
         /// Formats distance using the metric system (meters/kilometers).
