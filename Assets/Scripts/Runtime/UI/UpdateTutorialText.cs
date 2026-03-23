@@ -7,21 +7,23 @@ public class UpdateTutorialText : MonoBehaviour
     [Header("UI")]
     [SerializeField] private TMP_Text tutorialText;
     [SerializeField] private GameObject firstTutorialUI;
-    [SerializeField] private GameObject topBorder;
-    [SerializeField] private GameObject bottomBorder;
 
     [Header("Items")]
     [SerializeField] private InventoryItemData limestone;
     [SerializeField] private InventoryItemData tin;
+    [SerializeField] private InventoryItemData oxygenTank;
+    [SerializeField] private InventoryItemData flashlight;
     [SerializeField] private InventoryItemData hammer;
 
     [Header("Waypoints")]
     [SerializeField] private WaypointTarget lightSwitchWaypoint;
+    [SerializeField] private WaypointTarget flashlighthWaypoint;
+    [SerializeField] private WaypointTarget oxygenTankWaypoint;
     [SerializeField] private WaypointTarget resourceWaypoint;
     [SerializeField] private WaypointTarget hammerWaypoint;
 
     [Header("Light Switch")]
-    [SerializeField] private LightBehaviour lightSwitch; // assign in Inspector
+    [SerializeField] private LightBehaviour lightSwitch;
 
     private PlayerInventoryHolder inventory;
     private bool isActive = false;
@@ -29,8 +31,8 @@ public class UpdateTutorialText : MonoBehaviour
     private enum TutorialStep
     {
         InteractWithLight,
+        CollectGear,
         CollectResources,
-        GetHammer,
         Done
     }
 
@@ -55,19 +57,12 @@ public class UpdateTutorialText : MonoBehaviour
 
         if (tutorialText != null)
             tutorialText.gameObject.SetActive(true);
-        if (topBorder != null)
-            topBorder.SetActive(true);
-        if (bottomBorder != null)
-            bottomBorder.SetActive(true);
 
-        // Start with light interaction
         currentStep = TutorialStep.InteractWithLight;
 
-        // Subscribe to light switch event
         if (lightSwitch != null)
             lightSwitch.OnFirstInteract += OnLightInteracted;
 
-        // Activate waypoint above light switch
         if (lightSwitchWaypoint != null)
             lightSwitchWaypoint.ActivateWaypoint();
 
@@ -94,42 +89,76 @@ public class UpdateTutorialText : MonoBehaviour
         switch (currentStep)
         {
             case TutorialStep.InteractWithLight:
-                tutorialText.text = "Reset the engine";
+                tutorialText.text = "Reset the engine"; 
+                break;
+
+            case TutorialStep.CollectGear:
+                HandleCollectGear();
                 break;
 
             case TutorialStep.CollectResources:
                 HandleCollectResources();
                 break;
 
-            case TutorialStep.GetHammer:
-                HandleHammerStep();
-                break;
-
             case TutorialStep.Done:
                 tutorialText.gameObject.SetActive(false);
-                if (topBorder != null) topBorder.SetActive(false);
-                if (bottomBorder != null) bottomBorder.SetActive(false);
                 break;
         }
     }
 
-    // Called automatically when the light is interacted with
     private void OnLightInteracted()
     {
         if (!isActive || currentStep != TutorialStep.InteractWithLight)
             return;
 
-        currentStep = TutorialStep.CollectResources;
+        currentStep = TutorialStep.CollectGear;
 
-        // Deactivate light switch waypoint
+        // Disable light waypoint
         if (lightSwitchWaypoint != null)
             lightSwitchWaypoint.DeactivateWaypoint();
 
-        // Activate resource collection waypoint
-        if (resourceWaypoint != null)
-            resourceWaypoint.ActivateWaypoint();
+        // Activate ALL gear waypoints
+        if (flashlighthWaypoint != null)
+            flashlighthWaypoint.ActivateWaypoint();
+
+        if (oxygenTankWaypoint != null)
+            oxygenTankWaypoint.ActivateWaypoint();
+
+        if (hammerWaypoint != null)
+            hammerWaypoint.ActivateWaypoint();
 
         UpdateText();
+    }
+
+    private void HandleCollectGear()
+    {
+        int flashlightCount = GetItemCount(flashlight);
+        int hammerCount = GetItemCount(hammer);
+        int oxygenTankCount = GetItemCount(oxygenTank);
+
+        tutorialText.text =
+            $"Collect and equip your gear:\nFlashlight: {flashlightCount}/1\nHammer: {hammerCount}/1\nOxygen Tank: {oxygenTankCount}/1";
+
+        // Disable waypoint when collected
+        if (flashlightCount >= 1 && flashlighthWaypoint != null)
+            flashlighthWaypoint.DeactivateWaypoint();
+
+        if (hammerCount >= 1 && hammerWaypoint != null)
+            hammerWaypoint.DeactivateWaypoint();
+
+        if (oxygenTankCount >= 1 && oxygenTankWaypoint != null)
+            oxygenTankWaypoint.DeactivateWaypoint();
+
+        // Move to next step when all collected
+        if (flashlightCount >= 1 && hammerCount >= 1 && oxygenTankCount >= 1)
+        {
+            currentStep = TutorialStep.CollectResources;
+
+            if (resourceWaypoint != null)
+                resourceWaypoint.ActivateWaypoint();
+
+            UpdateText();
+        }
     }
 
     private void HandleCollectResources()
@@ -137,35 +166,14 @@ public class UpdateTutorialText : MonoBehaviour
         int limestoneCount = GetItemCount(limestone);
         int tinCount = GetItemCount(tin);
 
-        tutorialText.text = $"Collect: Limestone: {limestoneCount}/4 and Tin: {tinCount}/2";
+        tutorialText.text =
+            $"Collect resources:\nLimestone: {limestoneCount}/4\nTin: {tinCount}/2";
 
         if (limestoneCount >= 4 && tinCount >= 2)
         {
-            currentStep = TutorialStep.GetHammer;
-
-            // Switch waypoint from resource to hammer
-            SwitchWaypoint(resourceWaypoint, hammerWaypoint);
-            UpdateText();
-        }
-    }
-
-    private void HandleHammerStep()
-    {
-        int hammerCount = GetItemCount(hammer);
-
-        if (hammerCount > 0)
-        {
             currentStep = TutorialStep.Done;
-
-            // Deactivate hammer waypoint
-            if (hammerWaypoint != null)
-                hammerWaypoint.DeactivateWaypoint();
-
             UpdateText();
-            return;
         }
-
-        tutorialText.text = "Pick up the hammer";
     }
 
     private int GetItemCount(InventoryItemData item)
@@ -178,27 +186,18 @@ public class UpdateTutorialText : MonoBehaviour
             if (slot.ItemData == item)
                 count += slot.StackSize;
         }
+
         return count;
-    }
-
-    // Waypoint helper methods
-    private void SwitchWaypoint(WaypointTarget oldTarget, WaypointTarget newTarget)
-    {
-        if (oldTarget != null)
-        {
-            oldTarget.ActivateWaypoint(); // Ensure registered
-            oldTarget.DeactivateWaypoint();
-        }
-
-        if (newTarget != null)
-            newTarget.ActivateWaypoint();
     }
 
     public void OnWorkbenchBuilt()
     {
-        if (currentStep == TutorialStep.GetHammer) return; // We removed workbench waypoint
+        if (!isActive) return;
 
-        currentStep = TutorialStep.Done;
-        UpdateText();
-    }
+        if (currentStep == TutorialStep.CollectResources)
+        {
+            currentStep = TutorialStep.Done;
+            UpdateText();
+        }
+    } 
 } 
