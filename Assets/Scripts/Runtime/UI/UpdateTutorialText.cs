@@ -28,10 +28,17 @@ public class UpdateTutorialText : MonoBehaviour
     private PlayerInventoryHolder inventory;
     private bool isActive = false;
 
+    // Track whether each gear item has ever been collected
+    private bool flashlightCollected = false;
+    private bool hammerCollected = false;
+    private bool oxygenTankCollected = false;
+
     private enum TutorialStep
     {
         InteractWithLight,
         CollectGear,
+        ExitSubmarine, 
+        CollectMineral, 
         CollectResources,
         Done
     }
@@ -48,27 +55,6 @@ public class UpdateTutorialText : MonoBehaviour
         ActivateTutorial();
     }
 
-    public void ActivateTutorial()
-    {
-        isActive = true;
-
-        if (firstTutorialUI != null)
-            firstTutorialUI.SetActive(false);
-
-        if (tutorialText != null)
-            tutorialText.gameObject.SetActive(true);
-
-        currentStep = TutorialStep.InteractWithLight;
-
-        if (lightSwitch != null)
-            lightSwitch.OnFirstInteract += OnLightInteracted;
-
-        if (lightSwitchWaypoint != null)
-            lightSwitchWaypoint.ActivateWaypoint();
-
-        UpdateText();
-    }
-
     private void OnEnable()
     {
         PlayerInventoryHolder.OnPlayerInventoryChanged += UpdateText;
@@ -80,6 +66,32 @@ public class UpdateTutorialText : MonoBehaviour
 
         if (lightSwitch != null)
             lightSwitch.OnFirstInteract -= OnLightInteracted;
+    }
+
+    public void ActivateTutorial()
+    {
+        isActive = true;
+
+        firstTutorialUI?.SetActive(false);
+        tutorialText?.gameObject.SetActive(true);
+
+        currentStep = TutorialStep.InteractWithLight;
+
+        if (lightSwitch != null)
+            lightSwitch.OnFirstInteract += OnLightInteracted;
+
+        lightSwitchWaypoint?.ActivateWaypoint();
+
+        UpdateText();
+    }
+
+    private void Update()
+    {
+        // Continuous check for ExitSubmarine step
+        if (isActive && currentStep == TutorialStep.ExitSubmarine)
+        {
+            CheckExitSubStep();
+        }
     }
 
     private void UpdateText()
@@ -94,6 +106,14 @@ public class UpdateTutorialText : MonoBehaviour
 
             case TutorialStep.CollectGear:
                 HandleCollectGear();
+                break;
+
+            case TutorialStep.ExitSubmarine:
+                tutorialText.text = "Exit the submarine";
+                break;
+
+            case TutorialStep.CollectMineral:
+                HandleCollectMineral(); 
                 break;
 
             case TutorialStep.CollectResources:
@@ -113,50 +133,62 @@ public class UpdateTutorialText : MonoBehaviour
 
         currentStep = TutorialStep.CollectGear;
 
-        // Disable light waypoint
-        if (lightSwitchWaypoint != null)
-            lightSwitchWaypoint.DeactivateWaypoint();
+        lightSwitchWaypoint?.DeactivateWaypoint();
 
-        // Activate ALL gear waypoints
-        if (flashlighthWaypoint != null)
-            flashlighthWaypoint.ActivateWaypoint();
-
-        if (oxygenTankWaypoint != null)
-            oxygenTankWaypoint.ActivateWaypoint();
-
-        if (hammerWaypoint != null)
-            hammerWaypoint.ActivateWaypoint();
+        flashlighthWaypoint?.ActivateWaypoint();
+        oxygenTankWaypoint?.ActivateWaypoint();
+        hammerWaypoint?.ActivateWaypoint();
 
         UpdateText();
     }
 
     private void HandleCollectGear()
     {
-        int flashlightCount = GetItemCount(flashlight);
-        int hammerCount = GetItemCount(hammer);
-        int oxygenTankCount = GetItemCount(oxygenTank);
+        // Count items in inventory (persistent once picked up)
+        flashlightCollected |= GetItemCount(flashlight) > 0;
+        hammerCollected |= GetItemCount(hammer) > 0;
+        oxygenTankCollected |= GetItemCount(oxygenTank) > 0;
 
         tutorialText.text =
-            $"Collect and equip your gear:\nFlashlight: {flashlightCount}/1\nHammer: {hammerCount}/1\nOxygen Tank: {oxygenTankCount}/1";
+            $"Collect and equip your gear:\nFlashlight: {(flashlightCollected ? 1 : 0)}/1\n" +
+            $"Hammer: {(hammerCollected ? 1 : 0)}/1\n" +
+            $"Oxygen Tank: {(oxygenTankCollected ? 1 : 0)}/1";
 
-        // Disable waypoint when collected
-        if (flashlightCount >= 1 && flashlighthWaypoint != null)
-            flashlighthWaypoint.DeactivateWaypoint();
+        // Deactivate waypoints for collected items
+        if (flashlightCollected) flashlighthWaypoint?.DeactivateWaypoint();
+        if (hammerCollected) hammerWaypoint?.DeactivateWaypoint();
+        if (oxygenTankCollected) oxygenTankWaypoint?.DeactivateWaypoint();
 
-        if (hammerCount >= 1 && hammerWaypoint != null)
-            hammerWaypoint.DeactivateWaypoint();
+        // Move to next step if all gear collected
+        if (flashlightCollected && hammerCollected && oxygenTankCollected)
+        {
+            currentStep = TutorialStep.ExitSubmarine;
+            UpdateText();
+        }
+    }
 
-        if (oxygenTankCount >= 1 && oxygenTankWaypoint != null)
-            oxygenTankWaypoint.DeactivateWaypoint();
+    private void CheckExitSubStep()
+    {
+        if (PlayerMovement.Instance == null) return;
 
-        // Move to next step when all collected
-        if (flashlightCount >= 1 && hammerCount >= 1 && oxygenTankCount >= 1)
+        if (PlayerMovement.Instance.IsSwimming)
+        {
+            currentStep = TutorialStep.CollectMineral; 
+            resourceWaypoint?.ActivateWaypoint();
+            UpdateText();
+        }
+    }
+
+    private void HandleCollectMineral()
+    {
+        int limestoneCount = GetItemCount(limestone);
+
+        tutorialText.text =
+            $"Collect resources:\nLimestone: {limestoneCount}/1";
+
+        if (limestoneCount >= 1) 
         {
             currentStep = TutorialStep.CollectResources;
-
-            if (resourceWaypoint != null)
-                resourceWaypoint.ActivateWaypoint();
-
             UpdateText();
         }
     }
