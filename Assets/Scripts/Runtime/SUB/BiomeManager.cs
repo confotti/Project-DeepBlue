@@ -7,22 +7,16 @@ using UnityEngine.SceneManagement;
 
 public class BiomeManager : MonoBehaviour
 {
-    [Serializable]
-    public class Biome
-    {
-        public SceneAsset scene;
-    }
-
     public static Action CommandStartLoadingNextBiome;
     public static Action<int> OnChooseNextBiome;
     public static Action OnFinishLoadingBiome;
 
     public static BiomeSubSplineHolder BiomeSubSplineHolder;
 
-    public List<Biome> Biomes;
+    public List<BiomeReference> Biomes;
 
-    private Biome currentBiome = null;
-    private Biome nextBiome = null;
+    private BiomeReference currentBiome = null;
+    private BiomeReference nextBiome = null;
     private bool isLoadingNextBiome = false;
 
     private bool readyToUnloadPrevious = false;
@@ -39,7 +33,7 @@ public class BiomeManager : MonoBehaviour
         OnChooseNextBiome -= ChooseNextBiome;
     }
 
-    private void LoadBiome(Biome biome)
+    private void LoadBiome(BiomeReference biome)
     {
         if (biome == currentBiome)
         {
@@ -64,10 +58,10 @@ public class BiomeManager : MonoBehaviour
         LoadBiome(nextBiome);
     }
 
-    private IEnumerator LoadBiomeAsync(Biome biome)
+    private IEnumerator LoadBiomeAsync(BiomeReference biome)
     {
         // Start loading the new biome scene asynchronously
-        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(biome.scene.name, LoadSceneMode.Additive);
+        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(biome.SceneName, LoadSceneMode.Additive);
 
         // Wait until the scene is fully loaded
         while (!asyncLoad.isDone)
@@ -95,10 +89,10 @@ public class BiomeManager : MonoBehaviour
         readyToUnloadPrevious = false;
     }
 
-    private void UnloadBiome(Biome biome)
+    private void UnloadBiome(BiomeReference biome)
     {
         // Unload the scene for the current biome
-        SceneManager.UnloadSceneAsync(biome.scene.name);
+        SceneManager.UnloadSceneAsync(biome.SceneName);
     }
 
     private void ChooseNextBiome(int index)
@@ -117,4 +111,14 @@ public class BiomeManager : MonoBehaviour
 
         nextBiome = Biomes[index];
     }
+}
+
+
+
+
+[System.Serializable]
+public class BiomeReference
+{
+    [SerializeField] private string _sceneName;
+    public string SceneName => _sceneName;
 }

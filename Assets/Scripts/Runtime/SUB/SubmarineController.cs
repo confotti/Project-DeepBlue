@@ -16,10 +16,27 @@ public class SubmarineController : MonoBehaviour
     [SerializeField] string playerTag = "Player";
     [SerializeField] Transform sub;
 
+    private BiomeSubSplineHolder _nextBiomeSpline;
+
     void Awake()
     {
         splineAnimate = GetComponent<SplineAnimate>();
         splineAnimate.Pause();  // startas avstängd
+    }
+
+    void OnEnable()
+    {
+        BiomeSubSplineHolder.OnSpawned += SetNextBiomeSpline;
+    }
+
+    void OnDisable()
+    {
+        BiomeSubSplineHolder.OnSpawned -= SetNextBiomeSpline;
+    }
+
+    private void SetNextBiomeSpline(BiomeSubSplineHolder spline)
+    {
+        _nextBiomeSpline = spline;
     }
 
     void Update()
