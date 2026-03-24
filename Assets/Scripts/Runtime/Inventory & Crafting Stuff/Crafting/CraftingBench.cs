@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.UI;
 
 public class CraftingBench : MonoBehaviour, IInteractable
 {
@@ -9,9 +8,7 @@ public class CraftingBench : MonoBehaviour, IInteractable
     [SerializeField] private string interactText = "";
     public string InteractText => interactText;
 
-    [SerializeField] private Button upgradeButton; 
     [SerializeField] private List<CraftingRecipe> knownRecipes;
-    [SerializeField] private List<CraftingRecipe> level2Recipes;
 
     private PlayerInventoryHolder playerInventory;
 
