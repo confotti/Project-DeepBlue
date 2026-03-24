@@ -35,7 +35,11 @@ public class UpdateTutorialText : MonoBehaviour
     [SerializeField] private LightBehaviour lightSwitch;
 
     [Header("Oxygen Tank Slot")]
-    [SerializeField] private EquipmentSlot_UI oxygenTankSlotUI; // The specific UI slot to equip
+    [SerializeField] private EquipmentSlot_UI oxygenTankSlotUI;
+
+    [Header("Night Return Settings")]
+    [SerializeField] private int returnStartHour = 20;
+    [SerializeField] private int returnEndHour = 22;
 
     private PlayerInventoryHolder inventory;
     private bool isActive = false;
@@ -47,6 +51,10 @@ public class UpdateTutorialText : MonoBehaviour
     private bool hammerCollected = false;
     private bool oxygenTankCollected = false;
     private bool oxygenTankEquipped = false;
+
+    // 🌙 Night system
+    private bool hasTriggeredReturnWarning = false;
+    private bool isNightWarningActive = false;
 
     private enum TutorialStep
     {
@@ -60,6 +68,7 @@ public class UpdateTutorialText : MonoBehaviour
         BuildSmelter,
         CollectCopperIngot,
         CraftRepairTorch,
+        ReturnToSubmarine,
         Done
     }
 
@@ -73,6 +82,7 @@ public class UpdateTutorialText : MonoBehaviour
     private void Start()
     {
         ActivateTutorial();
+
         if (PlayerMovement.Instance != null)
             wasSwimmingLastFrame = PlayerMovement.Instance.IsSwimming;
     }
@@ -84,6 +94,9 @@ public class UpdateTutorialText : MonoBehaviour
 
         if (lightSwitch != null)
             lightSwitch.OnFirstInteract += OnLightInteracted;
+
+        if (TimeManager.Instance != null)
+            TimeManager.Instance.OnHourChanged += OnHourChanged;
     }
 
     private void OnDisable()
@@ -93,6 +106,9 @@ public class UpdateTutorialText : MonoBehaviour
 
         if (lightSwitch != null)
             lightSwitch.OnFirstInteract -= OnLightInteracted;
+
+        if (TimeManager.Instance != null)
+            TimeManager.Instance.OnHourChanged -= OnHourChanged;
     }
 
     public void ActivateTutorial()
@@ -110,19 +126,70 @@ public class UpdateTutorialText : MonoBehaviour
     {
         if (!isActive) return;
 
-        // Step to exit submarine
+        // 🌙 Night check
+        CheckNightReturnWarning();
+
         if (currentStep == TutorialStep.ExitSubmarine)
             CheckExitSubStep();
 
         CheckFlashlightHint();
 
-        // Step to equip oxygen tank
         if (currentStep == TutorialStep.EquipOxygenTank && IsOxygenTankInSlot())
         {
             oxygenTankEquipped = true;
             currentStep = TutorialStep.ExitSubmarine;
             UpdateTutorial();
         }
+    }
+
+    private void OnHourChanged(int hour)
+    {
+        if (hour < returnStartHour || hour >= returnEndHour)
+        {
+            hasTriggeredReturnWarning = false;
+            isNightWarningActive = false;
+        }
+    }
+
+    private void CheckNightReturnWarning()
+    {
+        if (TimeManager.Instance == null || PlayerMovement.Instance == null) return;
+
+        var time = TimeManager.Instance.GetGameTimeStamp();
+        int hour = time.Hour;
+
+        bool isWithinTime = hour >= returnStartHour && hour < returnEndHour;
+        bool isSwimming = PlayerMovement.Instance.IsSwimming;
+
+        if (isWithinTime && isSwimming && !hasTriggeredReturnWarning)
+        {
+            isNightWarningActive = true;
+            hasTriggeredReturnWarning = true;
+
+            ShowReturnToSubmarine();
+        }
+
+        if (!isSwimming && isNightWarningActive)
+        {
+            isNightWarningActive = false;
+            UpdateTutorial();
+        }
+    }
+
+    private void ShowReturnToSubmarine()
+    {
+        StopAllCoroutines();
+        StartCoroutine(ReturnToSubmarineRoutine());
+    }
+
+    private IEnumerator ReturnToSubmarineRoutine()
+    {
+        tutorialText.text = "Get back to your Submarine";
+
+        yield return new WaitForSeconds(5f);
+
+        isNightWarningActive = false;
+        UpdateTutorial();
     }
 
     private void CheckFlashlightHint()
@@ -152,6 +219,9 @@ public class UpdateTutorialText : MonoBehaviour
     private void UpdateTutorial()
     {
         if (!isActive || tutorialText == null) return;
+
+        // 🌙 Prevent overwrite
+        if (isNightWarningActive) return;
 
         switch (currentStep)
         {
@@ -231,7 +301,6 @@ public class UpdateTutorialText : MonoBehaviour
         if (hammerCollected) hammerWaypoint?.DeactivateWaypoint();
         if (oxygenTankCollected) oxygenTankWaypoint?.DeactivateWaypoint();
 
-        // Move to next step only after collecting all gear
         if (flashlightCollected && hammerCollected && oxygenTankCollected)
         {
             currentStep = TutorialStep.EquipOxygenTank;
