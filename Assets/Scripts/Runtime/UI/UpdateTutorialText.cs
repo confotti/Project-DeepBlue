@@ -33,20 +33,25 @@ public class UpdateTutorialText : MonoBehaviour
     [Header("Light Switch")]
     [SerializeField] private LightBehaviour lightSwitch;
 
+    [Header("Oxygen Tank Slot")]
+    [SerializeField] private EquipmentSlot_UI oxygenTankSlotUI; // The specific UI slot to equip
+
     private PlayerInventoryHolder inventory;
     private bool isActive = false;
 
-    private bool hasShownflashlight = false;
-    private bool wasSwimmingLastFrame = false; // ✅ NEW
+    private bool hasShownFlashlight = false;
+    private bool wasSwimmingLastFrame = false;
 
     private bool flashlightCollected = false;
     private bool hammerCollected = false;
     private bool oxygenTankCollected = false;
+    private bool oxygenTankEquipped = false;
 
     private enum TutorialStep
     {
         InteractWithLight,
         CollectGear,
+        EquipOxygenTank,
         ExitSubmarine,
         CollectMineral,
         CollectResources,
@@ -67,15 +72,13 @@ public class UpdateTutorialText : MonoBehaviour
     private void Start()
     {
         ActivateTutorial();
-
-        // ✅ Initialize swim state safely
         if (PlayerMovement.Instance != null)
             wasSwimmingLastFrame = PlayerMovement.Instance.IsSwimming;
     }
 
     private void OnEnable()
     {
-        PlayerInventoryHolder.OnPlayerInventoryChanged += UpdateText;
+        PlayerInventoryHolder.OnPlayerInventoryChanged += UpdateTutorial;
         BuildTool.OnBuildingPlaced += OnBuildingBuilt;
 
         if (lightSwitch != null)
@@ -84,7 +87,7 @@ public class UpdateTutorialText : MonoBehaviour
 
     private void OnDisable()
     {
-        PlayerInventoryHolder.OnPlayerInventoryChanged -= UpdateText;
+        PlayerInventoryHolder.OnPlayerInventoryChanged -= UpdateTutorial;
         BuildTool.OnBuildingPlaced -= OnBuildingBuilt;
 
         if (lightSwitch != null)
@@ -94,44 +97,43 @@ public class UpdateTutorialText : MonoBehaviour
     public void ActivateTutorial()
     {
         isActive = true;
-
         firstTutorialUI?.SetActive(false);
         tutorialText?.gameObject.SetActive(true);
 
         currentStep = TutorialStep.InteractWithLight;
-
         lightSwitchWaypoint?.ActivateWaypoint();
-
-        UpdateText();
+        UpdateTutorial();
     }
 
     private void Update()
     {
         if (!isActive) return;
 
+        // Step to exit submarine
         if (currentStep == TutorialStep.ExitSubmarine)
-        {
             CheckExitSubStep();
-        }
 
-        CheckflashlightHint(); // ✅ Updated logic
+        CheckFlashlightHint();
+
+        // Step to equip oxygen tank
+        if (currentStep == TutorialStep.EquipOxygenTank && IsOxygenTankInSlot())
+        {
+            oxygenTankEquipped = true;
+            currentStep = TutorialStep.ExitSubmarine;
+            UpdateTutorial();
+        }
     }
 
-    private void CheckflashlightHint()
+    private void CheckFlashlightHint()
     {
-        if (hasShownflashlight) return;
-        if (PlayerMovement.Instance == null) return;
+        if (hasShownFlashlight || PlayerMovement.Instance == null) return;
 
         bool isSwimming = PlayerMovement.Instance.IsSwimming;
 
-        // ✅ Trigger ONLY on transition (entering water)
-        if (!wasSwimmingLastFrame && isSwimming)
+        if (!wasSwimmingLastFrame && isSwimming && GetItemCount(flashlight) > 0)
         {
-            if (GetItemCount(flashlight) > 0)
-            {
-                StartCoroutine(ShowFlashlightHint());
-                hasShownflashlight = true;
-            }
+            StartCoroutine(ShowFlashlightHint());
+            hasShownFlashlight = true;
         }
 
         wasSwimmingLastFrame = isSwimming;
@@ -142,13 +144,11 @@ public class UpdateTutorialText : MonoBehaviour
         if (flashlightUI == null) yield break;
 
         flashlightUI.SetActive(true);
-
         yield return new WaitForSeconds(5f);
-
         flashlightUI.SetActive(false);
     }
 
-    private void UpdateText()
+    private void UpdateTutorial()
     {
         if (!isActive || tutorialText == null) return;
 
@@ -160,6 +160,10 @@ public class UpdateTutorialText : MonoBehaviour
 
             case TutorialStep.CollectGear:
                 HandleCollectGear();
+                break;
+
+            case TutorialStep.EquipOxygenTank:
+                tutorialText.text = "Equip the Oxygen Tank\nPress (B) to open Inventory";
                 break;
 
             case TutorialStep.ExitSubmarine:
@@ -183,7 +187,7 @@ public class UpdateTutorialText : MonoBehaviour
                 break;
 
             case TutorialStep.CollectCopperIngot:
-                CollectCopperIngots(); 
+                CollectCopperIngots();
                 break;
 
             case TutorialStep.UpgradeWorkbench:
@@ -198,18 +202,16 @@ public class UpdateTutorialText : MonoBehaviour
 
     private void OnLightInteracted()
     {
-        if (!isActive || currentStep != TutorialStep.InteractWithLight)
-            return;
+        if (!isActive || currentStep != TutorialStep.InteractWithLight) return;
 
         currentStep = TutorialStep.CollectGear;
 
         lightSwitchWaypoint?.DeactivateWaypoint();
-
         flashlighthWaypoint?.ActivateWaypoint();
-        oxygenTankWaypoint?.ActivateWaypoint();
         hammerWaypoint?.ActivateWaypoint();
+        oxygenTankWaypoint?.ActivateWaypoint();
 
-        UpdateText();
+        UpdateTutorial();
     }
 
     private void HandleCollectGear()
@@ -219,7 +221,8 @@ public class UpdateTutorialText : MonoBehaviour
         oxygenTankCollected |= GetItemCount(oxygenTank) > 0;
 
         tutorialText.text =
-            $"Collect and equip your gear:\nFlashlight: {(flashlightCollected ? 1 : 0)}/1\n" +
+            $"Collect your gear:\n" +
+            $"Flashlight: {(flashlightCollected ? 1 : 0)}/1\n" +
             $"Hammer: {(hammerCollected ? 1 : 0)}/1\n" +
             $"Oxygen Tank: {(oxygenTankCollected ? 1 : 0)}/1";
 
@@ -227,16 +230,20 @@ public class UpdateTutorialText : MonoBehaviour
         if (hammerCollected) hammerWaypoint?.DeactivateWaypoint();
         if (oxygenTankCollected) oxygenTankWaypoint?.DeactivateWaypoint();
 
+        // Move to next step only after collecting all gear
         if (flashlightCollected && hammerCollected && oxygenTankCollected)
         {
-            currentStep = TutorialStep.ExitSubmarine;
-            UpdateText();
+            currentStep = TutorialStep.EquipOxygenTank;
+            UpdateTutorial();
         }
     }
 
-    private void EquipOxygenTank()
+    private bool IsOxygenTankInSlot()
     {
-        
+        if (oxygenTankSlotUI == null) return false;
+        if (oxygenTankSlotUI.AssignedInventorySlot == null) return false;
+
+        return oxygenTankSlotUI.AssignedInventorySlot.ItemData == oxygenTank;
     }
 
     private void CheckExitSubStep()
@@ -247,20 +254,19 @@ public class UpdateTutorialText : MonoBehaviour
         {
             currentStep = TutorialStep.CollectMineral;
             resourceWaypoint?.ActivateWaypoint();
-            UpdateText();
+            UpdateTutorial();
         }
     }
 
     private void HandleCollectMineral()
     {
         int limestoneCount = GetItemCount(limestone);
-
         tutorialText.text = $"Collect resources:\nLimestone: {limestoneCount}/1";
 
         if (limestoneCount >= 1)
         {
             currentStep = TutorialStep.CollectResources;
-            UpdateText();
+            UpdateTutorial();
         }
     }
 
@@ -275,7 +281,7 @@ public class UpdateTutorialText : MonoBehaviour
         if (limestoneCount >= 4 && tinCount >= 2)
         {
             currentStep = TutorialStep.BuildWorkbench;
-            UpdateText();
+            UpdateTutorial();
         }
     }
 
@@ -286,14 +292,14 @@ public class UpdateTutorialText : MonoBehaviour
         if (currentStep == TutorialStep.BuildWorkbench && builtData == workbenchData)
         {
             currentStep = TutorialStep.BuildSmelter;
-            UpdateText();
+            UpdateTutorial();
             return;
         }
 
         if (currentStep == TutorialStep.BuildSmelter && builtData == smelterData)
         {
             currentStep = TutorialStep.CollectCopperIngot;
-            UpdateText();
+            UpdateTutorial();
             return;
         }
     }
@@ -301,14 +307,12 @@ public class UpdateTutorialText : MonoBehaviour
     private void CollectCopperIngots()
     {
         int copperIngotCount = GetItemCount(copperIngot);
+        tutorialText.text = $"Collect Copper Ingots: {copperIngotCount}/2";
 
-        tutorialText.text =
-            $"Collect Copper Ingots: {copperIngotCount}/2"; 
-            
         if (copperIngotCount >= 2)
         {
             currentStep = TutorialStep.UpgradeWorkbench;
-            UpdateText();
+            UpdateTutorial();
         }
     }
 
