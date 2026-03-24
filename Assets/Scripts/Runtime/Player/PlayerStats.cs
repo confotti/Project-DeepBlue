@@ -1,5 +1,5 @@
-using System.Collections.Generic;
 using System.Collections;
+using System.Collections.Generic; 
 using UnityEngine.UI;
 using UnityEngine;
 using TMPro;
@@ -26,9 +26,18 @@ public class PlayerStats : MonoBehaviour
     [SerializeField] private int _maxHealth = 100;
 
     private float _currentOxygen;
+    private float _previousOxygen; 
+
     private float _currentDrownTime;
     private int _currentSanity;
     private int _currentHealth;
+
+    [Header("Warnings")]
+    [SerializeField] private TextMeshProUGUI lowOxygenWarning;
+    [SerializeField] private TextMeshProUGUI criticalOxygenText;
+
+    private Coroutine _lowWarningRoutine;
+    private Coroutine _criticalWarningRoutine;
 
     private bool _dead = false;
 
@@ -47,13 +56,21 @@ public class PlayerStats : MonoBehaviour
 
     private void Start()
     {
-        // Initialize stats
+        // Initialize stats 
         _currentOxygen = _currentMaxOxygen;
+        _previousOxygen = _currentOxygen; 
+
         _currentSanity = _maxSanity;
         _currentHealth = _maxHealth;
 
-        //B�rja med max values 
+        //Börja med max values 
         oxygenBar.maxValue = _currentMaxOxygen;
+
+        if (lowOxygenWarning)
+            lowOxygenWarning.gameObject.SetActive(false);
+
+        if (criticalOxygenText)
+            criticalOxygenText.gameObject.SetActive(false);
     }
 
     private void OnDisable()
@@ -67,16 +84,72 @@ public class PlayerStats : MonoBehaviour
         {
             ChangeOxygen(_oxygenGainPerSecond * Time.deltaTime);
         }
-        else if(_playerMovement.IsSwimming)
+        else
         {
             ChangeOxygen(-Time.deltaTime);
         }
 
         ChangeDrownTime(_currentOxygen == 0 ? Time.deltaTime : -Time.deltaTime * _drownReduction);
 
-        // Update UI
         oxygenBar.value = _currentOxygen;
         oxygenText.text = Mathf.RoundToInt(_currentOxygen).ToString();
+
+        bool swimming = _playerMovement.IsSwimming;
+
+        if (_previousOxygen > 30f && _currentOxygen <= 30f && swimming)
+        {
+            if (_lowWarningRoutine != null)
+                StopCoroutine(_lowWarningRoutine);
+
+            _lowWarningRoutine = StartCoroutine(ShowLowOxygenWarning());
+        }
+
+        if (_previousOxygen > 15f && _currentOxygen <= 15f && swimming)
+        {
+            if (_criticalWarningRoutine != null)
+                StopCoroutine(_criticalWarningRoutine);
+
+            _criticalWarningRoutine = StartCoroutine(ShowCriticalOxygenWarning());
+        }
+
+        _previousOxygen = _currentOxygen;
+    }
+
+    private IEnumerator ShowLowOxygenWarning()
+    {
+        if (!lowOxygenWarning) yield break;
+
+        lowOxygenWarning.gameObject.SetActive(true);
+
+        float timer = 0f;
+
+        while (timer < 4f)
+        {
+            timer += Time.deltaTime;
+            yield return null;
+        }
+
+        lowOxygenWarning.gameObject.SetActive(false);
+    }
+
+    private IEnumerator ShowCriticalOxygenWarning()
+    {
+        if (!criticalOxygenText) yield break;
+
+        criticalOxygenText.gameObject.SetActive(true);
+
+        float timer = 0f;
+
+        while (timer < 4f)
+        {
+            Color color = Color.Lerp(Color.red, Color.black, Mathf.PingPong(Time.time * 6f, 1f));
+            criticalOxygenText.color = color;
+
+            timer += Time.deltaTime;
+            yield return null;
+        }
+
+        criticalOxygenText.gameObject.SetActive(false);
     }
 
     public void ChangeOxygen(float amount)
@@ -106,7 +179,10 @@ public class PlayerStats : MonoBehaviour
     public void ChangeDrownTime(float amount)
     {
         _currentDrownTime = Mathf.Clamp(_currentDrownTime + amount, 0, _timeToDrown);
-        if (_dyingBlur) _dyingBlur.material.SetFloat("_Scale", (1 - (_currentDrownTime / _timeToDrown)) * 3);
+
+        if (_dyingBlur)
+            _dyingBlur.material.SetFloat("_Scale", (1 - (_currentDrownTime / _timeToDrown)) * 3);
+
         if (_currentDrownTime == _timeToDrown)
         {
             Death();
@@ -126,7 +202,6 @@ public class PlayerStats : MonoBehaviour
 
         _dead = true;
         OnDeath?.Invoke();
-        //This has to disable player controls somehow
 
         _uiPort.StartScreenFade(true, 2, DeathFadeOutDone);
     }
@@ -137,11 +212,11 @@ public class PlayerStats : MonoBehaviour
         StartCoroutine(FadeWait(1));
         Respawn();
     }
-    
+
     private void DeathFadeBackDone()
     {
         //Re-enable player controls and stuff. 
-    }
+    } 
 
     private IEnumerator FadeWait(float time)
     {
@@ -152,34 +227,40 @@ public class PlayerStats : MonoBehaviour
     private void Respawn()
     {
         Debug.Log("Respawn");
+
         transform.position = RespawnPoint;
         _dead = false;
+
         _playerMovement.StateMachine.ChangeState(_playerMovement.StandingState);
+
         SetHealth(_maxHealth);
+
         _currentOxygen = _currentMaxOxygen;
+        _previousOxygen = _currentOxygen; 
         _currentDrownTime = 0;
     }
-#endregion
+    #endregion
 
-    /*
-    private IEnumerator DecreaseStatOverTime(System.Func<int> getter, System.Action<int> setter, int interval, int amount)
-    {
-        while (true)
+        /*
+        private IEnumerator DecreaseStatOverTime(System.Func<int> getter, System.Action<int> setter, int interval, int amount)
         {
-            yield return new WaitForSeconds(interval);
+            while (true)
+            {
+                yield return new WaitForSeconds(interval);
 
-            int current = getter();
-            if (current > 0)
-                setter(Mathf.Max(current - amount, 0));
+                int current = getter();
+                if (current > 0)
+                    setter(Mathf.Max(current - amount, 0));
+            }
         }
-    }
 
-    oxygenCo = StartCoroutine(DecreaseStatOverTime(() => _currentOxygen, v => _currentOxygen = v, 3, 3));
-    */
+        oxygenCo = StartCoroutine(DecreaseStatOverTime(() => _currentOxygen, v => _currentOxygen = v, 3, 3));
+        */ 
 
     private void OnDrawGizmosSelected()
     {
         if (!_submarine) return;
+
         Gizmos.color = Color.red;
         Gizmos.DrawWireCube(RespawnPoint, Vector3.one);
     }

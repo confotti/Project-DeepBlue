@@ -2,12 +2,14 @@
 using TMPro;
 using WrightAngle.Waypoint;
 using BuildSystem;
+using System.Collections;
 
 public class UpdateTutorialText : MonoBehaviour
 {
     [Header("UI")]
     [SerializeField] private TMP_Text tutorialText;
     [SerializeField] private GameObject firstTutorialUI;
+    [SerializeField] private GameObject flashlightUI;
 
     [Header("Items")]
     [SerializeField] private InventoryItemData limestone;
@@ -15,10 +17,11 @@ public class UpdateTutorialText : MonoBehaviour
     [SerializeField] private InventoryItemData oxygenTank;
     [SerializeField] private InventoryItemData flashlight;
     [SerializeField] private InventoryItemData hammer;
+    [SerializeField] private InventoryItemData copperIngot; 
 
     [Header("Buildings")]
     [SerializeField] private BuildingData workbenchData;
-    [SerializeField] private BuildingData smelterData; 
+    [SerializeField] private BuildingData smelterData;
 
     [Header("Waypoints")]
     [SerializeField] private WaypointTarget lightSwitchWaypoint;
@@ -32,6 +35,9 @@ public class UpdateTutorialText : MonoBehaviour
 
     private PlayerInventoryHolder inventory;
     private bool isActive = false;
+
+    private bool hasShownflashlight = false;
+    private bool wasSwimmingLastFrame = false; // ✅ NEW
 
     private bool flashlightCollected = false;
     private bool hammerCollected = false;
@@ -61,6 +67,10 @@ public class UpdateTutorialText : MonoBehaviour
     private void Start()
     {
         ActivateTutorial();
+
+        // ✅ Initialize swim state safely
+        if (PlayerMovement.Instance != null)
+            wasSwimmingLastFrame = PlayerMovement.Instance.IsSwimming;
     }
 
     private void OnEnable()
@@ -97,10 +107,45 @@ public class UpdateTutorialText : MonoBehaviour
 
     private void Update()
     {
-        if (isActive && currentStep == TutorialStep.ExitSubmarine)
+        if (!isActive) return;
+
+        if (currentStep == TutorialStep.ExitSubmarine)
         {
             CheckExitSubStep();
         }
+
+        CheckflashlightHint(); // ✅ Updated logic
+    }
+
+    private void CheckflashlightHint()
+    {
+        if (hasShownflashlight) return;
+        if (PlayerMovement.Instance == null) return;
+
+        bool isSwimming = PlayerMovement.Instance.IsSwimming;
+
+        // ✅ Trigger ONLY on transition (entering water)
+        if (!wasSwimmingLastFrame && isSwimming)
+        {
+            if (GetItemCount(flashlight) > 0)
+            {
+                StartCoroutine(ShowFlashlightHint());
+                hasShownflashlight = true;
+            }
+        }
+
+        wasSwimmingLastFrame = isSwimming;
+    }
+
+    private IEnumerator ShowFlashlightHint()
+    {
+        if (flashlightUI == null) yield break;
+
+        flashlightUI.SetActive(true);
+
+        yield return new WaitForSeconds(5f);
+
+        flashlightUI.SetActive(false);
     }
 
     private void UpdateText()
@@ -138,7 +183,7 @@ public class UpdateTutorialText : MonoBehaviour
                 break;
 
             case TutorialStep.CollectCopperIngot:
-                tutorialText.text = "Collect a Copper Ingot";
+                CollectCopperIngots(); 
                 break;
 
             case TutorialStep.UpgradeWorkbench:
@@ -189,6 +234,11 @@ public class UpdateTutorialText : MonoBehaviour
         }
     }
 
+    private void EquipOxygenTank()
+    {
+        
+    }
+
     private void CheckExitSubStep()
     {
         if (PlayerMovement.Instance == null) return;
@@ -233,7 +283,6 @@ public class UpdateTutorialText : MonoBehaviour
     {
         if (!isActive) return;
 
-        // 🔨 Workbench step → Smelter step
         if (currentStep == TutorialStep.BuildWorkbench && builtData == workbenchData)
         {
             currentStep = TutorialStep.BuildSmelter;
@@ -241,14 +290,27 @@ public class UpdateTutorialText : MonoBehaviour
             return;
         }
 
-        // 🔥 Smelter step → Next step
         if (currentStep == TutorialStep.BuildSmelter && builtData == smelterData)
         {
             currentStep = TutorialStep.CollectCopperIngot;
             UpdateText();
             return;
         }
-    } 
+    }
+
+    private void CollectCopperIngots()
+    {
+        int copperIngotCount = GetItemCount(copperIngot);
+
+        tutorialText.text =
+            $"Collect Copper Ingots: {copperIngotCount}/2"; 
+            
+        if (copperIngotCount >= 2)
+        {
+            currentStep = TutorialStep.UpgradeWorkbench;
+            UpdateText();
+        }
+    }
 
     private int GetItemCount(InventoryItemData item)
     {
