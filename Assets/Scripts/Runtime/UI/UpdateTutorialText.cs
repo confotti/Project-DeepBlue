@@ -18,6 +18,7 @@ public class UpdateTutorialText : MonoBehaviour
     [SerializeField] private InventoryItemData flashlight;
     [SerializeField] private InventoryItemData hammer;
     [SerializeField] private InventoryItemData copperIngot; 
+    [SerializeField] private InventoryItemData repairTorch; 
 
     [Header("Buildings")]
     [SerializeField] private BuildingData workbenchData;
@@ -58,7 +59,7 @@ public class UpdateTutorialText : MonoBehaviour
         BuildWorkbench,
         BuildSmelter,
         CollectCopperIngot,
-        UpgradeWorkbench,
+        CraftRepairTorch,
         Done
     }
 
@@ -190,8 +191,8 @@ public class UpdateTutorialText : MonoBehaviour
                 CollectCopperIngots();
                 break;
 
-            case TutorialStep.UpgradeWorkbench:
-                tutorialText.text = "Upgrade the Workbench";
+            case TutorialStep.CraftRepairTorch:
+                CraftRepairTorch(); 
                 break;
 
             case TutorialStep.Done:
@@ -311,7 +312,19 @@ public class UpdateTutorialText : MonoBehaviour
 
         if (copperIngotCount >= 2)
         {
-            currentStep = TutorialStep.UpgradeWorkbench;
+            currentStep = TutorialStep.CraftRepairTorch;
+            UpdateTutorial();
+        }
+    }
+
+    private void CraftRepairTorch()
+    {
+        int repairTorchCount = GetItemCount(repairTorch);
+        tutorialText.text = $"Craft the Repair Torch: {repairTorchCount}/1";
+
+        if (repairTorchCount >= 1)
+        {
+            currentStep = TutorialStep.Done; 
             UpdateTutorial();
         }
     }

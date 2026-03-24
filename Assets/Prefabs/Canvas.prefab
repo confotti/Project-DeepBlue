@@ -851,6 +851,7 @@ MonoBehaviour:
   flashlight: {fileID: 11400000, guid: a42c09bf4b0fb504091f9884a65b08c6, type: 2}
   hammer: {fileID: 11400000, guid: 354f09e291cacf640895872cc1552ba6, type: 2}
   copperIngot: {fileID: 11400000, guid: 1ab44c7a1ee472c43b66e31785cbdcc7, type: 2}
+  repairTorch: {fileID: 11400000, guid: b6379be75b05ead4299aac104aec4b8b, type: 2}
   workbenchData: {fileID: 11400000, guid: 7ccf7755f28f27d41a9e4d553625d64c, type: 2}
   smelterData: {fileID: 11400000, guid: 7139a1a7ec684da4389e1009dbe223f0, type: 2}
   lightSwitchWaypoint: {fileID: 0}
@@ -859,6 +860,7 @@ MonoBehaviour:
   resourceWaypoint: {fileID: 0}
   hammerWaypoint: {fileID: 0}
   lightSwitch: {fileID: 0}
+  oxygenTankSlotUI: {fileID: 7678881272271460976}
 --- !u!114 &2129633971428172609
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2678,7 +2680,8 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 11400000, guid: 7139a1a7ec684da4389e1009dbe223f0, type: 2}
     m_RemovedComponents: []
-    m_RemovedGameObjects: []
+    m_RemovedGameObjects:
+    - {fileID: 8619484911993986276, guid: 33449fdb7fa7d094da94050e75dc92af, type: 3}
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: 5873453526314513662, guid: 33449fdb7fa7d094da94050e75dc92af, type: 3}
       insertIndex: -1
@@ -2716,3 +2719,14 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 5873453526314513662, guid: 33449fdb7fa7d094da94050e75dc92af, type: 3}
   m_PrefabInstance: {fileID: 7714619730200562564}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &7678881272271460976 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 116820982193246708, guid: 33449fdb7fa7d094da94050e75dc92af, type: 3}
+  m_PrefabInstance: {fileID: 7714619730200562564}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3bd1604a06ebed34abe363706053cd4f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
