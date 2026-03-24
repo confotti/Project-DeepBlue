@@ -81,16 +81,18 @@ public class BiomeManager : MonoBehaviour
         OnFinishLoadingBiome?.Invoke();
         isLoadingNextBiome = false;
 
-        while (!readyToUnloadPrevious)
-        {
-            yield return null;
-        }
+        
 
         readyToUnloadPrevious = false;
 
         // After loading, unload the current biome
         if (currentBiome != null)
         {
+            while (!readyToUnloadPrevious)
+            {
+                yield return null;
+            }
+
             UnloadBiome(currentBiome);
         }
 

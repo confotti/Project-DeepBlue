@@ -5,12 +5,6 @@ using UnityEngine.Splines;
 public class SubmarineController : MonoBehaviour
 {
     private SplineAnimate splineAnimate;
-    private bool isRunning = false;
-
-    [SerializeField] private float velocity = 2f;
-    [SerializeField] private float brake = 2f;
-    [SerializeField] private float maxSpeed = 20.5f;
-    private float currentSpeed = 0f;
 
     [Header("Player Follow")]
     [SerializeField] string playerTag = "Player";
@@ -53,12 +47,8 @@ public class SubmarineController : MonoBehaviour
 
     void Update()
     {
-        if (isRunning)
+        if (splineAnimate.IsPlaying)
         {
-            currentSpeed = Mathf.Lerp(currentSpeed, maxSpeed, velocity * Time.deltaTime);
-
-            UpdatePathSpeed(currentSpeed);
-
             if (_nextBiomeReady && splineAnimate.NormalizedTime > 0.7)
             {
                 _nextBiomeReady = false;
@@ -67,29 +57,17 @@ public class SubmarineController : MonoBehaviour
                 (_currentBiomeSpline, _nextBiomeSpline) = (_nextBiomeSpline, null);
 
                 splineAnimate.NormalizedTime = 0;
+                splineAnimate.Easing = SplineAnimate.EasingMode.EaseOut;
                 BiomeManager.OnReadyToUnload?.Invoke();
             }
 
             if (splineAnimate.NormalizedTime >= 1)
             {
-                isRunning = false;
                 splineAnimate.Pause();
-            } 
-
-        }
-        else
-        {
-            if (currentSpeed <= 0.01f)
-            {
-                currentSpeed = 0;
-                splineAnimate.Pause();
-                return;
             }
 
-            currentSpeed = Mathf.Lerp(currentSpeed, 0f, brake * Time.deltaTime);
-
-            UpdatePathSpeed(currentSpeed);
         }
+        
     }
 
     private void OnTriggerEnter(Collider other)
@@ -104,7 +82,6 @@ public class SubmarineController : MonoBehaviour
     {
         if (other.CompareTag(playerTag))
         {
-            isRunning = false;
             Debug.Log("Player Has Exit SUB");
             other.gameObject.transform.parent = null;
         }
@@ -113,20 +90,14 @@ public class SubmarineController : MonoBehaviour
 
     public void StartSub()
     {
+        splineAnimate.Easing = SplineAnimate.EasingMode.EaseIn;
         splineAnimate.Container = _currentBiomeSpline.exitSpline;
         splineAnimate.NormalizedTime = 0;
 
-
-        isRunning = true;
         splineAnimate.Play();
         
         BiomeManager.CommandStartLoadingNextBiome?.Invoke();
 
-    }
-
-    public void StopSub()
-    {
-        isRunning = false;
     }
 
     public void OnFinishedLoading()
@@ -134,6 +105,7 @@ public class SubmarineController : MonoBehaviour
         _nextBiomeReady = true;
     }
 
+/*
     private void UpdatePathSpeed(float newSpeed)
     {
         float prevProgress;
@@ -141,4 +113,5 @@ public class SubmarineController : MonoBehaviour
         splineAnimate.MaxSpeed = currentSpeed;
         splineAnimate.NormalizedTime = prevProgress;
     }
+    */
 }
