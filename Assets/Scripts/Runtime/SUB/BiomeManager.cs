@@ -10,6 +10,7 @@ public class BiomeManager : MonoBehaviour
     public static Action CommandStartLoadingNextBiome;
     public static Action<int> OnChooseNextBiome;
     public static Action OnFinishLoadingBiome;
+    public static Action OnReadyToUnload;
 
     public static BiomeSubSplineHolder BiomeSubSplineHolder;
 
@@ -25,12 +26,20 @@ public class BiomeManager : MonoBehaviour
     {
         CommandStartLoadingNextBiome += LoadNextBiome;
         OnChooseNextBiome += ChooseNextBiome;
+        OnReadyToUnload += ReadyToUnloadLastBiome;
     }
 
     void OnDisable()
     {
         CommandStartLoadingNextBiome -= LoadNextBiome;
         OnChooseNextBiome -= ChooseNextBiome;
+        OnReadyToUnload -= ReadyToUnloadLastBiome;
+    }
+
+    void Awake()
+    {
+        LoadBiome(Biomes[0]);
+        nextBiome = Biomes[1];
     }
 
     private void LoadBiome(BiomeReference biome)
@@ -70,11 +79,14 @@ public class BiomeManager : MonoBehaviour
         }
 
         OnFinishLoadingBiome?.Invoke();
+        isLoadingNextBiome = false;
 
         while (!readyToUnloadPrevious)
         {
             yield return null;
         }
+
+        readyToUnloadPrevious = false;
 
         // After loading, unload the current biome
         if (currentBiome != null)
@@ -84,9 +96,6 @@ public class BiomeManager : MonoBehaviour
 
         // Set the new biome as the current biome
         currentBiome = biome;
-        isLoadingNextBiome = false;
-
-        readyToUnloadPrevious = false;
     }
 
     private void UnloadBiome(BiomeReference biome)
@@ -110,6 +119,11 @@ public class BiomeManager : MonoBehaviour
         }
 
         nextBiome = Biomes[index];
+    }
+
+    private void ReadyToUnloadLastBiome()
+    {
+        readyToUnloadPrevious = true;
     }
 }
 

@@ -17,6 +17,9 @@ public class SubmarineController : MonoBehaviour
     [SerializeField] Transform sub;
 
     private BiomeSubSplineHolder _nextBiomeSpline;
+    private BiomeSubSplineHolder _currentBiomeSpline;
+
+    private bool _nextBiomeReady = false;
 
     void Awake()
     {
@@ -27,15 +30,24 @@ public class SubmarineController : MonoBehaviour
     void OnEnable()
     {
         BiomeSubSplineHolder.OnSpawned += SetNextBiomeSpline;
+        BiomeManager.OnFinishLoadingBiome += OnFinishedLoading;
     }
 
     void OnDisable()
     {
         BiomeSubSplineHolder.OnSpawned -= SetNextBiomeSpline;
+        BiomeManager.OnFinishLoadingBiome += OnFinishedLoading;
     }
 
     private void SetNextBiomeSpline(BiomeSubSplineHolder spline)
     {
+        if (_currentBiomeSpline == null)
+        {
+            _currentBiomeSpline = spline;
+            transform.position = spline.transform.position;
+            return;
+        }
+
         _nextBiomeSpline = spline;
     }
 
@@ -43,10 +55,26 @@ public class SubmarineController : MonoBehaviour
     {
         if (isRunning)
         {
-            currentSpeed = Mathf.Lerp(
-                currentSpeed, maxSpeed, velocity * Time.deltaTime);
+            currentSpeed = Mathf.Lerp(currentSpeed, maxSpeed, velocity * Time.deltaTime);
 
             UpdatePathSpeed(currentSpeed);
+
+            if (_nextBiomeReady && splineAnimate.NormalizedTime > 0.7)
+            {
+                _nextBiomeReady = false;
+                splineAnimate.Container = _nextBiomeSpline.entrySpline;
+
+                (_currentBiomeSpline, _nextBiomeSpline) = (_nextBiomeSpline, null);
+
+                splineAnimate.NormalizedTime = 0;
+                BiomeManager.OnReadyToUnload?.Invoke();
+            }
+
+            if (splineAnimate.NormalizedTime >= 1)
+            {
+                isRunning = false;
+                splineAnimate.Pause();
+            } 
 
         }
         else
@@ -74,14 +102,10 @@ public class SubmarineController : MonoBehaviour
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.CompareTag("Player"))
+        if (other.CompareTag(playerTag))
         {
             isRunning = false;
             Debug.Log("Player Has Exit SUB");
-        }
-
-        if (other.gameObject.tag.Equals(playerTag))
-        {
             other.gameObject.transform.parent = null;
         }
     }
@@ -89,15 +113,25 @@ public class SubmarineController : MonoBehaviour
 
     public void StartSub()
     {
-        //BiomeSubSplineHolder.prevInstance.FixExitSpline(Vector3.zero);
+        splineAnimate.Container = _currentBiomeSpline.exitSpline;
+        splineAnimate.NormalizedTime = 0;
 
-        //splineAnimate.Container = BiomeSubSplineHolder.
+
+        isRunning = true;
+        splineAnimate.Play();
+        
+        BiomeManager.CommandStartLoadingNextBiome?.Invoke();
 
     }
 
     public void StopSub()
     {
         isRunning = false;
+    }
+
+    public void OnFinishedLoading()
+    {
+        _nextBiomeReady = true;
     }
 
     private void UpdatePathSpeed(float newSpeed)

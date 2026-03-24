@@ -82,7 +82,7 @@ public class TimeManager : MonoBehaviour
         float sunRotation = dayProgress * 360f;
 
         // Rotate around X, står rakt upp vid 12
-        sunTransform.rotation = Quaternion.Euler(sunRotation - 90f, 170f, 0f);
+        if(sunTransform) sunTransform.rotation = Quaternion.Euler(sunRotation - 90f, 170f, 0f);
     }
 
     private void UpdateClockUI()
