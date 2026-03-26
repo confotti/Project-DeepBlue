@@ -13,6 +13,10 @@ public class TimeManager : MonoBehaviour
     [Tooltip("Length of a full game day in real-time minutes")]
     public float realMinutesPerDay = 25f;
 
+    [Header("Day/Night Speed")]
+    public float daySpeedMultiplier = 1f;
+    public float nightSpeedMultiplier = 1.25f; 
+
     [Header("Day and Night Cycle")]
     public Transform sunTransform;
 
@@ -47,13 +51,21 @@ public class TimeManager : MonoBehaviour
 
     private void Update()
     {
-        _accumulatedSeconds += Time.deltaTime * _timeScale;
+        float speedMultiplier = IsNightTime() ? nightSpeedMultiplier : daySpeedMultiplier;
+        _accumulatedSeconds += Time.deltaTime * _timeScale * speedMultiplier; 
 
         while(_accumulatedSeconds >= 1f)
         {
             _accumulatedSeconds -= 1f;
             TickOneSecond();
         }
+    }
+
+    private bool IsNightTime()
+    {
+        int hour = _timestamp.Hour;
+
+        return (hour >= 22 || hour < 6);
     }
 
     private void TickOneSecond()

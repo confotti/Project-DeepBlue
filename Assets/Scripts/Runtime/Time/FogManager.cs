@@ -11,6 +11,7 @@ public class FogManager : MonoBehaviour
     public float dayStartHour = 6f;
     public float nightStartHour = 20f;
     public float duskStartHour = 16f;
+    public float dawnStartHour = 4f; 
     public float fogLerpSpeed = 0.5f;
 
     [Header("Fog Attenuation")]
@@ -64,13 +65,28 @@ public class FogManager : MonoBehaviour
 
     private float GetFogBlendFactor(float hours)
     {
-        if (hours >= duskStartHour && hours <= nightStartHour)
-            return Mathf.InverseLerp(nightStartHour, duskStartHour, hours);
+        // Dawn (night → day)
+        if (hours >= dawnStartHour && hours < dayStartHour)
+        {
+            float t = Mathf.InverseLerp(dawnStartHour, dayStartHour, hours);
+            return Mathf.SmoothStep(0f, 1f, t); 
+        }
 
-        if (hours >= nightStartHour || hours < dayStartHour)
-            return 0f;
+        // Day
+        if (hours >= dayStartHour && hours < duskStartHour)
+        {
+            return 1f;
+        }
 
-        return 1f;
+        // Dusk (day → night)
+        if (hours >= duskStartHour && hours < nightStartHour)
+        {
+            float t = Mathf.InverseLerp(nightStartHour, duskStartHour, hours);
+            return Mathf.SmoothStep(1f, 0f, t); 
+        }
+
+        // Night
+        return 0f; 
     }
 
     [ContextMenu("Refresh Fog Volumes")]
