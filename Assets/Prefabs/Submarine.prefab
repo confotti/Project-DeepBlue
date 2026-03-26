@@ -9560,6 +9560,37 @@ MonoBehaviour:
   m_ObsoleteUseShadowQualitySettings: 0
   m_ObsoleteCustomShadowResolution: 512
   m_ObsoleteContactShadows: 0
+--- !u!1 &8107399062450810356
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4273649600257649134}
+  m_Layer: 9
+  m_Name: OxygenLineManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4273649600257649134
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8107399062450810356}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7793073403326957513}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &8116972490140250809
 GameObject:
   m_ObjectHideFlags: 0
@@ -18966,6 +18997,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: 6cd44744a60278847a8f64fd159efa2f, type: 3}
       insertIndex: 69
       addedObject: {fileID: 6235162710017639367}
+    - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: 6cd44744a60278847a8f64fd159efa2f, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4273649600257649134}
     - targetCorrespondingSourceObject: {fileID: 7181824376354690600, guid: 6cd44744a60278847a8f64fd159efa2f, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1567627659333861625}
