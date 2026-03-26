@@ -41,6 +41,13 @@ public class UpdateTutorialText : MonoBehaviour
     [SerializeField] private int returnStartHour = 20;
     [SerializeField] private int returnEndHour = 22;
 
+    [Header("Radio")]
+    [SerializeField] private AudioSource radioAudioSource;
+    [SerializeField] private int radioHour = 23;
+
+
+    private bool isRadioPlaying = false; 
+
     private PlayerInventoryHolder inventory;
     private bool isActive = false;
 
@@ -150,6 +157,41 @@ public class UpdateTutorialText : MonoBehaviour
                 UpdateTutorial();
             }
         }
+
+        // Start radio at 23:00
+        if (hour == radioHour)
+        {
+            StartRadioEvent();
+        }
+
+        // Stop radio at 00:00
+        if (hour == 0)
+        {
+            StopRadioEvent();
+        }
+    } 
+
+    private void StartRadioEvent()
+    {
+        if (isRadioPlaying || radioAudioSource == null) return;
+
+        isRadioPlaying = true;
+
+        radioAudioSource.loop = true;
+        radioAudioSource.Play();
+
+        tutorialText.text = "Explore the sound";
+    }
+
+    private void StopRadioEvent()
+    {
+        if (!isRadioPlaying || radioAudioSource == null) return;
+
+        isRadioPlaying = false;
+
+        radioAudioSource.Stop();
+
+        UpdateTutorial(); // restore normal tutorial text
     } 
 
     private void CheckNightReturnWarning()
