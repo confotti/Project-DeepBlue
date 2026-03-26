@@ -52,8 +52,6 @@ public class UpdateTutorialText : MonoBehaviour
     private bool oxygenTankCollected = false;
     private bool oxygenTankEquipped = false;
 
-    // 🌙 Night system
-    private bool hasTriggeredReturnWarning = false;
     private bool isNightWarningActive = false;
 
     private enum TutorialStep
@@ -126,7 +124,7 @@ public class UpdateTutorialText : MonoBehaviour
     {
         if (!isActive) return;
 
-        // 🌙 Night check
+        // 🌙 Time-based warning check
         CheckNightReturnWarning();
 
         if (currentStep == TutorialStep.ExitSubmarine)
@@ -146,10 +144,13 @@ public class UpdateTutorialText : MonoBehaviour
     {
         if (hour < returnStartHour || hour >= returnEndHour)
         {
-            hasTriggeredReturnWarning = false;
-            isNightWarningActive = false;
+            if (isNightWarningActive)
+            {
+                isNightWarningActive = false;
+                UpdateTutorial();
+            }
         }
-    }
+    } 
 
     private void CheckNightReturnWarning()
     {
@@ -158,39 +159,26 @@ public class UpdateTutorialText : MonoBehaviour
         var time = TimeManager.Instance.GetGameTimeStamp();
         int hour = time.Hour;
 
-        bool isWithinTime = hour >= returnStartHour && hour < returnEndHour;
+        bool isNightTime = hour >= returnStartHour && hour < returnEndHour;
         bool isSwimming = PlayerMovement.Instance.IsSwimming;
 
-        if (isWithinTime && isSwimming && !hasTriggeredReturnWarning)
+        if (isNightTime && isSwimming)
         {
-            isNightWarningActive = true;
-            hasTriggeredReturnWarning = true;
+            if (!isNightWarningActive)
+            {
+                isNightWarningActive = true;
+            }
 
-            ShowReturnToSubmarine();
+            tutorialText.text = "Return to the Submarine before nightfall"; 
+            return;
         }
 
-        if (!isSwimming && isNightWarningActive)
+        if (isNightWarningActive)
         {
             isNightWarningActive = false;
             UpdateTutorial();
         }
-    }
-
-    private void ShowReturnToSubmarine()
-    {
-        StopAllCoroutines();
-        StartCoroutine(ReturnToSubmarineRoutine());
-    }
-
-    private IEnumerator ReturnToSubmarineRoutine()
-    {
-        tutorialText.text = "Get back to your Submarine";
-
-        yield return new WaitForSeconds(5f);
-
-        isNightWarningActive = false;
-        UpdateTutorial();
-    }
+    } 
 
     private void CheckFlashlightHint()
     {
@@ -220,7 +208,7 @@ public class UpdateTutorialText : MonoBehaviour
     {
         if (!isActive || tutorialText == null) return;
 
-        // 🌙 Prevent overwrite
+        // 🌙 Prevent overwrite during warning
         if (isNightWarningActive) return;
 
         switch (currentStep)
