@@ -50,7 +50,7 @@ MonoBehaviour:
     Hour: 0
     Minute: 0
     Second: 0
-  realMinutesPerDay: 16
+  realMinutesPerDay: 15
   daySpeedMultiplier: 1
   nightSpeedMultiplier: 1.25
   sunTransform: {fileID: 0}
@@ -72,7 +72,7 @@ MonoBehaviour:
   nightStartHour: 22
   duskStartHour: 20
   dawnStartHour: 4
-  fogLerpSpeed: 0.5
+  fogLerpSpeed: 0.08
   dayAttenuation: 250
   nightAttenuation: 150
   fogVolume:
