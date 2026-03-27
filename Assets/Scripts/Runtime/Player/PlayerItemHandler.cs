@@ -88,7 +88,12 @@ public class PlayerItemHandler : MonoBehaviour
         if (_currentSlot.ItemData != null && _currentSlot.ItemData.itemPrefab != null)
         {
             _currentItem = Instantiate(_currentSlot.ItemData.itemPrefab, gameObject.transform);
+            
             //_currentItem = Instantiate(_currentSlot.ItemData.itemPrefab, placeToolPoint);
+            //A little bit cursed, but the scales make this the best option
+            _currentItem.transform.parent = placeToolPoint;
+            _currentItem.transform.rotation = Quaternion.FromToRotation(_currentItem.relativeUp, placeToolPoint.transform.forward);
+
             _currentItem.OnEquip(this);
             _currentItemData = _currentSlot.ItemData;
         }
