@@ -15,6 +15,8 @@ public class PlayerItemHandler : MonoBehaviour
     [SerializeField] private Transform _playerHead;
     public Transform PlayerHead => _playerHead;
 
+    [SerializeField] private Transform placeToolPoint;
+
     void Awake()
     {
         _playerInventory = GetComponent<PlayerInventoryHolder>();
@@ -86,6 +88,7 @@ public class PlayerItemHandler : MonoBehaviour
         if (_currentSlot.ItemData != null && _currentSlot.ItemData.itemPrefab != null)
         {
             _currentItem = Instantiate(_currentSlot.ItemData.itemPrefab, gameObject.transform);
+            //_currentItem = Instantiate(_currentSlot.ItemData.itemPrefab, placeToolPoint);
             _currentItem.OnEquip(this);
             _currentItemData = _currentSlot.ItemData;
         }
