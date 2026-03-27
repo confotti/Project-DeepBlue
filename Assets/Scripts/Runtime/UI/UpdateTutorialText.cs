@@ -131,7 +131,6 @@ public class UpdateTutorialText : MonoBehaviour
     {
         if (!isActive) return;
 
-        // 🌙 Time-based warning check
         CheckNightReturnWarning();
 
         if (currentStep == TutorialStep.ExitSubmarine)
@@ -164,8 +163,8 @@ public class UpdateTutorialText : MonoBehaviour
             StartRadioEvent();
         }
 
-        // Stop radio at 00:00
-        if (hour == 0)
+        // Stop radio at 06:00
+        if (hour == 6)
         {
             StopRadioEvent();
         }
@@ -191,7 +190,7 @@ public class UpdateTutorialText : MonoBehaviour
 
         radioAudioSource.Stop();
 
-        UpdateTutorial(); // restore normal tutorial text
+        UpdateTutorial();
     } 
 
     private void CheckNightReturnWarning()
@@ -250,7 +249,6 @@ public class UpdateTutorialText : MonoBehaviour
     {
         if (!isActive || tutorialText == null) return;
 
-        // 🌙 Prevent overwrite during warning
         if (isNightWarningActive) return;
 
         switch (currentStep)
