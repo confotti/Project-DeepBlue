@@ -389,7 +389,7 @@ Light:
   serializedVersion: 11
   m_Type: 0
   m_Color: {r: 1, g: 0, b: 0, a: 1}
-  m_Intensity: 12800
+  m_Intensity: 9600
   m_Range: 80
   m_SpotAngle: 179
   m_InnerSpotAngle: 21.80208
@@ -4547,7 +4547,7 @@ Light:
   serializedVersion: 11
   m_Type: 0
   m_Color: {r: 1, g: 0, b: 0, a: 1}
-  m_Intensity: 12800
+  m_Intensity: 9600
   m_Range: 80
   m_SpotAngle: 179
   m_InnerSpotAngle: 21.80208
@@ -7891,7 +7891,7 @@ Light:
   serializedVersion: 11
   m_Type: 0
   m_Color: {r: 1, g: 0, b: 0, a: 1}
-  m_Intensity: 12800
+  m_Intensity: 9600
   m_Range: 80
   m_SpotAngle: 179
   m_InnerSpotAngle: 21.80208
@@ -8357,7 +8357,7 @@ Light:
   serializedVersion: 11
   m_Type: 0
   m_Color: {r: 1, g: 0, b: 0, a: 1}
-  m_Intensity: 12800
+  m_Intensity: 9600
   m_Range: 80
   m_SpotAngle: 179
   m_InnerSpotAngle: 21.80208
@@ -10156,8 +10156,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1.5872803, y: 2.1046143, z: 0.5720215}
-  m_Center: {x: 7.5375977, y: 1.8688354, z: -7.5511475}
+  m_Size: {x: 1.9118621, y: 2.1046143, z: 1.0461993}
+  m_Center: {x: 7.532667, y: 1.8688376, z: -7.5820675}
 --- !u!114 &3198966038904639442
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -17404,6 +17404,10 @@ PrefabInstance:
       value: 90
       objectReference: {fileID: 0}
     - target: {fileID: 5393172834373985914, guid: d467d87ae5074f9468a309bc0ddc4a7b, type: 3}
+      propertyPath: m_Size.x
+      value: 3.9543264
+      objectReference: {fileID: 0}
+    - target: {fileID: 5393172834373985914, guid: d467d87ae5074f9468a309bc0ddc4a7b, type: 3}
       propertyPath: m_Size.y
       value: 3.0773914
       objectReference: {fileID: 0}
@@ -17413,7 +17417,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5393172834373985914, guid: d467d87ae5074f9468a309bc0ddc4a7b, type: 3}
       propertyPath: m_Center.x
-      value: 1.6144422e-17
+      value: -1.4771634
       objectReference: {fileID: 0}
     - target: {fileID: 5393172834373985914, guid: d467d87ae5074f9468a309bc0ddc4a7b, type: 3}
       propertyPath: m_Center.y
