@@ -122,10 +122,13 @@ public class UpdateTutorialText : MonoBehaviour
         firstTutorialUI?.SetActive(false);
         tutorialText?.gameObject.SetActive(true);
 
+        // Pause time at tutorial start
+        TimeManager.Instance?.PauseTime();
+
         currentStep = TutorialStep.InteractWithLight;
         lightSwitchWaypoint?.ActivateWaypoint();
         UpdateTutorial();
-    }
+    } 
 
     private void Update()
     {
@@ -421,6 +424,8 @@ public class UpdateTutorialText : MonoBehaviour
 
         if (repairTorchCount >= 1)
         {
+            TimeManager.Instance?.ResumeTime(); 
+
             currentStep = TutorialStep.Done; 
             UpdateTutorial();
         }

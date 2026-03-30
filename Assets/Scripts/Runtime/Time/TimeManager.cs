@@ -7,6 +7,8 @@ public class TimeManager : MonoBehaviour
 {
     public static TimeManager Instance { get; private set; }
 
+    public bool IsTimePaused { get; private set; }
+
     [Header("Internal Clock")]
     [SerializeField] private GameTimeStamp _timestamp;
 
@@ -15,7 +17,7 @@ public class TimeManager : MonoBehaviour
 
     [Header("Day/Night Speed")]
     public float daySpeedMultiplier = 1f;
-    public float nightSpeedMultiplier = 1.25f; 
+    public float nightSpeedMultiplier = 1.25f;
 
     [Header("Day and Night Cycle")]
     public Transform sunTransform;
@@ -25,7 +27,7 @@ public class TimeManager : MonoBehaviour
 
     // One game day = 24 in-game hours = 86,400 seconds
     private const float SecondsPerGameDay = 24f * 3600f;
-    // Store total game time in seconds
+
     private float _accumulatedSeconds;
     private float _timeScale;
 
@@ -40,8 +42,8 @@ public class TimeManager : MonoBehaviour
 
     private void Start()
     {
-        // Start at Day 1, 8:00:00 
-        _timestamp = new GameTimeStamp(1, 8, 0, 0);
+        // Start at Day 1, 8:00:00
+        _timestamp = new GameTimeStamp(1, 18, 0, 0);
 
         float realSecondsPerDay = realMinutesPerDay * 60f;
         _timeScale = SecondsPerGameDay / realSecondsPerDay;
@@ -51,20 +53,32 @@ public class TimeManager : MonoBehaviour
 
     private void Update()
     {
-        float speedMultiplier = IsNightTime() ? nightSpeedMultiplier : daySpeedMultiplier;
-        _accumulatedSeconds += Time.deltaTime * _timeScale * speedMultiplier; 
+        if (IsTimePaused)
+            return;
 
-        while(_accumulatedSeconds >= 1f)
+        float speedMultiplier = IsNightTime() ? nightSpeedMultiplier : daySpeedMultiplier;
+        _accumulatedSeconds += Time.deltaTime * _timeScale * speedMultiplier;
+
+        while (_accumulatedSeconds >= 1f)
         {
             _accumulatedSeconds -= 1f;
             TickOneSecond();
         }
     }
 
+    public void PauseTime()
+    {
+        IsTimePaused = true;
+    }
+
+    public void ResumeTime()
+    {
+        IsTimePaused = false;
+    }
+
     private bool IsNightTime()
     {
         int hour = _timestamp.Hour;
-
         return (hour >= 22 || hour < 6);
     }
 
@@ -90,11 +104,10 @@ public class TimeManager : MonoBehaviour
     {
         float dayProgress = (_timestamp.Hour * 3600 + _timestamp.Minute * 60 + _timestamp.Second) / SecondsPerGameDay;
 
-        // Full 360° rotation in one 24-hour day
         float sunRotation = dayProgress * 360f;
 
-        // Rotate around X, står rakt upp vid 12
-        if(sunTransform) sunTransform.rotation = Quaternion.Euler(sunRotation - 90f, 170f, 0f);
+        if (sunTransform)
+            sunTransform.rotation = Quaternion.Euler(sunRotation - 90f, 170f, 0f);
     }
 
     private void UpdateClockUI()
@@ -108,9 +121,7 @@ public class TimeManager : MonoBehaviour
     {
         return new GameTimeStamp(_timestamp);
     }
-    
 
-    //Allows pausing time if we need to
     public void SetTimeScale(float timeScale)
     {
         _timeScale = timeScale;
