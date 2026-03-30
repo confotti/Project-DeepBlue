@@ -15081,6 +15081,61 @@ ParticleSystemRenderer:
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
   m_MaskInteraction: 0
+--- !u!1 &1768505951538293737
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4585220218095685211}
+  - component: {fileID: 7150451390696631242}
+  m_Layer: 0
+  m_Name: Hand_HoldingObject
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4585220218095685211
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1768505951538293737}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4722007172029851788}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7150451390696631242
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1768505951538293737}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 796b75e345bd64d47a31edd757bd2670, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Weight: 0.6
+  m_Data:
+    m_Root: {fileID: 8867359806795419097}
+    m_Tip: {fileID: 2099449173976213104}
+    m_Target: {fileID: 3171606257177908449}
+    m_ChainRotationWeight: 1
+    m_TipRotationWeight: 0.5
+    m_MaxIterations: 15
+    m_Tolerance: 0.001
+    m_MaintainTargetPositionOffset: 0
+    m_MaintainTargetRotationOffset: 0
 --- !u!1 &2154983478546246244
 GameObject:
   m_ObjectHideFlags: 0
@@ -20031,6 +20086,7 @@ Transform:
   - {fileID: 4882651191577527371}
   - {fileID: 4779877084586381689}
   - {fileID: 168159327571459709}
+  - {fileID: 4585220218095685211}
   m_Father: {fileID: 892705360189057532}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &8939774150367276437
@@ -30090,6 +30146,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _playerHead: {fileID: 3496365618742776278}
   placeToolPoint: {fileID: 8197265109618889398}
+  _holdingObjectConstraint: {fileID: 7150451390696631242}
 --- !u!114 &5731344407342504892
 MonoBehaviour:
   m_ObjectHideFlags: 0

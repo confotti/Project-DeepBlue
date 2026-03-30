@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Animations.Rigging;
 
 public class PlayerItemHandler : MonoBehaviour
 {
@@ -16,6 +17,8 @@ public class PlayerItemHandler : MonoBehaviour
     public Transform PlayerHead => _playerHead;
 
     [SerializeField] private Transform placeToolPoint;
+
+    [SerializeField] private ChainIKConstraint _holdingObjectConstraint;
 
     void Awake()
     {
@@ -69,6 +72,7 @@ public class PlayerItemHandler : MonoBehaviour
         }
     */
 
+
     private void EquipNewItem(InventorySlot slotToEquip)
     {
         _currentSlot = slotToEquip;
@@ -78,6 +82,7 @@ public class PlayerItemHandler : MonoBehaviour
             _currentItem.OnUnequip();
             _currentItem = null;
             _currentItemData = null;
+            _holdingObjectConstraint.weight = 0.0f;
         }
         else if (_currentItemData == _currentSlot.ItemData)
         {
@@ -88,11 +93,14 @@ public class PlayerItemHandler : MonoBehaviour
         if (_currentSlot.ItemData != null && _currentSlot.ItemData.itemPrefab != null)
         {
             _currentItem = Instantiate(_currentSlot.ItemData.itemPrefab, gameObject.transform);
-            
+            _holdingObjectConstraint.weight = 0.6f;
+
             //_currentItem = Instantiate(_currentSlot.ItemData.itemPrefab, placeToolPoint);
+
             //A little bit cursed, but the scales make this the best option
+            _currentItem.transform.rotation = placeToolPoint.transform.rotation * Quaternion.Inverse(_currentItem.HoldingPoint.rotation) * _currentItem.transform.rotation;
+            _currentItem.transform.position = placeToolPoint.transform.position + _currentItem.transform.position - _currentItem.HoldingPoint.position;
             _currentItem.transform.parent = placeToolPoint;
-            _currentItem.transform.rotation = Quaternion.FromToRotation(_currentItem.relativeUp, placeToolPoint.transform.forward);
 
             _currentItem.OnEquip(this);
             _currentItemData = _currentSlot.ItemData;
