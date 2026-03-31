@@ -17,8 +17,8 @@ public class UpdateTutorialText : MonoBehaviour
     [SerializeField] private InventoryItemData oxygenTank;
     [SerializeField] private InventoryItemData flashlight;
     [SerializeField] private InventoryItemData hammer;
-    [SerializeField] private InventoryItemData copperIngot; 
-    [SerializeField] private InventoryItemData repairTorch; 
+    [SerializeField] private InventoryItemData copperIngot;
+    [SerializeField] private InventoryItemData repairTorch;
 
     [Header("Buildings")]
     [SerializeField] private BuildingData workbenchData;
@@ -39,15 +39,13 @@ public class UpdateTutorialText : MonoBehaviour
 
     [Header("Night Return Settings")]
     [SerializeField] private int returnStartHour = 20;
-    [SerializeField] private int returnEndHour = 22;
+    [SerializeField] private int returnEndHour = 6;
 
     [Header("Radio")]
     [SerializeField] private AudioSource radioAudioSource;
     [SerializeField] private int radioHour = 23;
 
-
-    private bool isRadioPlaying = false; 
-
+    private bool isRadioPlaying = false;
     private PlayerInventoryHolder inventory;
     private bool isActive = false;
 
@@ -59,7 +57,7 @@ public class UpdateTutorialText : MonoBehaviour
     private bool oxygenTankCollected = false;
     private bool oxygenTankEquipped = false;
 
-    private bool isNightWarningActive = false;
+    private bool isNightUIActive = false;
 
     private enum TutorialStep
     {
@@ -73,7 +71,6 @@ public class UpdateTutorialText : MonoBehaviour
         BuildSmelter,
         CollectCopperIngot,
         CraftRepairTorch,
-        ReturnToSubmarine,
         Done
     }
 
@@ -90,6 +87,11 @@ public class UpdateTutorialText : MonoBehaviour
 
         if (PlayerMovement.Instance != null)
             wasSwimmingLastFrame = PlayerMovement.Instance.IsSwimming;
+
+        if (TimeManager.Instance != null)
+        {
+            UpdateTutorial();
+        }
     }
 
     private void OnEnable()
@@ -122,63 +124,73 @@ public class UpdateTutorialText : MonoBehaviour
         firstTutorialUI?.SetActive(false);
         tutorialText?.gameObject.SetActive(true);
 
-        // Pause time at tutorial start
         TimeManager.Instance?.PauseTime();
 
         currentStep = TutorialStep.InteractWithLight;
         lightSwitchWaypoint?.ActivateWaypoint();
         UpdateTutorial();
-    } 
+    }
 
     private void Update()
     {
-        if (!isActive) return;
+        if (isActive)
+        {
+            if (currentStep == TutorialStep.ExitSubmarine)
+                CheckExitSubStep();
+
+            CheckFlashlightHint();
+
+            if (currentStep == TutorialStep.EquipOxygenTank && IsOxygenTankInSlot())
+            {
+                oxygenTankEquipped = true;
+                currentStep = TutorialStep.ExitSubmarine;
+                UpdateTutorial();
+            }
+
+            // Debug key to skip tutorial to night
+            if (Input.GetKeyDown(KeyCode.N))
+            {
+                SkipToNightTutorial();
+            }
+        }
 
         CheckNightReturnWarning();
+    } 
 
-        if (currentStep == TutorialStep.ExitSubmarine)
-            CheckExitSubStep();
-
-        CheckFlashlightHint();
-
-        if (currentStep == TutorialStep.EquipOxygenTank && IsOxygenTankInSlot())
-        {
-            oxygenTankEquipped = true;
-            currentStep = TutorialStep.ExitSubmarine;
-            UpdateTutorial();
-        }
+    private void SkipTutorial()
+    {
+      // Jump straight to Done
+        currentStep = TutorialStep.Done;
+        TimeManager.Instance?.ResumeTime(); 
+        UpdateTutorial(); 
     }
 
     private void OnHourChanged(int hour)
     {
-        if (hour < returnStartHour || hour >= returnEndHour)
+        if (currentStep == TutorialStep.Done)
         {
-            if (isNightWarningActive)
-            {
-                isNightWarningActive = false;
-                UpdateTutorial();
-            }
-        }
+            bool isRadioTime = IsTimeInRange(hour, radioHour, 6);
 
-        // Start radio at 23:00
-        if (hour == radioHour)
-        {
-            StartRadioEvent();
+            if (isRadioTime)
+                StartRadioEvent();
+            else
+                StopRadioEvent();
         }
+    }
 
-        // Stop radio at 06:00
-        if (hour == 6)
-        {
-            StopRadioEvent();
-        }
-    } 
+    private bool IsTimeInRange(int hour, int start, int end)
+    {
+        if (start > end)
+            return hour >= start || hour < end;
+
+        return hour >= start && hour < end;
+    }
 
     private void StartRadioEvent()
     {
         if (isRadioPlaying || radioAudioSource == null) return;
 
         isRadioPlaying = true;
-
         radioAudioSource.loop = true;
         radioAudioSource.Play();
 
@@ -190,37 +202,38 @@ public class UpdateTutorialText : MonoBehaviour
         if (!isRadioPlaying || radioAudioSource == null) return;
 
         isRadioPlaying = false;
-
         radioAudioSource.Stop();
 
         UpdateTutorial();
-    } 
+    }
 
     private void CheckNightReturnWarning()
     {
         if (TimeManager.Instance == null || PlayerMovement.Instance == null) return;
+        if (currentStep != TutorialStep.Done) return;
 
-        var time = TimeManager.Instance.GetGameTimeStamp();
-        int hour = time.Hour;
-
-        bool isNightTime = hour >= returnStartHour && hour < returnEndHour;
+        int hour = TimeManager.Instance.GetGameTimeStamp().Hour;
+        bool isNightTime = IsTimeInRange(hour, returnStartHour, returnEndHour);
         bool isSwimming = PlayerMovement.Instance.IsSwimming;
 
-        if (isNightTime && isSwimming)
+        bool shouldShow = isNightTime && isSwimming;
+
+        if (shouldShow)
         {
-            if (!isNightWarningActive)
+            if (!isNightUIActive)
             {
-                isNightWarningActive = true;
+                isNightUIActive = true;
+                tutorialText.text = "Return to Submarine";
             }
-
-            tutorialText.text = "Return to the Submarine before nightfall"; 
-            return;
         }
-
-        if (isNightWarningActive)
+        else
         {
-            isNightWarningActive = false;
-            UpdateTutorial();
+            isNightUIActive = false;
+
+            if (!isRadioPlaying)
+            {
+                tutorialText.text = "";
+            }
         }
     } 
 
@@ -248,56 +261,58 @@ public class UpdateTutorialText : MonoBehaviour
         flashlightUI.SetActive(false);
     }
 
+    private void SkipToNightTutorial()
+    {
+        currentStep = TutorialStep.Done;
+
+        TimeManager.Instance?.ResumeTime();
+
+        isNightUIActive = false;
+        isRadioPlaying = false;
+
+        CheckNightReturnWarning();
+        UpdateTutorial();
+
+        Debug.Log("Skipped to night tutorial.");
+    } 
+
     private void UpdateTutorial()
     {
         if (!isActive || tutorialText == null) return;
-
-        if (isNightWarningActive) return;
 
         switch (currentStep)
         {
             case TutorialStep.InteractWithLight:
                 tutorialText.text = "Reset the engine";
                 break;
-
             case TutorialStep.CollectGear:
                 HandleCollectGear();
                 break;
-
             case TutorialStep.EquipOxygenTank:
                 tutorialText.text = "Equip the Oxygen Tank\nPress (B) to open Inventory";
                 break;
-
             case TutorialStep.ExitSubmarine:
                 tutorialText.text = "Exit the submarine";
                 break;
-
             case TutorialStep.CollectMineral:
                 HandleCollectMineral();
                 break;
-
             case TutorialStep.CollectResources:
                 HandleCollectResources();
                 break;
-
             case TutorialStep.BuildWorkbench:
                 tutorialText.text = "Build a Workbench";
                 break;
-
             case TutorialStep.BuildSmelter:
                 tutorialText.text = "Build a Smelter";
                 break;
-
             case TutorialStep.CollectCopperIngot:
                 CollectCopperIngots();
                 break;
-
             case TutorialStep.CraftRepairTorch:
-                CraftRepairTorch(); 
+                CraftRepairTorch();
                 break;
-
             case TutorialStep.Done:
-                tutorialText.gameObject.SetActive(false);
                 break;
         }
     }
@@ -424,9 +439,8 @@ public class UpdateTutorialText : MonoBehaviour
 
         if (repairTorchCount >= 1)
         {
-            TimeManager.Instance?.ResumeTime(); 
-
-            currentStep = TutorialStep.Done; 
+            TimeManager.Instance?.ResumeTime();
+            currentStep = TutorialStep.Done;
             UpdateTutorial();
         }
     }

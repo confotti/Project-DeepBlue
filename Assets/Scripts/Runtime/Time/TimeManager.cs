@@ -43,7 +43,7 @@ public class TimeManager : MonoBehaviour
     private void Start()
     {
         // Start at Day 1, 8:00:00
-        _timestamp = new GameTimeStamp(1, 18, 0, 0);
+        _timestamp = new GameTimeStamp(1, 20, 0, 0);
 
         float realSecondsPerDay = realMinutesPerDay * 60f;
         _timeScale = SecondsPerGameDay / realSecondsPerDay;
