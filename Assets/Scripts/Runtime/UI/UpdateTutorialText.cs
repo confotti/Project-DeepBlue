@@ -8,6 +8,7 @@ public class UpdateTutorialText : MonoBehaviour
 {
     [Header("UI")]
     [SerializeField] private TMP_Text tutorialText;
+    [SerializeField] private TMP_Text nightWarningText; 
     [SerializeField] private GameObject firstTutorialUI;
     [SerializeField] private GameObject flashlightUI;
 
@@ -44,6 +45,7 @@ public class UpdateTutorialText : MonoBehaviour
     [Header("Radio")]
     [SerializeField] private AudioSource radioAudioSource;
     [SerializeField] private int radioHour = 23;
+    [SerializeField] private GameObject creatureToSpawn; 
 
     private bool isRadioPlaying = false;
     private PlayerInventoryHolder inventory;
@@ -58,6 +60,7 @@ public class UpdateTutorialText : MonoBehaviour
     private bool oxygenTankEquipped = false;
 
     private bool isNightUIActive = false;
+    private bool hasShownNightWarning = false; 
 
     private enum TutorialStep
     {
@@ -79,7 +82,11 @@ public class UpdateTutorialText : MonoBehaviour
     private void Awake()
     {
         inventory = FindObjectOfType<PlayerInventoryHolder>();
-    }
+        if (nightWarningText != null)
+            nightWarningText.gameObject.SetActive(false); 
+        if (creatureToSpawn != null)
+            creatureToSpawn.SetActive(false); 
+    } 
 
     private void Start()
     {
@@ -89,9 +96,7 @@ public class UpdateTutorialText : MonoBehaviour
             wasSwimmingLastFrame = PlayerMovement.Instance.IsSwimming;
 
         if (TimeManager.Instance != null)
-        {
             UpdateTutorial();
-        }
     }
 
     private void OnEnable()
@@ -147,7 +152,6 @@ public class UpdateTutorialText : MonoBehaviour
                 UpdateTutorial();
             }
 
-            // Debug key to skip tutorial to night
             if (Input.GetKeyDown(KeyCode.N))
             {
                 SkipToNightTutorial();
@@ -155,14 +159,14 @@ public class UpdateTutorialText : MonoBehaviour
         }
 
         CheckNightReturnWarning();
-    } 
+        CheckNightWarning(); 
+    }
 
     private void SkipTutorial()
     {
-      // Jump straight to Done
         currentStep = TutorialStep.Done;
-        TimeManager.Instance?.ResumeTime(); 
-        UpdateTutorial(); 
+        TimeManager.Instance?.ResumeTime();
+        UpdateTutorial();
     }
 
     private void OnHourChanged(int hour)
@@ -235,6 +239,39 @@ public class UpdateTutorialText : MonoBehaviour
                 tutorialText.text = "";
             }
         }
+    }
+
+    private void CheckNightWarning()
+    {
+        if (TimeManager.Instance == null || hasShownNightWarning) return;
+
+        var time = TimeManager.Instance.GetGameTimeStamp();
+
+        if (time.Hour == 23 && time.Minute == 30)
+        {
+            hasShownNightWarning = true;
+            ShowNightWarning();
+        }
+    }
+
+    private void ShowNightWarning()
+    {
+        if (nightWarningText != null)
+        {
+            nightWarningText.gameObject.SetActive(true);
+            nightWarningText.text = "...stay indoors...they come out at night...";
+            StartCoroutine(HideNightWarningAfterSeconds(5f));
+        }
+
+        if (creatureToSpawn != null)
+            creatureToSpawn.SetActive(true); 
+    }
+
+    private IEnumerator HideNightWarningAfterSeconds(float seconds)
+    {
+        yield return new WaitForSeconds(seconds);
+        if (nightWarningText != null)
+            nightWarningText.gameObject.SetActive(false);
     } 
 
     private void CheckFlashlightHint()
@@ -271,10 +308,11 @@ public class UpdateTutorialText : MonoBehaviour
         isRadioPlaying = false;
 
         CheckNightReturnWarning();
+        CheckNightWarning();
         UpdateTutorial();
 
         Debug.Log("Skipped to night tutorial.");
-    } 
+    }
 
     private void UpdateTutorial()
     {
