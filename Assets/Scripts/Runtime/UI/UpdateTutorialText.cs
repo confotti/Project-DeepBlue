@@ -202,7 +202,7 @@ public class UpdateTutorialText : MonoBehaviour
                 StopRadioEvent();
         }
 
-        if (hour == 2 && !CollisionTriggered)
+        if (hour == 3 && !CollisionTriggered)
         {
             TriggerCollisionEvent();
         }
@@ -273,7 +273,7 @@ public class UpdateTutorialText : MonoBehaviour
 
         var time = TimeManager.Instance.GetGameTimeStamp();
 
-        if (time.Hour == 23 && time.Minute == 30)
+        if (time.Hour == 23 && time.Minute == 25)
         {
             hasShownNightWarning = true;
             ShowNightWarning();
