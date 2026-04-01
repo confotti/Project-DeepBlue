@@ -45,7 +45,11 @@ public class UpdateTutorialText : MonoBehaviour
     [Header("Radio")]
     [SerializeField] private AudioSource radioAudioSource;
     [SerializeField] private int radioHour = 23;
-    [SerializeField] private GameObject creatureToSpawn; 
+    [SerializeField] private GameObject creatureToSpawn;
+
+    [Header("Sounds")]
+    [SerializeField] private AudioSource whaleSound;
+    [SerializeField] private GameObject whaleAudioSource; 
 
     private bool isRadioPlaying = false;
     private PlayerInventoryHolder inventory;
@@ -173,7 +177,7 @@ public class UpdateTutorialText : MonoBehaviour
     {
         if (currentStep == TutorialStep.Done)
         {
-            bool isRadioTime = IsTimeInRange(hour, radioHour, 6);
+            bool isRadioTime = IsTimeInRange(hour, radioHour, 0);
 
             if (isRadioTime)
                 StartRadioEvent();
@@ -272,6 +276,7 @@ public class UpdateTutorialText : MonoBehaviour
         yield return new WaitForSeconds(seconds);
         if (nightWarningText != null)
             nightWarningText.gameObject.SetActive(false);
+        whaleAudioSource.SetActive(true); 
     } 
 
     private void CheckFlashlightHint()
@@ -434,6 +439,7 @@ public class UpdateTutorialText : MonoBehaviour
 
         if (limestoneCount >= 4 && tinCount >= 2)
         {
+            whaleSound.Play(); 
             currentStep = TutorialStep.BuildWorkbench;
             UpdateTutorial();
         }
