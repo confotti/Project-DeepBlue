@@ -3,6 +3,7 @@ using TMPro;
 using WrightAngle.Waypoint;
 using BuildSystem;
 using System.Collections;
+using Unity.Cinemachine; 
 
 public class UpdateTutorialText : MonoBehaviour
 {
@@ -49,7 +50,17 @@ public class UpdateTutorialText : MonoBehaviour
 
     [Header("Sounds")]
     [SerializeField] private AudioSource whaleSound;
-    [SerializeField] private GameObject whaleAudioSource; 
+    [SerializeField] private GameObject whaleAudioSource;
+
+    [Header("Collision Event")]
+    [SerializeField] private CinemachineCamera mainCamera;
+    [SerializeField] private CinemachineCamera shakeCamera; 
+    [SerializeField] private AudioSource collisionAudio;
+    [SerializeField] private AudioSource whaleAudio; 
+    [SerializeField] private GameObject collisionCracks;
+    [SerializeField] private GameObject[] cracks; 
+
+    private bool CollisionTriggered = false; 
 
     private bool isRadioPlaying = false;
     private PlayerInventoryHolder inventory;
@@ -78,6 +89,7 @@ public class UpdateTutorialText : MonoBehaviour
         BuildSmelter,
         CollectCopperIngot,
         CraftRepairTorch,
+        FixCracks, 
         Done
     }
 
@@ -163,7 +175,12 @@ public class UpdateTutorialText : MonoBehaviour
         }
 
         CheckNightReturnWarning();
-        CheckNightWarning(); 
+        CheckNightWarning();
+
+        if (currentStep == TutorialStep.FixCracks)
+        {
+            HandleFixCracks();
+        } 
     }
 
     private void SkipTutorial()
@@ -183,6 +200,11 @@ public class UpdateTutorialText : MonoBehaviour
                 StartRadioEvent();
             else
                 StopRadioEvent();
+        }
+
+        if (hour == 2 && !CollisionTriggered)
+        {
+            TriggerCollisionEvent();
         }
     }
 
@@ -277,6 +299,47 @@ public class UpdateTutorialText : MonoBehaviour
         if (nightWarningText != null)
             nightWarningText.gameObject.SetActive(false);
         whaleAudioSource.SetActive(true); 
+    }
+
+    private void TriggerCollisionEvent()
+    {
+        CollisionTriggered = true;
+
+        StartCoroutine(CollisionSequence());
+    }
+
+    private IEnumerator CollisionSequence()
+    {
+        // Switch Camera
+        if (mainCamera != null)
+            mainCamera.Priority = 0;
+
+        if (shakeCamera != null)
+            shakeCamera.Priority = 20;
+
+        // Play Audio
+        if (collisionAudio != null)
+            collisionAudio.Play();
+        if (whaleAudio != null)
+            whaleAudio.Play();
+
+        // Enable GameObject
+        if (collisionCracks != null)
+            collisionCracks.SetActive(true);
+
+        // Stay on shake camera for a few seconds
+        yield return new WaitForSeconds(3f);
+
+        // Switch back to main camera
+        if (mainCamera != null)
+            mainCamera.Priority = 20;
+
+        if (shakeCamera != null)
+            shakeCamera.Priority = 0;
+
+        // Start crack tutorial
+        currentStep = TutorialStep.FixCracks;
+        UpdateTutorial(); 
     } 
 
     private void CheckFlashlightHint()
@@ -355,6 +418,9 @@ public class UpdateTutorialText : MonoBehaviour
             case TutorialStep.CraftRepairTorch:
                 CraftRepairTorch();
                 break;
+            case TutorialStep.FixCracks:
+                HandleFixCracks();
+                break; 
             case TutorialStep.Done:
                 break;
         }
@@ -420,7 +486,7 @@ public class UpdateTutorialText : MonoBehaviour
     private void HandleCollectMineral()
     {
         int limestoneCount = GetItemCount(limestone);
-        tutorialText.text = $"Collect resources:\nLimestone: {limestoneCount}/1";
+        tutorialText.text = $"Collect resources:\nLimestone: {limestoneCount}/1\nPress (E) to collect";
 
         if (limestoneCount >= 1)
         {
@@ -488,6 +554,25 @@ public class UpdateTutorialText : MonoBehaviour
             UpdateTutorial();
         }
     }
+
+    private void HandleFixCracks()
+    {
+        int fixedCount = 0;
+
+        foreach (var crack in cracks)
+        {
+            if (!crack.activeSelf)
+                fixedCount++;
+        }
+
+        tutorialText.text = $"Fix the hull breaches: {fixedCount}/{cracks.Length}\nFix by equipping the Repair Torch and pressing: (Left Mouse)";
+
+        if (fixedCount == cracks.Length)
+        {
+            currentStep = TutorialStep.Done;
+            UpdateTutorial();
+        }
+    } 
 
     private int GetItemCount(InventoryItemData item)
     {

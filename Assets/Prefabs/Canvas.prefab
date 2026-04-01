@@ -862,11 +862,22 @@ MonoBehaviour:
   hammerWaypoint: {fileID: 0}
   lightSwitch: {fileID: 0}
   oxygenTankSlotUI: {fileID: 7678881272271460976}
-  returnStartHour: 20
+  returnStartHour: 21
   returnEndHour: 6
   radioAudioSource: {fileID: 0}
   radioHour: 23
   creatureToSpawn: {fileID: 0}
+  whaleSound: {fileID: 0}
+  whaleAudioSource: {fileID: 0}
+  mainCamera: {fileID: 0}
+  shakeCamera: {fileID: 0}
+  collisionAudio: {fileID: 0}
+  whaleAudio: {fileID: 0}
+  collisionCracks: {fileID: 0}
+  cracks:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!114 &2129633971428172609
 MonoBehaviour:
   m_ObjectHideFlags: 0
