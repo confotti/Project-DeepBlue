@@ -114,8 +114,9 @@ public class TimeManager : MonoBehaviour
     {
         if (_clockText == null) return;
 
-        _clockText.text = $"{_timestamp.Hour:00}:{_timestamp.Minute - (_timestamp.Minute % 5):00}";
-    }
+        int roundedMinute = _timestamp.Minute - (_timestamp.Minute % 2);
+        _clockText.text = $"{_timestamp.Hour:00}:{roundedMinute:00}";
+    } 
 
     public GameTimeStamp GetGameTimeStamp()
     {

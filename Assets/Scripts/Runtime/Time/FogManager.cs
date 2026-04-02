@@ -9,14 +9,14 @@ public class FogManager : MonoBehaviour
     [Header("Fog Settings")]
     public Color nightFogColor = new Color(0.5f, 0.05f, 0.1f);
     public float dayStartHour = 6f;
-    public float nightStartHour = 20f;
-    public float duskStartHour = 16f;
-    public float dawnStartHour = 4f; 
-    public float fogLerpSpeed = 0.5f;
+    public float nightStartHour = 22f;
+    public float duskStartHour = 20f;
+    public float dawnStartHour = 4f;
+    public float fogLerpSpeed = 0.02f;
 
     [Header("Fog Attenuation")]
     public float dayAttenuation = 300f;
-    public float nightAttenuation = 150f; 
+    public float nightAttenuation = 150f;
 
     public List<Volume> fogVolume = new List<Volume>();
 
@@ -69,7 +69,7 @@ public class FogManager : MonoBehaviour
         if (hours >= dawnStartHour && hours < dayStartHour)
         {
             float t = Mathf.InverseLerp(dawnStartHour, dayStartHour, hours);
-            return Mathf.SmoothStep(0f, 1f, t); 
+            return Mathf.SmoothStep(0f, 1f, t);
         }
 
         // Day
@@ -81,12 +81,12 @@ public class FogManager : MonoBehaviour
         // Dusk (day → night)
         if (hours >= duskStartHour && hours < nightStartHour)
         {
-            float t = Mathf.InverseLerp(nightStartHour, duskStartHour, hours);
-            return Mathf.SmoothStep(1f, 0f, t); 
+            float t = Mathf.InverseLerp(duskStartHour, nightStartHour, hours);
+            return Mathf.SmoothStep(1f, 0f, t);
         }
 
         // Night
-        return 0f; 
+        return 0f;
     }
 
     [ContextMenu("Refresh Fog Volumes")]
@@ -112,4 +112,4 @@ public class FogManager : MonoBehaviour
             }
         }
     }
-}
+} 
