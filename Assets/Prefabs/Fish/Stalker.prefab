@@ -17,7 +17,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &5730096199682882063
 Transform:
   m_ObjectHideFlags: 0
@@ -80,7 +80,7 @@ MonoBehaviour:
   _fieldOfViewInspector: 270
   LookAtPoint: {fileID: 8291110624590305647}
   _renderer: {fileID: 3412992132805471757}
-  TimeSinceLastAttack: 100
+  TimeSinceLastAttack: 45
   _showWanderGizmos: 1
   WanderState:
     _wanderSpeed: 15
@@ -91,8 +91,8 @@ MonoBehaviour:
     _avoidDistance: 35
   _showPursuitGizmos: 1
   PursuitState:
-    _pursuitSpeed: 25
-    PursuitDetectionRange: 70
+    _pursuitSpeed: 35
+    PursuitDetectionRange: 80
     _attackRange: 5
     _attackDamage: 50
   StalkState:

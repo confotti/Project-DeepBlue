@@ -310,6 +310,11 @@ public class UpdateTutorialText : MonoBehaviour
 
     private IEnumerator CollisionSequence()
     {
+        if (whaleAudio != null)
+            whaleAudio.Play();
+
+        yield return new WaitForSeconds(2f);
+
         // Switch Camera
         if (mainCamera != null)
             mainCamera.Priority = 0;
@@ -317,17 +322,13 @@ public class UpdateTutorialText : MonoBehaviour
         if (shakeCamera != null)
             shakeCamera.Priority = 20;
 
-        // Play Audio
         if (collisionAudio != null)
             collisionAudio.Play();
-        if (whaleAudio != null)
-            whaleAudio.Play();
 
-        // Enable GameObject
         if (collisionCracks != null)
             collisionCracks.SetActive(true);
 
-        // Stay on shake camera for a few seconds
+        // Stay on shake camera
         yield return new WaitForSeconds(3f);
 
         // Switch back to main camera
@@ -337,9 +338,8 @@ public class UpdateTutorialText : MonoBehaviour
         if (shakeCamera != null)
             shakeCamera.Priority = 0;
 
-        // Start crack tutorial
         currentStep = TutorialStep.FixCracks;
-        UpdateTutorial(); 
+        UpdateTutorial();
     } 
 
     private void CheckFlashlightHint()
@@ -370,7 +370,11 @@ public class UpdateTutorialText : MonoBehaviour
     {
         currentStep = TutorialStep.Done;
 
-        TimeManager.Instance?.ResumeTime();
+        if (TimeManager.Instance != null)
+        {
+            TimeManager.Instance.SetTime(22, 0);
+            TimeManager.Instance.ResumeTime();
+        }
 
         isNightUIActive = false;
         isRadioPlaying = false;
@@ -380,7 +384,7 @@ public class UpdateTutorialText : MonoBehaviour
         UpdateTutorial();
 
         Debug.Log("Skipped to night tutorial.");
-    }
+    } 
 
     private void UpdateTutorial()
     {

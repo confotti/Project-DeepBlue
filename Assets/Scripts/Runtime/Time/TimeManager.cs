@@ -100,6 +100,22 @@ public class TimeManager : MonoBehaviour
         UpdateSunMovement();
     }
 
+    public void SetTime(int hour, int minute = 0, int second = 0)
+    {
+        _timestamp = new GameTimeStamp(
+            _timestamp.Day,
+            hour,
+            minute,
+            second
+        );
+
+        UpdateClockUI();
+        UpdateSunMovement();
+
+        OnHourChanged?.Invoke(hour);
+        OnMinuteChanged?.Invoke(minute);
+    } 
+
     void UpdateSunMovement()
     {
         float dayProgress = (_timestamp.Hour * 3600 + _timestamp.Minute * 60 + _timestamp.Second) / SecondsPerGameDay;
