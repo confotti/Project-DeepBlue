@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using UnityEngine.Events;
-using System.Collections;
 using System.Collections.Generic;
 
 public class LightBehaviour : MonoBehaviour, IInteractable
@@ -9,34 +8,30 @@ public class LightBehaviour : MonoBehaviour, IInteractable
     public List<GameObject> lightSources = new List<GameObject>();
     public List<GameObject> warningLights = new List<GameObject>();
 
-    [Header("Night Settings")]
-    [SerializeField] private FogManager fogManager;
-    [SerializeField] [Range(0f, 24f)] private float lightOffStartHourOffset = 0f;
+    [SerializeField] private SubmarineEngine engine;
 
     private bool lightOn = false;
-    private bool nightEventTriggered = false;
     private bool hasInteracted = false;
 
-    private List<GameObject> currentlyDisabledLights = new List<GameObject>();
-
-    private float nightDuration;
-    private float lightsRestoreHour;
+    public static event System.Action<bool> OnWarningLightsChanged;
 
     public string InteractText => "Toggle Lights";
     public UnityAction<IInteractable> OnInteractionComplete { get; set; }
-
-    // ✅ Event for first interaction
     public event System.Action OnFirstInteract;
 
     public void Interact(PlayerInteract interactor)
     {
+        // Prevent turning lights on if fuel = 0
+        if (!lightOn && engine != null && !engine.HasFuel())
+            return;
+
         lightOn = !lightOn;
         SetLights(lightOn);
 
         if (!hasInteracted)
         {
             hasInteracted = true;
-            OnFirstInteract?.Invoke(); // notify tutorial
+            OnFirstInteract?.Invoke();
         }
     }
 
@@ -51,99 +46,14 @@ public class LightBehaviour : MonoBehaviour, IInteractable
         foreach (var obj in warningLights)
             if (obj != null)
                 obj.SetActive(!normalLightsOn);
+
+        OnWarningLightsChanged?.Invoke(!normalLightsOn);
     }
 
-    private void Update()
+    // Force lights off (used when no fuel)
+    public void ForceWarningLights()
     {
-        if (TimeManager.Instance == null) return;
-
-        GameTimeStamp time = TimeManager.Instance.GetGameTimeStamp();
-        float hours = time.Hour + time.Minute / 60f;
-
-        bool isNight = hours >= fogManager.nightStartHour || hours <= fogManager.dayStartHour;
-
-        if (isNight)
-        {
-            if (!nightEventTriggered)
-            {
-                nightEventTriggered = true;
-
-                nightDuration = (fogManager.dayStartHour - fogManager.nightStartHour + 24) % 24;
-                float lightsOffStartHour = (fogManager.nightStartHour + lightOffStartHourOffset) % 24;
-                lightsRestoreHour = (lightsOffStartHour + nightDuration * 0.5f) % 24;
-
-                if (IsTimeInRange(hours, lightsOffStartHour, lightsRestoreHour))
-                    ApplyRandomNightLights();
-            }
-
-            if (currentlyDisabledLights.Count > 0 &&
-                IsTimeInRange(hours, lightsRestoreHour, fogManager.dayStartHour))
-            {
-                RestoreLights();
-            }
-        }
-        else
-        {
-            if (nightEventTriggered)
-            {
-                RestoreLights();
-                nightEventTriggered = false;
-            }
-        }
+        lightOn = false;
+        SetLights(false);
     }
-
-    private void ApplyRandomNightLights()
-    {
-        int amountToDisable = Mathf.CeilToInt(lightSources.Count * 0.3f);
-        amountToDisable = Mathf.Min(amountToDisable, lightSources.Count);
-
-        List<GameObject> tempList = new List<GameObject>(lightSources);
-
-        for (int i = 0; i < amountToDisable; i++)
-        {
-            int randomIndex = Random.Range(0, tempList.Count);
-            GameObject selected = tempList[randomIndex];
-
-            StartCoroutine(FlickerAndDisable(selected));
-
-            currentlyDisabledLights.Add(selected);
-            tempList.RemoveAt(randomIndex);
-        }
-    }
-
-    private IEnumerator FlickerAndDisable(GameObject lightObj)
-    {
-        int flickerCount = Random.Range(3, 7);
-
-        for (int i = 0; i < flickerCount; i++)
-        {
-            lightObj.SetActive(false);
-            yield return new WaitForSeconds(Random.Range(0.05f, 0.15f));
-
-            lightObj.SetActive(true);
-            yield return new WaitForSeconds(Random.Range(0.05f, 0.15f)); 
-        }
-
-        lightObj.SetActive(false);
-    }
-
-    private void RestoreLights()
-    {
-        foreach (var obj in currentlyDisabledLights)
-        {
-            if (obj != null)
-                obj.SetActive(true);
-        }
-
-        currentlyDisabledLights.Clear();
-        SetLights(lightOn);
-    }
-
-    private bool IsTimeInRange(float currentHour, float startHour, float endHour)
-    {
-        if (startHour < endHour)
-            return currentHour >= startHour && currentHour < endHour;
-        else
-            return currentHour >= startHour || currentHour < endHour;
-    }
-}
+} 
