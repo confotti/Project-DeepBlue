@@ -34,7 +34,7 @@ public class UpdateTutorialText : MonoBehaviour
     [SerializeField] private WaypointTarget hammerWaypoint;
 
     [Header("Light Switch")]
-    [SerializeField] private LightBehaviour lightSwitch;
+    [SerializeField] private LightSwitch lightSwitch; 
 
     [Header("Oxygen Tank Slot")]
     [SerializeField] private EquipmentSlot_UI oxygenTankSlotUI;

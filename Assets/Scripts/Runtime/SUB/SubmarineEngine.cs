@@ -16,7 +16,7 @@ public class SubmarineEngine : MonoBehaviour, IInteractable
 
     [Header("References")]
     [SerializeField] private Image fuelFillImage;
-    [SerializeField] private LightBehaviour lightBehaviour;
+    [SerializeField] private LightSwitch lightSwitch; 
     [SerializeField] private PlayerInventoryHolder playerInventory;
 
     private float currentFuel;
@@ -28,12 +28,12 @@ public class SubmarineEngine : MonoBehaviour, IInteractable
 
     private void OnEnable()
     {
-        LightBehaviour.OnWarningLightsChanged += HandleWarningLights;
+        LightSwitch.OnWarningLightsChanged += HandleWarningLights;
     }
 
     private void OnDisable()
     {
-        LightBehaviour.OnWarningLightsChanged -= HandleWarningLights;
+        LightSwitch.OnWarningLightsChanged -= HandleWarningLights;
     }
 
     private void Start()
@@ -93,9 +93,9 @@ public class SubmarineEngine : MonoBehaviour, IInteractable
 
     private void ForceWarningLights()
     {
-        if (lightBehaviour != null)
+        if (lightSwitch != null)
         {
-            lightBehaviour.ForceWarningLights();
+            lightSwitch.ForceWarningLights(); 
         }
     }
 

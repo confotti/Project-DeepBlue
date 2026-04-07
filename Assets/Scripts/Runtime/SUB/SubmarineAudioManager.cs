@@ -7,7 +7,7 @@ public class SubmarineAudioManager : MonoBehaviour
     public static SubmarineAudioManager Instance { get; private set; }
 
     [Header("Night Sound Objects")]
-    public List<GameObject> nightSoundObjects; // Each has an AudioSource
+    public List<GameObject> nightSoundObjects; 
 
     [Header("Night Timing")]
     public int nightStartHour = 22;

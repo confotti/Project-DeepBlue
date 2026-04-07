@@ -91,12 +91,12 @@ public class PlayerStats : MonoBehaviour
 
     private void OnEnable()
     {
-        LightBehaviour.OnWarningLightsChanged += OnWarningLightsChanged;
+        LightSwitch.OnWarningLightsChanged += OnWarningLightsChanged;
     }
 
     private void OnDisable()
     {
-        LightBehaviour.OnWarningLightsChanged -= OnWarningLightsChanged;
+        LightSwitch.OnWarningLightsChanged -= OnWarningLightsChanged;
     }
 
     private void InitializeStats()
