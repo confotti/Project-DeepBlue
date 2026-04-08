@@ -4842,7 +4842,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2622705807857280044}
-  - component: {fileID: 1674263913727006936}
   - component: {fileID: 2652709919575924652}
   m_Layer: 12
   m_Name: Breathing
@@ -4866,18 +4865,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 5252216599760493391}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1674263913727006936
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 822160846636768961}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5fd904fabc07ebc4d8e236d3eee6a0c4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!82 &2652709919575924652
 AudioSource:
   m_ObjectHideFlags: 0
@@ -5077,7 +5064,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 652342649972284514}
-  - component: {fileID: 3073732205930830481}
   - component: {fileID: 609698943203529941}
   m_Layer: 12
   m_Name: Ambience
@@ -5101,18 +5087,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 5252216599760493391}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &3073732205930830481
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1082780494053195899}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5fd904fabc07ebc4d8e236d3eee6a0c4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!82 &609698943203529941
 AudioSource:
   m_ObjectHideFlags: 0
@@ -35440,7 +35414,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3911654057248549359}
-  - component: {fileID: 7659041019439946050}
   - component: {fileID: 2450339173156258624}
   m_Layer: 12
   m_Name: Heartbeat
@@ -35464,18 +35437,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 5252216599760493391}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &7659041019439946050
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8309125180969819002}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5fd904fabc07ebc4d8e236d3eee6a0c4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!82 &2450339173156258624
 AudioSource:
   m_ObjectHideFlags: 0
