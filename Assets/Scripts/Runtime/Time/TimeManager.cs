@@ -9,6 +9,8 @@ public class TimeManager : MonoBehaviour
 
     public bool IsTimePaused { get; private set; }
 
+    public event Action<int> OnDayChanged; 
+
     [Header("Internal Clock")]
     [SerializeField] private GameTimeStamp _timestamp;
 
@@ -38,13 +40,13 @@ public class TimeManager : MonoBehaviour
     {
         if (Instance != null && Instance != this) Destroy(this);
         else Instance = this;
+
+        // Start at Day 1, 8:00:00
+        _timestamp = new GameTimeStamp(1, 18, 0, 0); 
     }
 
     private void Start()
     {
-        // Start at Day 1, 8:00:00
-        _timestamp = new GameTimeStamp(1, 18, 0, 0);
-
         float realSecondsPerDay = realMinutesPerDay * 60f;
         _timeScale = SecondsPerGameDay / realSecondsPerDay;
 
@@ -84,7 +86,15 @@ public class TimeManager : MonoBehaviour
 
     private void TickOneSecond()
     {
+        int previousHour = _timestamp.Hour;
+        int previousMinute = _timestamp.Minute;
+
         _timestamp.AddOneSecond();
+
+        if (previousHour < 6 && _timestamp.Hour >= 6)
+        {
+            OnDayChanged?.Invoke(_timestamp.Day);
+        } 
 
         if (_timestamp.Second == 0)
         {
@@ -98,7 +108,7 @@ public class TimeManager : MonoBehaviour
         }
 
         UpdateSunMovement();
-    }
+    } 
 
     public void SetTime(int hour, int minute = 0, int second = 0)
     {
