@@ -1,17 +1,15 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine.UI;
 using UnityEngine;
 using TMPro;
 using System;
-using UnityEngine.Rendering;
-using UnityEngine.Rendering.HighDefinition;
 
 public class PlayerStats : MonoBehaviour
 {
     public Action OnDeath;
 
     private PlayerMovement _playerMovement;
+    private SanityManager _sanityManager;
 
     [Header("Respawn")]
     [SerializeField] private GameObject _submarine;
@@ -25,34 +23,12 @@ public class PlayerStats : MonoBehaviour
     [SerializeField] private float _timeToDrown = 5;
     [SerializeField] private float _drownReduction = 2.5f;
 
-    [SerializeField] private int _maxSanity = 100;
     [SerializeField] private int _maxHealth = 100;
 
     private float _currentOxygen;
     private float _previousOxygen;
     private float _currentDrownTime;
     private int _currentHealth;
-
-    [Header("Sanity")]
-    [SerializeField] private Volume sanityVolume;
-    [SerializeField] private float sanityEffectStart = 30f;
-    [SerializeField] private float sanityLerpSpeed = 1.5f;
-
-    [SerializeField] private int sanityDamagePerTick = 5;
-    [SerializeField] private float sanityDamageInterval = 1.5f;
-
-    [SerializeField] private float sanityDrainPerSecond = 2f;
-    [SerializeField] private float sanityRecoveryPerSecond = 1.5f;
-
-    [SerializeField, InspectorReadOnly]
-    private float _currentSanity;
-
-    private float sanityDamageTimer;
-    private float targetWeight;
-
-    [Header("Sanity Heartbeat")]
-    [SerializeField] private AudioSource heartbeatSource;
-    [SerializeField] private float heartbeatLowSanity = 25f;
 
     [Header("UI")]
     [SerializeField] private UIPort _uiPort;
@@ -69,11 +45,11 @@ public class PlayerStats : MonoBehaviour
     private Coroutine _criticalWarningRoutine;
 
     private bool _dead = false;
-    private bool warningLightsActive = false;
 
     private void Awake()
     {
         _playerMovement = GetComponent<PlayerMovement>();
+        _sanityManager = GetComponent<SanityManager>();
         _currentMaxOxygen = _baseMaxOxygen;
     }
 
@@ -84,19 +60,8 @@ public class PlayerStats : MonoBehaviour
 
     private void Update()
     {
-        HandleSanity();
         HandleOxygen();
         HandleUI();
-    }
-
-    private void OnEnable()
-    {
-        LightSwitch.OnWarningLightsChanged += OnWarningLightsChanged;
-    }
-
-    private void OnDisable()
-    {
-        LightSwitch.OnWarningLightsChanged -= OnWarningLightsChanged;
     }
 
     private void InitializeStats()
@@ -104,7 +69,6 @@ public class PlayerStats : MonoBehaviour
         _currentOxygen = _currentMaxOxygen;
         _previousOxygen = _currentOxygen;
 
-        _currentSanity = _maxSanity;
         _currentHealth = _maxHealth;
 
         oxygenBar.maxValue = _currentMaxOxygen;
@@ -114,84 +78,6 @@ public class PlayerStats : MonoBehaviour
 
         if (criticalOxygenText)
             criticalOxygenText.gameObject.SetActive(false);
-    }
-
-    private void HandleSanity()
-    {
-        HandleSanityDrain();
-        HandleHeartbeat();
-        HandleSanityDamage();
-        UpdateSanityEffects();
-    }
-
-    private void HandleSanityDrain()
-    {
-        if (IsNight() && warningLightsActive)
-            ChangeSanity(-sanityDrainPerSecond * Time.deltaTime);
-        else
-            ChangeSanity(sanityRecoveryPerSecond * Time.deltaTime);
-    }
-
-    private void HandleSanityDamage()
-    {
-        if (_currentSanity > 0)
-        {
-            sanityDamageTimer = 0f;
-            return;
-        }
-
-        sanityDamageTimer += Time.deltaTime;
-
-        if (sanityDamageTimer >= sanityDamageInterval)
-        {
-            sanityDamageTimer = 0f;
-            ChangeHealth(-sanityDamagePerTick);
-        }
-    }
-
-    private void HandleHeartbeat()
-    {
-        if (_currentSanity <= heartbeatLowSanity && !_dead)
-        {
-            if (!heartbeatSource.isPlaying)
-                heartbeatSource.Play();
-
-            float intensity = 1f - (_currentSanity / heartbeatLowSanity);
-            heartbeatSource.pitch = Mathf.Lerp(1f, 1.5f, intensity);
-            heartbeatSource.volume = Mathf.Lerp(0.2f, 1f, intensity);
-        }
-        else
-        {
-            if (heartbeatSource.isPlaying)
-                heartbeatSource.Stop();
-        }
-    }
-
-    private void UpdateSanityEffects()
-    {
-        if (sanityVolume == null) return;
-
-        if (_dead)
-        {
-            sanityVolume.weight = 0f;
-            return;
-        }
-
-        if (_currentSanity <= sanityEffectStart && warningLightsActive)
-        {
-            float t = 1f - (_currentSanity / sanityEffectStart);
-            targetWeight = t;
-        }
-        else
-        {
-            targetWeight = 0f;
-        }
-
-        sanityVolume.weight = Mathf.Lerp(
-            sanityVolume.weight,
-            targetWeight,
-            Time.deltaTime * sanityLerpSpeed
-        );
     }
 
     private void HandleOxygen()
@@ -292,11 +178,6 @@ public class PlayerStats : MonoBehaviour
             Death();
     }
 
-    public void ChangeSanity(float amount)
-    {
-        _currentSanity = Mathf.Clamp(_currentSanity + amount, 0, _maxSanity);
-    }
-
     public void SetOxygenModifier(int amountAdded)
     {
         _currentMaxOxygen = _baseMaxOxygen + amountAdded;
@@ -327,15 +208,8 @@ public class PlayerStats : MonoBehaviour
 
         _dead = true;
 
-        // Reset sanity
-        _currentSanity = _maxSanity;
-
-        // Stop effects
-        if (heartbeatSource && heartbeatSource.isPlaying)
-            heartbeatSource.Stop();
-
-        if (sanityVolume)
-            sanityVolume.weight = 0f;
+        _sanityManager.ResetSanity();
+        _sanityManager.SetDead(true);
 
         OnDeath?.Invoke();
         _uiPort.StartScreenFade(true, 2, DeathFadeOutDone);
@@ -358,6 +232,8 @@ public class PlayerStats : MonoBehaviour
         transform.position = RespawnPoint;
         _dead = false;
 
+        _sanityManager.SetDead(false);
+
         _playerMovement.StateMachine.ChangeState(_playerMovement.StandingState);
 
         SetHealth(_maxHealth);
@@ -366,17 +242,4 @@ public class PlayerStats : MonoBehaviour
         _previousOxygen = _currentOxygen;
         _currentDrownTime = 0;
     }
-
-    private bool IsNight()
-    {
-        if (TimeManager.Instance == null) return false;
-
-        int hour = TimeManager.Instance.GetGameTimeStamp().Hour;
-        return (hour >= 22 || hour < 6);
-    }
-
-    private void OnWarningLightsChanged(bool active)
-    {
-        warningLightsActive = active;
-    } 
 } 
