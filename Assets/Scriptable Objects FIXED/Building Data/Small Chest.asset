@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0647c8f7c9b13404a8ab9ec347a61f4b, type: 3}
+  m_Name: Small Chest
+  m_EditorClassIdentifier: 
+  DisplayName: Small Chest
+  Icon: {fileID: 21300000, guid: 76498fd4b450bd74e88b5f53598c4671, type: 3}
+  Prefab: {fileID: -1877487185191811109, guid: 38ddabcbbaf94ec4b815a831cfb251ae, type: 3}
+  Category: 0
+  Cost:
+  - ItemRequired: {fileID: 11400000, guid: 49e203c2aa403064d90b725cec9d9125, type: 2}
+    AmountRequired: 2
+  - ItemRequired: {fileID: 11400000, guid: c54a5320e513a6f46ba42bef515d6be4, type: 2}
+    AmountRequired: 1
