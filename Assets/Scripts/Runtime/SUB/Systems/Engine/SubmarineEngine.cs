@@ -19,6 +19,12 @@ public class SubmarineEngine : MonoBehaviour, IInteractable
     [SerializeField] private LightSwitch lightSwitch; 
     [SerializeField] private PlayerInventoryHolder playerInventory;
 
+    [Header("UI Visibility")]
+    [SerializeField] private CanvasGroup canvasGroup;
+    [SerializeField] private float fadeSpeed = 5f;
+
+    private bool playerNearby; 
+
     private float currentFuel;
     private bool warningLightsOnly = true;
     private bool isOutOfFuel = false;
@@ -45,7 +51,24 @@ public class SubmarineEngine : MonoBehaviour, IInteractable
     private void Update()
     {
         DrainFuel();
+        HandleUIVisibility(); 
     }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            playerNearby = true;
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            playerNearby = false;
+        }
+    } 
 
     public void Interact(PlayerInteract interactor)
     {
@@ -129,4 +152,20 @@ public class SubmarineEngine : MonoBehaviour, IInteractable
     {
         return currentFuel > 0.01f;
     }
+
+    private void HandleUIVisibility()
+    {
+        if (canvasGroup == null) return;
+
+        float targetAlpha = playerNearby ? 1f : 0f;
+
+        canvasGroup.alpha = Mathf.Lerp(
+            canvasGroup.alpha,
+            targetAlpha,
+            Time.deltaTime * fadeSpeed
+        );
+
+        canvasGroup.interactable = playerNearby;
+        canvasGroup.blocksRaycasts = playerNearby;
+    } 
 } 
