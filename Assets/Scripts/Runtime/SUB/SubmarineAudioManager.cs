@@ -63,7 +63,6 @@ public class SubmarineAudioManager : MonoBehaviour
 
         if (nightStartHour < nightEndHour)
         {
-            // Night does NOT cross midnight (rare)
             return hour >= nightStartHour && hour < nightEndHour;
         }
         else
@@ -75,7 +74,7 @@ public class SubmarineAudioManager : MonoBehaviour
 
     private IEnumerator PlayRandomNightSounds()
     {
-        int numSounds = Random.Range(3, 6);
+        int numSounds = Random.Range(4, 6);
 
         // Pool excluding last night
         List<GameObject> availableSounds = new List<GameObject>(nightSoundObjects);
@@ -104,8 +103,8 @@ public class SubmarineAudioManager : MonoBehaviour
                 source.Play();
             }
 
-            // Wait 30–90 in-game seconds
-            float waitTime = Random.Range(30f, 90f) / TimeManager.Instance.daySpeedMultiplier;
+            // Wait 20–45 in-game seconds
+            float waitTime = Random.Range(20f, 45f) / TimeManager.Instance.daySpeedMultiplier;
             yield return new WaitForSeconds(waitTime);
 
             // Optionally disable it after playing

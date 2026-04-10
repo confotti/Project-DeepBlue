@@ -67,32 +67,30 @@ public class LightManager : MonoBehaviour
     {
         ChooseRandomLights();
 
-        // Flicker phase
         float elapsed = 0f;
 
         while (elapsed < flickerSeconds)
         {
+            float delay1 = Random.Range(minFlickerDelay, maxFlickerDelay);
             ToggleSelectedLights(false);
-            yield return new WaitForSeconds(Random.Range(minFlickerDelay, maxFlickerDelay));
+            yield return new WaitForSeconds(delay1);
 
+            float delay2 = Random.Range(minFlickerDelay, maxFlickerDelay);
             ToggleSelectedLights(true);
-            yield return new WaitForSeconds(Random.Range(minFlickerDelay, maxFlickerDelay));
+            yield return new WaitForSeconds(delay2);
 
-            elapsed += Time.deltaTime;
+            elapsed += delay1 + delay2;
         }
 
-        // Turn lights OFF
         ToggleSelectedLights(false);
 
-        // Stay off for 2 hours
         float outageTime = powerOutageHours * 3600f;
         yield return new WaitForSeconds(outageTime);
 
-        // Turn lights back ON
         ToggleSelectedLights(true);
 
         eventStarted = false;
-    }
+    } 
 
     private void ChooseRandomLights()
     {

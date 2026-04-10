@@ -28,7 +28,7 @@ public class SanityManager : MonoBehaviour
     [SerializeField] private AudioSource heartbeatSource;
     [SerializeField] private float heartbeatLowSanity = 25f;
 
-    private bool warningLightsActive;
+    private bool warningLightsActive = true; 
     private bool _dead;
 
     private void Awake()
@@ -44,6 +44,7 @@ public class SanityManager : MonoBehaviour
     private void Update()
     {
         HandleSanity();
+        Debug.Log(_currentSanity); 
     }
 
     private void OnEnable()
