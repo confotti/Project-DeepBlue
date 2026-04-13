@@ -42,7 +42,7 @@ public class TimeManager : MonoBehaviour
         else Instance = this;
 
         // Start at Day 1, 8:00:00
-        _timestamp = new GameTimeStamp(1, 18, 0, 0); 
+        _timestamp = new GameTimeStamp(1, 12, 0, 0); 
     }
 
     private void Start()

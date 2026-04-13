@@ -44,7 +44,6 @@ public class SanityManager : MonoBehaviour
     private void Update()
     {
         HandleSanity();
-        Debug.Log(_currentSanity); 
     }
 
     private void OnEnable()
