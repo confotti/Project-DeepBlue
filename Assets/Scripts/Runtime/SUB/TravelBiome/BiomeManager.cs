@@ -16,8 +16,8 @@ public class BiomeManager : MonoBehaviour
 
     public List<BiomeReference> Biomes;
 
-    private BiomeReference currentBiome = null;
-    private BiomeReference nextBiome = null;
+    private int currentBiomeIndex = -1;
+    public int nextBiomeIndex = -1;
     private bool isLoadingNextBiome = false;
 
     private bool readyToUnloadPrevious = false;
@@ -38,18 +38,18 @@ public class BiomeManager : MonoBehaviour
 
     void Awake()
     {
-        LoadBiome(Biomes[0]);
-        nextBiome = Biomes[1];
+        Debug.Log(nextBiomeIndex);
+        LoadBiome(nextBiomeIndex);
     }
 
-    private void LoadBiome(BiomeReference biome)
+    private void LoadBiome(int biomeIndex)
     {
-        if (biome == currentBiome)
+        if (biomeIndex == currentBiomeIndex)
         {
             Debug.LogWarning("Cannot load the same biome that is currently loaded.");
             return;
         }
-        else if (biome == null)
+        else if (biomeIndex < 0 || biomeIndex > Biomes.Count - 1)
         {
             Debug.LogWarning("Biome to be loaded cannot be null");
             return;
@@ -59,16 +59,18 @@ public class BiomeManager : MonoBehaviour
         isLoadingNextBiome = true;
 
         // Load the new biome asynchronously
-        StartCoroutine(LoadBiomeAsync(biome));
+        StartCoroutine(LoadBiomeAsync(biomeIndex));
     }
 
     private void LoadNextBiome()
     {
-        LoadBiome(nextBiome);
+        LoadBiome(nextBiomeIndex);
     }
 
-    private IEnumerator LoadBiomeAsync(BiomeReference biome)
+    private IEnumerator LoadBiomeAsync(int biomeIndex)
     {
+        BiomeReference biome = Biomes[biomeIndex];
+
         // Start loading the new biome scene asynchronously
         AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(biome.SceneName, LoadSceneMode.Additive);
 
@@ -86,18 +88,18 @@ public class BiomeManager : MonoBehaviour
         readyToUnloadPrevious = false;
 
         // After loading, unload the current biome
-        if (currentBiome != null)
+        if (currentBiomeIndex > -1 && currentBiomeIndex < Biomes.Count)
         {
             while (!readyToUnloadPrevious)
             {
                 yield return null;
             }
 
-            UnloadBiome(currentBiome);
+            UnloadBiome(Biomes[currentBiomeIndex]);
         }
 
         // Set the new biome as the current biome
-        currentBiome = biome;
+        currentBiomeIndex = biomeIndex;
     }
 
     private void UnloadBiome(BiomeReference biome)
@@ -114,13 +116,13 @@ public class BiomeManager : MonoBehaviour
             return;
         }
 
-        if (Biomes[index] == currentBiome)
+        if (index == currentBiomeIndex)
         {
             Debug.LogWarning("Cannot choose the same biome that is currently loaded");
             return;
         }
 
-        nextBiome = Biomes[index];
+        nextBiomeIndex = index;
     }
 
     private void ReadyToUnloadLastBiome()
@@ -128,7 +130,6 @@ public class BiomeManager : MonoBehaviour
         readyToUnloadPrevious = true;
     }
 }
-
 
 
 

@@ -1179,11 +1179,11 @@ PrefabInstance:
     m_TransformParent: {fileID: 27747800}
     m_Modifications:
     - target: {fileID: 977139202495928296, guid: ff0456552838b554197f6fcce3bf48bb, type: 3}
-      propertyPath: Biomes.Array.data[0]._sceneName
-      value: MainMenu
+      propertyPath: nextBiomeIndex
+      value: -1
       objectReference: {fileID: 0}
     - target: {fileID: 977139202495928296, guid: ff0456552838b554197f6fcce3bf48bb, type: 3}
-      propertyPath: Biomes.Array.data[1]._sceneName
+      propertyPath: nextBiome._sceneName
       value: MainMenu
       objectReference: {fileID: 0}
     - target: {fileID: 7568733758232175023, guid: ff0456552838b554197f6fcce3bf48bb, type: 3}

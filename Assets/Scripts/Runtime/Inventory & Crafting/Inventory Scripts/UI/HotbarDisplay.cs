@@ -29,9 +29,6 @@ public class HotbarDisplay : StaticInventoryDisplay
 
         PlayerInputHandler.OnHotbarSelection += HotbarSelection;
         PlayerInputHandler.OnHotbarChange += ChangeIndex;
-
-        //Inputs are here
-        //Button 1-0, scrollwheel and use item.
     }
 
     protected override void OnDisable()
@@ -52,12 +49,6 @@ public class HotbarDisplay : StaticInventoryDisplay
     private void HotbarSelection(int slot)
     {
         SetIndex(slot - 1);
-    }
-
-    void Update()
-    {
-        //if(mouseWheelInput > 0.1f) ChangeIndex(1);
-        //if(mouseWheelInput < -0.1f) ChangeIndex(-1);
     }
 
     private void ChangeIndex(int direction)
