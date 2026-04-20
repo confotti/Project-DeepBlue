@@ -10,4 +10,9 @@ public class UIPort : ScriptableObject
     
     public void StartScreenFade(bool toBlack, float time = 1, ScreenFadeDone callback = null) => OnStartScreenFade?.Invoke(toBlack, time, callback);
 
+
+    public Action<int> OnSetMaxOxygen;
+    public Action<float> UpdateOxygenUI;
+    public Action<float> UpdateHealthBar;
+    public Action<float> UpdateDrownTime;
 }

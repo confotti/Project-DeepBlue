@@ -1,5 +1,4 @@
 using System.Collections;
-using UnityEngine.UI;
 using UnityEngine;
 using TMPro;
 using System;
@@ -25,17 +24,13 @@ public class PlayerStats : MonoBehaviour
 
     [SerializeField] private int _maxHealth = 100;
 
+    [Header("UI")]
+    [SerializeField] private UIPort _uiPort;
+
     private float _currentOxygen;
     private float _previousOxygen;
     private float _currentDrownTime;
     private int _currentHealth;
-
-    [Header("UI")]
-    [SerializeField] private UIPort _uiPort;
-    [SerializeField] private Slider oxygenBar;
-    [SerializeField] private TextMeshProUGUI oxygenText;
-    [SerializeField] private Image _healthBar;
-    [SerializeField] private Image _dyingBlur;
 
     [Header("Warnings")]
     [SerializeField] private TextMeshProUGUI lowOxygenWarning;
@@ -71,7 +66,7 @@ public class PlayerStats : MonoBehaviour
 
         _currentHealth = _maxHealth;
 
-        oxygenBar.maxValue = _currentMaxOxygen;
+        _uiPort.OnSetMaxOxygen?.Invoke(_currentMaxOxygen);
 
         if (lowOxygenWarning)
             lowOxygenWarning.gameObject.SetActive(false);
@@ -94,14 +89,8 @@ public class PlayerStats : MonoBehaviour
 
     private void HandleUI()
     {
-        UpdateOxygenUI();
+        _uiPort.UpdateOxygenUI?.Invoke(_currentOxygen);
         HandleOxygenWarnings();
-    }
-
-    private void UpdateOxygenUI()
-    {
-        oxygenBar.value = _currentOxygen;
-        oxygenText.text = Mathf.RoundToInt(_currentOxygen).ToString();
     }
 
     private void HandleOxygenWarnings()
@@ -160,8 +149,7 @@ public class PlayerStats : MonoBehaviour
     {
         _currentHealth = Mathf.Clamp(_currentHealth + amount, 0, _maxHealth);
 
-        if (_healthBar)
-            _healthBar.fillAmount = _currentHealth / (float)_maxHealth;
+        _uiPort.UpdateHealthBar?.Invoke(_currentHealth / (float)_maxHealth);
 
         if (_currentHealth == 0)
             Death();
@@ -171,8 +159,7 @@ public class PlayerStats : MonoBehaviour
     {
         _currentHealth = Mathf.Clamp(amount, 0, _maxHealth);
 
-        if (_healthBar)
-            _healthBar.fillAmount = _currentHealth / (float)_maxHealth;
+        _uiPort.UpdateHealthBar?.Invoke(_currentHealth / (float)_maxHealth);
 
         if (_currentHealth == 0)
             Death();
@@ -181,7 +168,7 @@ public class PlayerStats : MonoBehaviour
     public void SetOxygenModifier(int amountAdded)
     {
         _currentMaxOxygen = _baseMaxOxygen + amountAdded;
-        oxygenBar.maxValue = _currentMaxOxygen;
+        _uiPort.OnSetMaxOxygen?.Invoke(_currentMaxOxygen);
 
         _currentOxygen = Mathf.Clamp(_currentOxygen, 0, _currentMaxOxygen);
     }
@@ -195,8 +182,7 @@ public class PlayerStats : MonoBehaviour
     {
         _currentDrownTime = Mathf.Clamp(_currentDrownTime + amount, 0, _timeToDrown);
 
-        if (_dyingBlur)
-            _dyingBlur.material.SetFloat("_Scale", (1 - (_currentDrownTime / _timeToDrown)) * 3);
+        _uiPort.UpdateDrownTime?.Invoke((1 - (_currentDrownTime / _timeToDrown)) * 3);
 
         if (_currentDrownTime == _timeToDrown)
             Death();
