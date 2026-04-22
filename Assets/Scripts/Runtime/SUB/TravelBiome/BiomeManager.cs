@@ -7,39 +7,34 @@ using UnityEngine.SceneManagement;
 
 public class BiomeManager : MonoBehaviour
 {
-    public static Action CommandStartLoadingNextBiome;
-    public static Action<int> OnChooseNextBiome;
-    public static Action OnFinishLoadingBiome;
-    public static Action OnReadyToUnload;
-
     public static BiomeSubSplineHolder BiomeSubSplineHolder;
 
-    public List<BiomeReference> Biomes;
+    [SerializeField] private BiomePort _biomePort;
 
     private int currentBiomeIndex = -1;
-    public int nextBiomeIndex = -1;
+    [SerializeField] private int _nextBiomeIndex = -1;
     private bool isLoadingNextBiome = false;
 
     private bool readyToUnloadPrevious = false;
 
     void OnEnable()
     {
-        CommandStartLoadingNextBiome += LoadNextBiome;
-        OnChooseNextBiome += ChooseNextBiome;
-        OnReadyToUnload += ReadyToUnloadLastBiome;
+        _biomePort.CommandStartLoadingNextBiome += LoadNextBiome;
+        _biomePort.OnChooseNextBiome += ChooseNextBiome;
+        _biomePort.OnReadyToUnload += ReadyToUnloadLastBiome;
     }
 
     void OnDisable()
     {
-        CommandStartLoadingNextBiome -= LoadNextBiome;
-        OnChooseNextBiome -= ChooseNextBiome;
-        OnReadyToUnload -= ReadyToUnloadLastBiome;
+        _biomePort.CommandStartLoadingNextBiome -= LoadNextBiome;
+        _biomePort.OnChooseNextBiome -= ChooseNextBiome;
+        _biomePort.OnReadyToUnload -= ReadyToUnloadLastBiome;
     }
 
     void Awake()
     {
-        Debug.Log(nextBiomeIndex);
-        LoadBiome(nextBiomeIndex);
+        Debug.Log(_nextBiomeIndex);
+        LoadBiome(_nextBiomeIndex);
     }
 
     private void LoadBiome(int biomeIndex)
@@ -49,7 +44,7 @@ public class BiomeManager : MonoBehaviour
             Debug.LogWarning("Cannot load the same biome that is currently loaded.");
             return;
         }
-        else if (biomeIndex < 0 || biomeIndex > Biomes.Count - 1)
+        else if (biomeIndex < 0 || biomeIndex > _biomePort.Biomes.Count - 1)
         {
             Debug.LogWarning("Biome to be loaded cannot be null");
             return;
@@ -64,12 +59,12 @@ public class BiomeManager : MonoBehaviour
 
     private void LoadNextBiome()
     {
-        LoadBiome(nextBiomeIndex);
+        LoadBiome(_nextBiomeIndex);
     }
 
     private IEnumerator LoadBiomeAsync(int biomeIndex)
     {
-        BiomeReference biome = Biomes[biomeIndex];
+        BiomeReference biome = _biomePort.Biomes[biomeIndex];
 
         // Start loading the new biome scene asynchronously
         AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(biome.SceneName, LoadSceneMode.Additive);
@@ -80,7 +75,7 @@ public class BiomeManager : MonoBehaviour
             yield return null;
         }
 
-        OnFinishLoadingBiome?.Invoke();
+        _biomePort.OnFinishLoadingBiome?.Invoke();
         isLoadingNextBiome = false;
 
         
@@ -88,14 +83,14 @@ public class BiomeManager : MonoBehaviour
         readyToUnloadPrevious = false;
 
         // After loading, unload the current biome
-        if (currentBiomeIndex > -1 && currentBiomeIndex < Biomes.Count)
+        if (currentBiomeIndex > -1 && currentBiomeIndex < _biomePort.Biomes.Count)
         {
             while (!readyToUnloadPrevious)
             {
                 yield return null;
             }
 
-            UnloadBiome(Biomes[currentBiomeIndex]);
+            UnloadBiome(_biomePort.Biomes[currentBiomeIndex]);
         }
 
         // Set the new biome as the current biome
@@ -110,7 +105,7 @@ public class BiomeManager : MonoBehaviour
 
     private void ChooseNextBiome(int index)
     {
-        if (index < 0 || index > Biomes.Count - 1)
+        if (index < 0 || index > _biomePort.Biomes.Count - 1)
         {
             Debug.LogWarning("Index is outside of Biomes count");
             return;
@@ -122,7 +117,7 @@ public class BiomeManager : MonoBehaviour
             return;
         }
 
-        nextBiomeIndex = index;
+        _nextBiomeIndex = index;
     }
 
     private void ReadyToUnloadLastBiome()
@@ -131,11 +126,3 @@ public class BiomeManager : MonoBehaviour
     }
 }
 
-
-
-[System.Serializable]
-public class BiomeReference
-{
-    [SerializeField] private string _sceneName;
-    public string SceneName => _sceneName;
-}

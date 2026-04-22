@@ -44,6 +44,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e4c2f8be79626654b8e742ae4975c1ad, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Biomes: []
-  nextBiome:
-    _sceneName: 
+  _biomePort: {fileID: 11400000, guid: 2fd85d02891e3cd40b951993df41268f, type: 2}
+  nextBiomeIndex: -1

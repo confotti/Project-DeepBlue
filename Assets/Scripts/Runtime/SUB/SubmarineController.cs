@@ -4,6 +4,7 @@ using UnityEngine.Splines;
 
 public class SubmarineController : MonoBehaviour
 {
+    [SerializeField] private BiomePort _biomePort;
     private SplineAnimate splineAnimate;
 
     [Header("Player Follow")]
@@ -24,13 +25,13 @@ public class SubmarineController : MonoBehaviour
     void OnEnable()
     {
         BiomeSubSplineHolder.OnSpawned += SetNextBiomeSpline;
-        BiomeManager.OnFinishLoadingBiome += OnFinishedLoading;
+        _biomePort.OnFinishLoadingBiome += OnFinishedLoading;
     }
 
     void OnDisable()
     {
         BiomeSubSplineHolder.OnSpawned -= SetNextBiomeSpline;
-        BiomeManager.OnFinishLoadingBiome += OnFinishedLoading;
+        _biomePort.OnFinishLoadingBiome += OnFinishedLoading;
     }
 
     private void SetNextBiomeSpline(BiomeSubSplineHolder spline)
@@ -58,7 +59,7 @@ public class SubmarineController : MonoBehaviour
 
                 splineAnimate.NormalizedTime = 0;
                 splineAnimate.Easing = SplineAnimate.EasingMode.EaseOut;
-                BiomeManager.OnReadyToUnload?.Invoke();
+                _biomePort.OnReadyToUnload?.Invoke();
             }
 
             if (splineAnimate.NormalizedTime >= 1)
@@ -96,7 +97,7 @@ public class SubmarineController : MonoBehaviour
 
         splineAnimate.Play();
         
-        BiomeManager.CommandStartLoadingNextBiome?.Invoke();
+        _biomePort.CommandStartLoadingNextBiome?.Invoke();
 
     }
 

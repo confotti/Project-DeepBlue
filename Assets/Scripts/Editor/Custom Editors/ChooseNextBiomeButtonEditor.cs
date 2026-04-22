@@ -1,8 +1,8 @@
 using UnityEditor;
 using UnityEngine;
 
-[CustomEditor(typeof(BiomeManager))]
-public class BiomeManagerEditor : Editor
+[CustomEditor(typeof(ChooseNextBiomeButton))]
+public class ChooseNextBiomeButtonEditor : Editor
 {
     SerializedProperty biomePortProp;
     SerializedProperty indexProp;
