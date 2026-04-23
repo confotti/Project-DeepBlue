@@ -1,4 +1,6 @@
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerInteract : MonoBehaviour
 {
@@ -8,9 +10,14 @@ public class PlayerInteract : MonoBehaviour
 
     public bool IsInteracting { get; private set; }
 
-    //References
+
+    [Header("References")]
     private PlayerInputHandler inputHandler;
     private IInteractable interactable;
+
+    //These should not have to be serialized in the inspector, but I couldn't be bothered right now. 
+    [SerializeField] private Image _middlePointImage;
+    [SerializeField] private TextMeshProUGUI _interactionText;
 
     void Awake()
     {
@@ -59,10 +66,13 @@ public class PlayerInteract : MonoBehaviour
         if (interactable == null)
         {
             //Hide UI
+            _interactionText.gameObject.SetActive(false);
         }
         else
         {
             //Show UI
+            _interactionText.text = interactable.InteractText != "" ? interactable.InteractText : $"Interact";
+            _interactionText.gameObject.SetActive(true);
         }
     }
 

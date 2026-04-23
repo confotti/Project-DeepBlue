@@ -6,7 +6,7 @@ public class ChooseNextBiomeButton : MonoBehaviour, IInteractable
     [SerializeField] private BiomePort _biomePort;
     [SerializeField] private int _nextBiomeIndex;
 
-    public string InteractText => "";
+    public string InteractText => $"Choose biome {_nextBiomeIndex}";
 
     UnityAction<IInteractable> IInteractable.OnInteractionComplete { get; set; }
 

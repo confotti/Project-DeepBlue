@@ -33,7 +33,6 @@ public class BiomeManager : MonoBehaviour
 
     void Awake()
     {
-        Debug.Log(_nextBiomeIndex);
         LoadBiome(_nextBiomeIndex);
     }
 
