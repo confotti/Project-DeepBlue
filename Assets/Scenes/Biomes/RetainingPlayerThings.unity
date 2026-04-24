@@ -538,11 +538,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 23b53eeb5faa78541bc0347cc9ad46b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  anchor: {fileID: 244872389}
   player: {fileID: 273542722}
-  maxLength: 100
-  surfaceOffset: 0.02
-  slideSpeed: 5
+  anchor: {fileID: 244872389}
+  maxRopeLength: 150
+  wrapOffset: 0.05
+  edgeSearchDistance: 0.5
+  edgeSearchResolution: 0.4
+  collisionCheckRadius: 0.05
   collisionMask:
     serializedVersion: 2
     m_Bits: 53225
@@ -945,8 +947,8 @@ Transform:
   m_GameObject: {fileID: 1609778913}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -39.54, y: 1.3571951, z: 101.64399}
-  m_LocalScale: {x: 68.745094, y: 1, z: 46.671394}
+  m_LocalPosition: {x: -39.54, y: -9.5, z: 101.64399}
+  m_LocalScale: {x: 68.745094, y: 19.4321, z: 46.671394}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}

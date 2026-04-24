@@ -4,192 +4,224 @@ using UnityEngine;
 [RequireComponent(typeof(LineRenderer))]
 public class OxygenLine : MonoBehaviour
 {
-    [Header("References")]
-    public Transform anchor;
-    public Transform player;
-
-    private LineRenderer lineRenderer;
-
-    [Header("Rope Settings")]
-    public float maxLength = 15f;
-    public float surfaceOffset = 0.02f;
-
-    [Header("Sliding")]
-    public float slideSpeed = 5f;
-
-    [Header("Collision")]
-    public LayerMask collisionMask;
-
-    private class WrapPoint
+    [System.Serializable]
+    public struct RopePoint
     {
         public Vector3 position;
         public Vector3 normal;
+
+        public RopePoint(Vector3 pos, Vector3 n)
+        {
+            position = pos;
+            normal = n;
+        }
     }
 
-    private List<WrapPoint> wrapPoints = new List<WrapPoint>();
+    public Transform player;
+    public Transform anchor;
 
-    void Awake()
+    public float maxRopeLength = 15f;
+    public float wrapOffset = 0.05f;
+
+    public float slideSpeed = 10f;
+    public float collisionCheckRadius = 0.05f;
+
+    public float unwrapCheckDistance = 0.2f;
+
+    public LayerMask collisionMask;
+
+    private List<RopePoint> ropePoints = new List<RopePoint>();
+    private LineRenderer lineRenderer;
+
+    void Start()
     {
         lineRenderer = GetComponent<LineRenderer>();
+
+        ropePoints.Clear();
+        ropePoints.Add(new RopePoint(anchor.position, Vector3.up));
     }
 
     void Update()
     {
-        HandleWrapping();
-        SlideWrapPoints();   // ⭐ NEW
-        HandleUnwrapping();
-        ApplyLengthConstraint();
-        Render();
+        UpdateRope();
+        SlidePoints();
+        ConstrainPlayer();
+        RenderRope();
     }
 
-    // =========================
-    // WRAPPING
-    // =========================
-    void HandleWrapping()
+    // -------------------------
+    // ROPE CORE
+    // -------------------------
+    void UpdateRope()
     {
-        Vector3 from = anchor.position;
+        RopePoint last = ropePoints[ropePoints.Count - 1];
 
-        for (int i = 0; i <= wrapPoints.Count; i++)
+        // ---------- WRAPPING ----------
+        if (Physics.Linecast(last.position, player.position, out RaycastHit hit, collisionMask))
         {
-            Vector3 to = (i == wrapPoints.Count) ? player.position : wrapPoints[i].position;
+            Vector3 wrapPoint = SolveEdgePivot(hit, last.position, player.position);
 
-            Vector3 dir = to - from;
-            float dist = dir.magnitude;
-
-            if (dist < 0.001f)
+            if (ropePoints.Count < 2 || Vector3.Distance(wrapPoint, last.position) > 0.1f)
             {
-                from = to;
+                ropePoints.Add(new RopePoint(wrapPoint, hit.normal));
+            }
+        }
+
+        // ---------- UNWRAPPING ----------
+        while (ropePoints.Count > 1)
+        {
+            RopePoint prev = ropePoints[^2];
+
+            if (!Physics.Linecast(player.position, prev.position, collisionMask))
+            {
+                ropePoints.RemoveAt(ropePoints.Count - 1);
+            }
+            else break;
+        }
+
+        // ---------- CLEAN STRAIGHT POINTS ----------
+        if (ropePoints.Count > 2)
+        {
+            RopePoint a = ropePoints[^3];
+            RopePoint b = ropePoints[^2];
+            RopePoint c = ropePoints[^1];
+
+            float angle = Vector3.Angle(b.position - a.position, c.position - b.position);
+
+            if (angle < 5f)
+            {
+                ropePoints.RemoveAt(ropePoints.Count - 2);
+            }
+        }
+    }
+
+    // -------------------------
+    // EDGE PIVOT (UNCHANGED BUT RELIABLE)
+    // -------------------------
+    Vector3 SolveEdgePivot(RaycastHit hit, Vector3 from, Vector3 to)
+    {
+        Vector3 toPlayer = (to - hit.point).normalized;
+        Vector3 toAnchor = (from - hit.point).normalized;
+
+        Vector3 cornerAxis = Vector3.Cross(toAnchor, toPlayer).normalized;
+        Vector3 edgeDir = Vector3.Cross(hit.normal, cornerAxis).normalized;
+
+        if (edgeDir == Vector3.zero)
+            edgeDir = Vector3.Cross(hit.normal, Vector3.up).normalized;
+
+        Vector3 best = hit.point;
+        float bestDist = float.MaxValue;
+
+        for (float t = -0.5f; t <= 0.5f; t += 0.1f)
+        {
+            Vector3 test = hit.point + edgeDir * t;
+
+            if (Physics.CheckSphere(test, collisionCheckRadius, collisionMask))
                 continue;
-            }
 
-            dir /= dist;
+            float dist =
+                Vector3.Distance(from, test) +
+                Vector3.Distance(test, to);
 
-            if (Physics.Raycast(from, dir, out RaycastHit hit, dist, collisionMask))
+            if (dist < bestDist)
             {
-                Vector3 newPoint = hit.point + hit.normal * surfaceOffset;
-
-                if (wrapPoints.Count == 0 ||
-                    Vector3.Distance(wrapPoints[wrapPoints.Count - 1].position, newPoint) > 0.1f)
-                {
-                    wrapPoints.Add(new WrapPoint
-                    {
-                        position = newPoint,
-                        normal = hit.normal
-                    });
-
-                    return; // one per frame
-                }
+                bestDist = dist;
+                best = test;
             }
-
-            from = to;
         }
+
+        return best + hit.normal * wrapOffset;
     }
 
-    // =========================
-    // ⭐ SLIDING ALONG SURFACE
-    // =========================
-    void SlideWrapPoints()
+    // -------------------------
+    // 🔥 FIXED SLIDING SYSTEM
+    // -------------------------
+    void SlidePoints()
     {
-        for (int i = 0; i < wrapPoints.Count; i++)
+        for (int i = 1; i < ropePoints.Count - 1; i++)
         {
-            Vector3 prev = (i == 0) ? anchor.position : wrapPoints[i - 1].position;
-            Vector3 next = (i == wrapPoints.Count - 1) ? player.position : wrapPoints[i + 1].position;
+            RopePoint p = ropePoints[i];
 
-            WrapPoint wp = wrapPoints[i];
+            Vector3 prev = ropePoints[i - 1].position;
+            Vector3 next = ropePoints[i + 1].position;
 
-            // Direction rope is pulling this point
-            Vector3 pull = (prev - wp.position).normalized + (next - wp.position).normalized;
+            Vector3 ropeDir = (next - prev).normalized;
 
-            // Project onto surface = sliding direction
-            Vector3 slideDir = Vector3.ProjectOnPlane(pull, wp.normal).normalized;
+            // Project movement onto stored surface
+            Vector3 slideDir = Vector3.ProjectOnPlane(ropeDir, p.normal);
 
-            // Move along surface
-            wp.position += slideDir * slideSpeed * Time.deltaTime;
+            if (slideDir.sqrMagnitude < 0.0001f)
+                continue;
 
-            // Re-stick to surface
-            if (Physics.Raycast(wp.position - wp.normal, wp.normal, out RaycastHit hit, 0.5f, collisionMask))
+            Vector3 candidate = p.position + slideDir * Time.deltaTime * slideSpeed;
+
+            // prevent clipping
+            if (Physics.CheckSphere(candidate, collisionCheckRadius, collisionMask))
+                continue;
+
+            float oldDist =
+                Vector3.Distance(prev, p.position) +
+                Vector3.Distance(p.position, next);
+
+            float newDist =
+                Vector3.Distance(prev, candidate) +
+                Vector3.Distance(candidate, next);
+
+            if (newDist < oldDist)
             {
-                wp.position = hit.point + hit.normal * surfaceOffset;
-                wp.normal = hit.normal;
+                p.position = candidate;
+                ropePoints[i] = p;
             }
         }
     }
 
-    // =========================
-    // UNWRAPPING
-    // =========================
-    void HandleUnwrapping()
-    {
-        if (wrapPoints.Count == 0)
-            return;
-
-        WrapPoint last = wrapPoints[wrapPoints.Count - 1];
-
-        Vector3 prev = (wrapPoints.Count > 1)
-            ? wrapPoints[wrapPoints.Count - 2].position
-            : anchor.position;
-
-        if (!Physics.Linecast(prev, player.position, collisionMask))
-        {
-            wrapPoints.RemoveAt(wrapPoints.Count - 1);
-        }
-    }
-
-    // =========================
+    // -------------------------
     // LENGTH CONSTRAINT
-    // =========================
-    void ApplyLengthConstraint()
+    // -------------------------
+    void ConstrainPlayer()
     {
-        float total = 0f;
-        Vector3 prev = anchor.position;
+        float totalLength = 0f;
 
-        foreach (var wp in wrapPoints)
+        for (int i = 0; i < ropePoints.Count - 1; i++)
         {
-            total += Vector3.Distance(prev, wp.position);
-            prev = wp.position;
+            totalLength += Vector3.Distance(ropePoints[i].position, ropePoints[i + 1].position);
         }
 
-        total += Vector3.Distance(prev, player.position);
+        RopePoint last = ropePoints[^1];
 
-        if (total > maxLength)
+        totalLength += Vector3.Distance(last.position, player.position);
+
+        if (totalLength > maxRopeLength)
         {
-            float remaining = maxLength;
+            float excess = totalLength - maxRopeLength;
 
-            Vector3 tempPrev = anchor.position;
+            Vector3 dir = (player.position - last.position).normalized;
 
-            foreach (var wp in wrapPoints)
+            Rigidbody rb = player.GetComponent<Rigidbody>();
+            if (rb != null)
             {
-                float seg = Vector3.Distance(tempPrev, wp.position);
-                remaining -= seg;
-                tempPrev = wp.position;
+                rb.linearVelocity -= Vector3.Project(rb.linearVelocity, dir);
+                rb.position -= dir * excess;
             }
-
-            remaining = Mathf.Max(0, remaining);
-
-            Vector3 dir = (player.position - prev).normalized;
-            player.position = prev + dir * remaining;
+            else
+            {
+                player.position -= dir * excess;
+            }
         }
     }
 
-    // =========================
+    // -------------------------
     // RENDER
-    // =========================
-    void Render()
+    // -------------------------
+    void RenderRope()
     {
-        List<Vector3> pts = new List<Vector3>();
+        lineRenderer.positionCount = ropePoints.Count + 1;
 
-        pts.Add(anchor.position);
-
-        foreach (var wp in wrapPoints)
-            pts.Add(wp.position);
-
-        pts.Add(player.position);
-
-        lineRenderer.positionCount = pts.Count;
-
-        for (int i = 0; i < pts.Count; i++)
+        for (int i = 0; i < ropePoints.Count; i++)
         {
-            lineRenderer.SetPosition(i, pts[i]);
+            lineRenderer.SetPosition(i, ropePoints[i].position);
         }
+
+        lineRenderer.SetPosition(ropePoints.Count, player.position);
     }
 }
