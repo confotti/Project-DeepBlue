@@ -5,6 +5,7 @@ using System;
 
 public class TimeManager : MonoBehaviour
 {
+    private FogManager fogManager; 
     public static TimeManager Instance { get; private set; }
 
     public bool IsTimePaused { get; private set; }
@@ -42,7 +43,12 @@ public class TimeManager : MonoBehaviour
         else Instance = this;
 
         // Start at Day 1, 8:00:00
-        _timestamp = new GameTimeStamp(1, 12, 0, 0); 
+        _timestamp = new GameTimeStamp(1, 12, 0, 0);
+
+        if (Instance != null && Instance != this) Destroy(this);
+        else Instance = this;
+
+        fogManager = FindObjectOfType<FogManager>(); 
     }
 
     private void Start()
@@ -66,6 +72,8 @@ public class TimeManager : MonoBehaviour
             _accumulatedSeconds -= 1f;
             TickOneSecond();
         }
+
+        UpdateSunMovement(); 
     }
 
     public void PauseTime()
@@ -106,8 +114,6 @@ public class TimeManager : MonoBehaviour
                 OnHourChanged?.Invoke(_timestamp.Hour);
             }
         }
-
-        UpdateSunMovement();
     } 
 
     public void SetTime(int hour, int minute = 0, int second = 0)
@@ -124,17 +130,71 @@ public class TimeManager : MonoBehaviour
 
         OnHourChanged?.Invoke(hour);
         OnMinuteChanged?.Invoke(minute);
-    } 
+    }
 
     void UpdateSunMovement()
     {
-        float dayProgress = (_timestamp.Hour * 3600 + _timestamp.Minute * 60 + _timestamp.Second) / SecondsPerGameDay;
+        float hours = _timestamp.Hour + _timestamp.Minute / 60f + _timestamp.Second / 3600f;
 
-        float sunRotation = dayProgress * 360f;
+        float sunAngle = GetSunAngle(hours);
 
         if (sunTransform)
-            sunTransform.rotation = Quaternion.Euler(sunRotation - 90f, 170f, 0f);
+            sunTransform.rotation = Quaternion.Euler(sunAngle, 170f, 0f);
     }
+
+    float GetSunAngle(float hours)
+    {
+        if (fogManager == null)
+            return 90f;
+
+        float dawn = fogManager.dawnStartHour;
+        float day = fogManager.dayStartHour;
+        float dusk = fogManager.duskStartHour;
+        float night = fogManager.nightStartHour;
+
+        float noon = (day + dusk) * 0.5f; // dynamic noon
+
+        // Dawn → Noon
+        if (hours >= dawn && hours < noon)
+        {
+            float t = Mathf.InverseLerp(dawn, noon, hours);
+            t = Mathf.SmoothStep(0f, 1f, t);
+            return Mathf.Lerp(50f, 90f, t);
+        }
+
+        // Noon → Dusk
+        if (hours >= noon && hours < dusk)
+        {
+            float t = Mathf.InverseLerp(noon, dusk, hours);
+            t = Mathf.SmoothStep(0f, 1f, t);
+            return Mathf.Lerp(90f, 130f, t);
+        }
+
+        // Dusk → Night
+        if (hours >= dusk && hours < night)
+        {
+            float t = Mathf.InverseLerp(dusk, night, hours);
+            return Mathf.Lerp(130f, 220f, t);
+        }
+
+        // Night → Dawn (continuous)
+        if (hours >= night || hours < dawn)
+        {
+            float totalNightDuration = (24f - night) + dawn;
+
+            float timeSinceNightStart = (hours >= night)
+                ? (hours - night)
+                : (hours + (24f - night));
+
+            float t = timeSinceNightStart / totalNightDuration;
+
+            t = Mathf.SmoothStep(0f, 1f, t);
+
+            return Mathf.Lerp(220f, 50f, t);
+        } 
+
+        return 90f;
+    } 
 
     private void UpdateClockUI()
     {

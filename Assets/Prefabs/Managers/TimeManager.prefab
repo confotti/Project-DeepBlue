@@ -73,8 +73,10 @@ MonoBehaviour:
   duskStartHour: 20
   dawnStartHour: 4
   fogLerpSpeed: 0.075
-  dayAttenuation: 300
-  nightAttenuation: 175
+  dayAttenuation: 200
+  nightAttenuation: 150
+  useBlackFogAtNight: 1
+  nightFogIntensity: 1
   fogVolume:
   - {fileID: 0}
   - {fileID: 0}
