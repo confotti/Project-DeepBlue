@@ -18,7 +18,7 @@ public class PlayerItemHandler : MonoBehaviour
 
     [SerializeField] private Transform placeToolPoint;
 
-    [SerializeField] private ChainIKConstraint _holdingObjectConstraint;
+    [SerializeField] private TwoBoneIKConstraint _holdingObjectConstraint;
 
     void Awake()
     {
@@ -92,15 +92,7 @@ public class PlayerItemHandler : MonoBehaviour
 
         if (_currentSlot.ItemData != null && _currentSlot.ItemData.itemPrefab != null)
         {
-            _currentItem = Instantiate(_currentSlot.ItemData.itemPrefab, gameObject.transform);
-            _holdingObjectConstraint.weight = 0.6f;
-
-            //_currentItem = Instantiate(_currentSlot.ItemData.itemPrefab, placeToolPoint);
-
-            //A little bit cursed, but the scales make this the best option
-            _currentItem.transform.rotation = placeToolPoint.transform.rotation * Quaternion.Inverse(_currentItem.HoldingPoint.rotation) * _currentItem.transform.rotation;
-            _currentItem.transform.position = placeToolPoint.transform.position + _currentItem.transform.position - _currentItem.HoldingPoint.position;
-            _currentItem.transform.parent = placeToolPoint;
+            SpawnItemOnPoint();
 
             _currentItem.OnEquip(this);
             _currentItemData = _currentSlot.ItemData;
@@ -110,5 +102,21 @@ public class PlayerItemHandler : MonoBehaviour
     public void ConsumeCurrentItem()
     {
         _currentSlot.RemoveFromStack(1);
+    }
+
+    public void SpawnItemOnPoint()
+    {
+        _currentItem = Instantiate(_currentSlot.ItemData.itemPrefab, placeToolPoint);
+        //_holdingObjectConstraint.weight = 0.6f;
+
+        _currentItem.transform.rotation = placeToolPoint.transform.rotation * Quaternion.Inverse(_currentItem.HoldingPoint.rotation) * _currentItem.transform.rotation;
+        _currentItem.transform.position = placeToolPoint.transform.position + _currentItem.transform.position - _currentItem.HoldingPoint.position;
+
+        var data = _holdingObjectConstraint.data;
+        data.target = _currentItem.HandTargetPoint;
+        _holdingObjectConstraint.data = data;
+
+        _holdingObjectConstraint.weight = 1;
+        _holdingObjectConstraint.GetComponentInParent<RigBuilder>().Build(); //Osäker om det är optimalt. 
     }
 }

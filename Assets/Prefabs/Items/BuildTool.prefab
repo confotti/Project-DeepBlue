@@ -31,6 +31,37 @@ Transform:
   m_Children: []
   m_Father: {fileID: 2285949736163879963}
   m_LocalEulerAnglesHint: {x: 90, y: 0, z: -90}
+--- !u!1 &7048689610952846466
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1582987171497484500}
+  m_Layer: 12
+  m_Name: HandPointRotation
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1582987171497484500
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7048689610952846466}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0.5, y: 0.5, z: -0.5, w: 0.5}
+  m_LocalPosition: {x: -3.21, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2285949736163879963}
+  m_LocalEulerAnglesHint: {x: 90, y: 0, z: -90}
 --- !u!1 &7088364132318393226
 GameObject:
   m_ObjectHideFlags: 0
@@ -66,6 +97,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 8394865307688577060}
+  - {fileID: 1582987171497484500}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: -37.9, y: 0, z: 0}
 --- !u!33 &8923045242667832268
@@ -155,6 +187,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _holdingPoint: {fileID: 8394865307688577060}
+  _handTargetPoint: {fileID: 1582987171497484500}
   _rotateSnapAngle: 45
   _rayDistance: 40
   _buildModeLayerMask:

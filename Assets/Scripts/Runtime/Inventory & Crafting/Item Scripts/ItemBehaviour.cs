@@ -7,6 +7,9 @@ public class ItemBehaviour : MonoBehaviour
     [SerializeField] private Transform _holdingPoint;
     public Transform HoldingPoint => _holdingPoint;
 
+    [SerializeField] private Transform _handTargetPoint;
+    public Transform HandTargetPoint => _handTargetPoint;
+
     public virtual void PrimaryInput() { }
     public virtual void SecondaryInput() { }
 
