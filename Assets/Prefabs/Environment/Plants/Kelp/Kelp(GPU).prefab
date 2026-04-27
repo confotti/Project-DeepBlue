@@ -1,0 +1,75 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &6188249482795173138
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7111760373504356558}
+  - component: {fileID: 1977535405019423568}
+  m_Layer: 0
+  m_Name: Kelp(GPU)
+  m_TagString: Kelp
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7111760373504356558
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6188249482795173138}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1977535405019423568
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6188249482795173138}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 09366c6e2f502674d8e54f9bc436801d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  totalStalkNodes: 750000
+  totalLeafObjects: 600000
+  totalKelpObjects: 2500
+  gravityForce: {x: 0, y: 0.47, z: 0}
+  damping: 0.75
+  kelpComputeShader: {fileID: 7200000, guid: eb9d1596b85f42545ad66e37d6f71457, type: 3}
+  kelpRenderMaterial: {fileID: 2100000, guid: ad344eb610ba4434ba98d0e46e7ef4dd, type: 2}
+  kelpSegmentMesh: {fileID: -1883317055400845340, guid: 3077d64637b5854498d990d2063e4895, type: 3}
+  leafRenderMaterial: {fileID: 2100000, guid: 30c9508cadd659244a82a96d43049a13, type: 2}
+  kelpLeafMesh: {fileID: -3568234759019989999, guid: 825c16131a3786244b9c3fc7d164cbc6, type: 3}
+  targetCamera: {fileID: 0}
+  segmentSpacing: 0.95
+  kelpColor: {r: 0.18316126, g: 0.26415092, b: 0.19788665, a: 1}
+  leafColor: {r: 0.2791474, g: 0.4811321, b: 0.2791474, a: 1}
+  windStrength: 0.5
+  windFrequency: 0.2
+  leafNodesPerLeaf: 3
+  terrain: {fileID: 0}
+  groundMask:
+    serializedVersion: 2
+    m_Bits: 8
+  spreadRadius: 420
+  raycastHeight: 50
+  constraintIterations: 8
+  debugMode: 0
+  dynamicColliders:
+  - {fileID: 0}
+  dynamicCollidersRadius:
+  - 3

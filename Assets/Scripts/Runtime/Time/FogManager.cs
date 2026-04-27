@@ -18,6 +18,11 @@ public class FogManager : MonoBehaviour
     public float dayAttenuation = 300f;
     public float nightAttenuation = 150f;
 
+    [Header("Night Fog")]
+    public bool useBlackFogAtNight = true;
+    [Range(0f, 1f)]
+    public float nightFogIntensity = 1f; // 1 = full black, 0 = no change
+
     public List<Volume> fogVolume = new List<Volume>();
 
     private readonly List<Fog> fogOverrides = new List<Fog>();
@@ -46,8 +51,16 @@ public class FogManager : MonoBehaviour
             Fog fog = fogOverrides[i];
 
             // Lerp from nightFogColor (at night) to original color (at day)
-            Color targetFogColor = Color.Lerp(nightFogColor, originalFogColors[i], fogFactor);
-            fog.albedo.value = Color.Lerp(fog.albedo.value, targetFogColor, Time.deltaTime * fogLerpSpeed);
+            Color nightColor = useBlackFogAtNight
+                ? Color.black
+                : nightFogColor;
+
+            // Blend toward black (or chosen night color)
+            Color blendedNight = Color.Lerp(originalFogColors[i], nightColor, nightFogIntensity);
+
+            // Then blend with time of day
+            Color targetFogColor = Color.Lerp(blendedNight, originalFogColors[i], fogFactor);
+            fog.albedo.value = targetFogColor; 
 
             float targetMeanFreePath = Mathf.Lerp(
                 nightAttenuation,
@@ -55,11 +68,7 @@ public class FogManager : MonoBehaviour
                 fogFactor
             );
 
-            fog.meanFreePath.value = Mathf.Lerp(
-                fog.meanFreePath.value,
-                targetMeanFreePath,
-                Time.deltaTime * fogLerpSpeed
-            );
+            fog.meanFreePath.value = targetMeanFreePath; 
         }
     }
 
@@ -99,17 +108,21 @@ public class FogManager : MonoBehaviour
         Volume[] allVolumes = FindObjectsOfType<Volume>();
         foreach (var vol in allVolumes)
         {
-            if (vol.profile != null && vol.profile.TryGet<Fog>(out Fog fog))
+            if (vol.profile != null)
             {
-                fogVolume.Add(vol);
-                fogOverrides.Add(fog);
+                vol.profile = Instantiate(vol.profile); // create runtime instance
 
-                // Save each fog's current color & attenuation
-                originalFogColors.Add(fog.albedo.value);
+                if (vol.profile.TryGet<Fog>(out Fog fog))
+                {
+                    fogVolume.Add(vol);
+                    fogOverrides.Add(fog);
 
-                fog.albedo.overrideState = true;
-                fog.meanFreePath.overrideState = true;
-            }
+                    originalFogColors.Add(fog.albedo.value);
+
+                    fog.albedo.overrideState = true;
+                    fog.meanFreePath.overrideState = true;
+                }
+            } 
         }
     }
 } 

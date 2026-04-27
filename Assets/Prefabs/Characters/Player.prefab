@@ -30163,7 +30163,7 @@ MonoBehaviour:
     _accelaration: 0.1
   underwaterParticles: {fileID: 6462767427473286527}
   _mouseSensitivity: 0.05
-  StartStanding: 1
+  StartStanding: 0
   CameraHead: {fileID: 5577114592626121966}
   _animator: {fileID: 1689196221565018789}
   playerModel: {fileID: 515757157742261062}
@@ -30185,6 +30185,8 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 49145
   head: {fileID: 5577114592626121966}
+  _middlePointImage: {fileID: 0}
+  _interactionText: {fileID: 0}
 --- !u!114 &4840940593215283443
 MonoBehaviour:
   m_ObjectHideFlags: 0
