@@ -15,7 +15,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private bool StartStanding = false;
 
     private Vector2 _rotation;
-    private float _lookYMax = 90;
+    private const float _lookYMax = 80;
 
     public bool IsSwimming => StateMachine.CurrentState == SwimmingState;
 

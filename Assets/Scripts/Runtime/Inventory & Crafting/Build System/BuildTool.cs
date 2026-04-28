@@ -86,6 +86,7 @@ namespace BuildSystem
         {
             _canPlaceBuilding = false;
 
+            //Should be able to make it cheaper by not clearing and updating the UI every frame, but who cares for now. 
             ClearCostUI();
 
             if (_deleteModeEnabled)
@@ -209,12 +210,12 @@ namespace BuildSystem
 
         private void UpdateCostUI()
         {
-            // TODO
+            BuildToolIngredientCostUI.OnUpdateUI?.Invoke(_spawnedBuilding.AssignedData);
         }
 
         private void ClearCostUI()
         {
-            // TODO
+            BuildToolIngredientCostUI.OnUpdateUI?.Invoke(null);
         }
 
         private bool CheckIfCanAffordCurrentBuilding()
