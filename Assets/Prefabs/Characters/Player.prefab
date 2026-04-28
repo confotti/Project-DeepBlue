@@ -870,7 +870,7 @@ ParticleSystem:
     rateOverTime:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 500
+      scalar: 350
       minScalar: 10
       maxCurve:
         serializedVersion: 2
@@ -16124,7 +16124,7 @@ ParticleSystem:
     rateOverTime:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 500
+      scalar: 350
       minScalar: 10
       maxCurve:
         serializedVersion: 2
@@ -21041,7 +21041,7 @@ ParticleSystem:
     rateOverTime:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 500
+      scalar: 350
       minScalar: 10
       maxCurve:
         serializedVersion: 2
@@ -26114,7 +26114,7 @@ ParticleSystem:
     rateOverTime:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 500
+      scalar: 350
       minScalar: 10
       maxCurve:
         serializedVersion: 2
@@ -30217,7 +30217,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _playerHead: {fileID: 3496365618742776278}
   placeToolPoint: {fileID: 8197265109618889398}
-  _holdingObjectConstraint: {fileID: 7150451390696631242}
+  _holdingObjectConstraint: {fileID: 0}
 --- !u!114 &5731344407342504892
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -30456,7 +30456,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &27664782594692169
 Transform:
   m_ObjectHideFlags: 0
