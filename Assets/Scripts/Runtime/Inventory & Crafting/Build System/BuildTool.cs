@@ -210,12 +210,12 @@ namespace BuildSystem
 
         private void UpdateCostUI()
         {
-            BuildToolIngredientCostUI.OnUpdateUI?.Invoke(_spawnedBuilding.AssignedData);
+            BuildToolIngredientCostUI.OnUpdateUI?.Invoke(_spawnedBuilding.AssignedData, _player.PlayerInventory.InventorySystem);
         }
 
         private void ClearCostUI()
         {
-            BuildToolIngredientCostUI.OnUpdateUI?.Invoke(null);
+            BuildToolIngredientCostUI.OnUpdateUI?.Invoke(null, null);
         }
 
         private bool CheckIfCanAffordCurrentBuilding()

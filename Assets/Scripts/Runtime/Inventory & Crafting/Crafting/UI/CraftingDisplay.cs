@@ -99,10 +99,13 @@ public class CraftingDisplay : MonoBehaviour
     {
         ClearSlots(ingredientGrid);
 
+        //TODO: Fix, this is horrible way to get playerInventory
+        InventorySystem inventory = PlayerMovement.Instance.GetComponent<PlayerInventoryHolder>().InventorySystem;
+
         foreach (var ingredient in chosenRecipe.Ingredients)
         {
             var ingredientSlot = ObjectPoolManager.SpawnObject(ingredientSlotPrefab, ingredientGrid, poolType: ObjectPoolManager.PoolType.UI);
-            ingredientSlot.UpdateUISlot(ingredient);
+            ingredientSlot.UpdateUISlot(ingredient, inventory.AmountOfItem(ingredient.ItemRequired));
         }
 
         DisplayItemPreview(chosenRecipe);

@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class BuildToolIngredientCostUI : MonoBehaviour
 {
-    public static Action<BuildingData> OnUpdateUI;
+    public static Action<BuildingData, InventorySystem> OnUpdateUI;
 
     [SerializeField] private CraftingIngredientSlot_UI _craftingIngredientSlot_UI;
 
@@ -21,7 +21,7 @@ public class BuildToolIngredientCostUI : MonoBehaviour
         OnUpdateUI -= UpdateUI;
     }
 
-    private void UpdateUI(BuildingData data)
+    private void UpdateUI(BuildingData data, InventorySystem inventory)
     {
         if(data == null)
         {
@@ -33,7 +33,7 @@ public class BuildToolIngredientCostUI : MonoBehaviour
             {
                 //TODO: Need to show if the player has the items or not in some way
                 var ingredientSlot = ObjectPoolManager.SpawnObject(_craftingIngredientSlot_UI, transform, poolType: ObjectPoolManager.PoolType.UI);
-                ingredientSlot.UpdateUISlot(cost);
+                ingredientSlot.UpdateUISlot(cost, inventory.AmountOfItem(cost.ItemRequired));
             }
         }
     }
