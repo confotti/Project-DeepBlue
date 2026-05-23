@@ -1185,13 +1185,13 @@
             "m_Id": "d1c37d90b46e408593ea29f6bc84e07b"
         },
         {
-            "m_Id": "e41762a84fe4447aa41ba7d2e88abbb4"
+            "m_Id": "4e8f667e235f4bddbcf5e5fd1edb7b6d"
         },
         {
-            "m_Id": "d4928ae8ac8a486fa84f738f4918a8cc"
+            "m_Id": "728465ee00024e5e9ca4245a44ea2ecb"
         },
         {
-            "m_Id": "edb2137a53bc46f9bffa06794b3dae21"
+            "m_Id": "3172a3a8c00d4ef284a075f3d2cb81d2"
         }
     ],
     "m_CustomEditorGUI": "",
@@ -1446,6 +1446,20 @@
         "e32": 0.0,
         "e33": 1.0
     }
+}
+
+{
+    "m_SGVersion": 0,
+    "m_Type": "UnityEditor.Rendering.HighDefinition.ShaderGraph.LightingData",
+    "m_ObjectId": "3172a3a8c00d4ef284a075f3d2cb81d2",
+    "m_NormalDropOffSpace": 0,
+    "m_BlendPreserveSpecular": true,
+    "m_ReceiveDecals": true,
+    "m_ReceiveSSR": true,
+    "m_ReceiveSSRTransparent": false,
+    "m_SpecularAA": false,
+    "m_SpecularOcclusionMode": 1,
+    "m_OverrideBakedGI": false
 }
 
 {
@@ -2031,6 +2045,13 @@
         "m_SerializableColors": []
     },
     "m_SerializedDescriptor": "SurfaceDescription.BaseColor"
+}
+
+{
+    "m_SGVersion": 0,
+    "m_Type": "UnityEditor.Rendering.HighDefinition.ShaderGraph.TerrainLitData",
+    "m_ObjectId": "4e8f667e235f4bddbcf5e5fd1edb7b6d",
+    "m_EnableInstancedPerPixelNormal": true
 }
 
 {
@@ -2634,6 +2655,26 @@
         "e32": 0.0,
         "e33": 1.0
     }
+}
+
+{
+    "m_SGVersion": 0,
+    "m_Type": "UnityEditor.Rendering.HighDefinition.ShaderGraph.BuiltinData",
+    "m_ObjectId": "728465ee00024e5e9ca4245a44ea2ecb",
+    "m_Distortion": false,
+    "m_DistortionMode": 0,
+    "m_DistortionDepthTest": true,
+    "m_AddPrecomputedVelocity": false,
+    "m_TransparentWritesMotionVec": false,
+    "m_DepthOffset": false,
+    "m_ConservativeDepthOffset": false,
+    "m_TransparencyFog": true,
+    "m_AlphaTestShadow": false,
+    "m_BackThenFrontRendering": false,
+    "m_TransparentDepthPrepass": false,
+    "m_TransparentDepthPostpass": false,
+    "m_TransparentPerPixelSorting": false,
+    "m_SupportLodCrossFade": false
 }
 
 {
@@ -4266,7 +4307,7 @@
     "m_TessellationMaxDisplacement": 0.009999999776482582,
     "m_DebugSymbols": false,
     "m_Version": 2,
-    "inspectorFoldoutMask": 0
+    "inspectorFoldoutMask": 9
 }
 
 {
@@ -4331,20 +4372,6 @@
     "m_DropdownSelectedEntries": [
         "Three"
     ]
-}
-
-{
-    "m_SGVersion": 0,
-    "m_Type": "UnityEditor.Rendering.HighDefinition.ShaderGraph.LightingData",
-    "m_ObjectId": "d4928ae8ac8a486fa84f738f4918a8cc",
-    "m_NormalDropOffSpace": 0,
-    "m_BlendPreserveSpecular": true,
-    "m_ReceiveDecals": true,
-    "m_ReceiveSSR": true,
-    "m_ReceiveSSRTransparent": false,
-    "m_SpecularAA": false,
-    "m_SpecularOcclusionMode": 1,
-    "m_OverrideBakedGI": false
 }
 
 {
@@ -4570,9 +4597,9 @@
         "m_Position": {
             "serializedVersion": "2",
             "x": -1468.9998779296875,
-            "y": 166.00001525878907,
-            "width": 228.9998779296875,
-            "height": 190.99998474121095
+            "y": 160.0,
+            "width": 229.0,
+            "height": 191.0
         }
     },
     "m_Slots": [
@@ -4633,26 +4660,6 @@
 
 {
     "m_SGVersion": 0,
-    "m_Type": "UnityEditor.Rendering.HighDefinition.ShaderGraph.BuiltinData",
-    "m_ObjectId": "e41762a84fe4447aa41ba7d2e88abbb4",
-    "m_Distortion": false,
-    "m_DistortionMode": 0,
-    "m_DistortionDepthTest": true,
-    "m_AddPrecomputedVelocity": false,
-    "m_TransparentWritesMotionVec": false,
-    "m_DepthOffset": false,
-    "m_ConservativeDepthOffset": false,
-    "m_TransparencyFog": true,
-    "m_AlphaTestShadow": false,
-    "m_BackThenFrontRendering": false,
-    "m_TransparentDepthPrepass": false,
-    "m_TransparentDepthPostpass": false,
-    "m_TransparentPerPixelSorting": false,
-    "m_SupportLodCrossFade": false
-}
-
-{
-    "m_SGVersion": 0,
     "m_Type": "UnityEditor.ShaderGraph.Vector1MaterialSlot",
     "m_ObjectId": "e54fd7aee6804ca286823c59fb7bb80b",
     "m_Id": 4,
@@ -4696,9 +4703,9 @@
         "m_Position": {
             "serializedVersion": "2",
             "x": -1777.0,
-            "y": -199.0,
+            "y": -199.00001525878907,
             "width": 256.0,
-            "height": 217.0
+            "height": 217.00001525878907
         }
     },
     "m_Slots": [
@@ -4825,13 +4832,6 @@
     "m_DefaultValue": 0.0,
     "m_Labels": [],
     "m_LiteralMode": false
-}
-
-{
-    "m_SGVersion": 0,
-    "m_Type": "UnityEditor.Rendering.HighDefinition.ShaderGraph.TerrainLitData",
-    "m_ObjectId": "edb2137a53bc46f9bffa06794b3dae21",
-    "m_EnableInstancedPerPixelNormal": true
 }
 
 {
