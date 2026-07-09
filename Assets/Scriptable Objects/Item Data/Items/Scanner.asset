@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33da5cdfcb2a2bc43a038313719a16d9, type: 3}
+  m_Name: Scanner
+  m_EditorClassIdentifier: 
+  ID: 8
+  DisplayName: Scanner
+  Description: 
+  EquipmentType: 0
+  EquipmentEffects:
+  - {fileID: 11400000, guid: 3c2d8e11de84d944ca276cc286518ceb, type: 2}
+  Icon: {fileID: 21300000, guid: ec4581027c4844d4aaa79b5ccefcc51a, type: 3}
+  MaxStackSize: 1
+  itemPrefab: {fileID: 0}
