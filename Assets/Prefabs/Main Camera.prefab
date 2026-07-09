@@ -81,7 +81,7 @@ Camera:
   m_TargetEye: 3
   m_HDR: 0
   m_AllowMSAA: 0
-  m_AllowDynamicResolution: 1
+  m_AllowDynamicResolution: 0
   m_ForceIntoRT: 0
   m_OcclusionCulling: 0
   m_StereoConvergence: 10
@@ -145,12 +145,12 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 4294967295
   volumeAnchorOverride: {fileID: 0}
-  antialiasing: 3
-  SMAAQuality: 0
+  antialiasing: 2
+  SMAAQuality: 1
   dithering: 0
   stopNaNs: 0
-  taaSharpenStrength: 2
-  TAAQuality: 1
+  taaSharpenStrength: 0.3
+  TAAQuality: 2
   taaSharpenMode: 0
   taaRingingReduction: 0
   taaHistorySharpening: 1
@@ -171,7 +171,7 @@ MonoBehaviour:
   flipYMode: 0
   xrRendering: 1
   fullscreenPassthrough: 0
-  allowDynamicResolution: 1
+  allowDynamicResolution: 0
   customRenderingSettings: 0
   invertFaceCulling: 0
   probeLayerMask:

@@ -14,7 +14,9 @@ public class PlayerMovement : MonoBehaviour
 
     [SerializeField] private bool StartStanding = false;
 
-    private Vector2 _rotation;
+    private Vector2 _targetRotation;
+    private Vector2 _currentRotation;
+
     private const float _lookYMax = 80;
 
     public bool IsSwimming => StateMachine.CurrentState == SwimmingState;
@@ -23,19 +25,22 @@ public class PlayerMovement : MonoBehaviour
     public PlayerInputHandler InputHandler { get; private set; }
     public Rigidbody Rb { get; private set; }
     public CapsuleCollider Col { get; private set; }
+
     [SerializeField] public GameObject CameraHead;
     [SerializeField] private Animator _animator;
     public Animator Animator => _animator;
 
     [SerializeField] private GameObject playerModel;
     [SerializeField] private GameObject neckBone;
+
     private Vector3 neckComparedToHead;
 
     private void Awake()
     {
         Instance = this;
 
-        neckComparedToHead = transform.InverseTransformDirection(neckBone.transform.position) - transform.InverseTransformDirection(CameraHead.transform.position);
+        neckComparedToHead = transform.InverseTransformDirection(neckBone.transform.position)
+                           - transform.InverseTransformDirection(CameraHead.transform.position);
 
         InputHandler = GetComponent<PlayerInputHandler>();
         Rb = GetComponent<Rigidbody>();
@@ -43,16 +48,22 @@ public class PlayerMovement : MonoBehaviour
 
         StandingState.Init(this, StateMachine);
         SwimmingState.Init(this, StateMachine);
+
         StateMachine.Initialize(StartStanding ? StandingState : SwimmingState);
     }
 
     private void OnEnable()
     {
-        _rotation.x = CameraHead.transform.rotation.eulerAngles.y;
-        _rotation.y = CameraHead.transform.rotation.eulerAngles.x;
+        _targetRotation.x = transform.eulerAngles.y;
+        _targetRotation.y = CameraHead.transform.localEulerAngles.x;
+
+        if (_targetRotation.y > 180f)
+            _targetRotation.y -= 360f;
+
+        _currentRotation = _targetRotation;
     }
 
-    void OnDestroy()
+    private void OnDestroy()
     {
         StateMachine.CurrentState.Exit();
     }
@@ -60,55 +71,80 @@ public class PlayerMovement : MonoBehaviour
     private void Update()
     {
         Shader.SetGlobalVector("_Player", transform.position);
-        CameraMovement();
+
         StateMachine.CurrentState.LogicUpdate();
+    }
+
+    private void LateUpdate()
+    {
+        CameraMovement();
+
+        playerModel.transform.position = playerModel.transform.position -
+            (neckBone.transform.position -
+            (CameraHead.transform.position + transform.rotation * neckComparedToHead));
     }
 
     private void FixedUpdate()
     {
         StateMachine.CurrentState.PhysicsUpdate();
 
-        _animator.SetFloat("MoveX", Mathf.Lerp(_animator.GetFloat("MoveX"), InputHandler.Move.x, Time.deltaTime));
-        _animator.SetFloat("MoveY", Mathf.Lerp(_animator.GetFloat("MoveY"), InputHandler.Move.y, Time.deltaTime));
+        Quaternion bodyRotation = Quaternion.AngleAxis(_currentRotation.x, Vector3.up);
+        Rb.MoveRotation(bodyRotation);
 
-        playerModel.transform.position = playerModel.transform.position - (neckBone.transform.position - (CameraHead.transform.position + transform.rotation * neckComparedToHead));
+        _animator.SetFloat("MoveX",
+            Mathf.Lerp(_animator.GetFloat("MoveX"), InputHandler.Move.x, Time.deltaTime));
+
+        _animator.SetFloat("MoveY",
+            Mathf.Lerp(_animator.GetFloat("MoveY"), InputHandler.Move.y, Time.deltaTime));
     }
 
     private void CameraMovement()
     {
-        _rotation.x += InputHandler.Look.x * _mouseSensitivity;
-        _rotation.y += InputHandler.Look.y * _mouseSensitivity;
-        _rotation.y = Mathf.Clamp(_rotation.y, -_lookYMax, _lookYMax);
-        var xQuat = Quaternion.AngleAxis(_rotation.x, Vector3.up);
-        var yQuat = Quaternion.AngleAxis(_rotation.y, Vector3.left);
-        CameraHead.transform.rotation = xQuat * yQuat;
+        _targetRotation.x += InputHandler.Look.x * _mouseSensitivity;
+        _targetRotation.y += InputHandler.Look.y * _mouseSensitivity;
 
-        transform.rotation = xQuat;
+        _targetRotation.y = Mathf.Clamp(
+            _targetRotation.y,
+            -_lookYMax,
+            _lookYMax);
+
+        _currentRotation = _targetRotation;
+
+        Quaternion bodyRotation = Quaternion.AngleAxis(
+            _currentRotation.x,
+            Vector3.up);
+
+        Quaternion headRotation = Quaternion.AngleAxis(
+            _currentRotation.y,
+            Vector3.left);
+
+        CameraHead.transform.rotation = bodyRotation * headRotation;
     }
 
     public void SetUnderwaterParticlesActive(bool active)
     {
-        if (underwaterParticles == null) return;
+        if (underwaterParticles == null)
+            return;
 
-        underwaterParticles.SetActive(active); 
-    }
+        underwaterParticles.SetActive(active);
+    } 
 
-/*
-            [System.Diagnostics.Conditional("UNITY_EDITOR")]
-            private void OnDrawGizmosSelected()
-            {
-                Col = GetComponent<CapsuleCollider>();
-                var a = Col.bounds.center;
-                a.y = Col.bounds.min.y;
+    /*
+                [System.Diagnostics.Conditional("UNITY_EDITOR")]
+                private void OnDrawGizmosSelected()
+                {
+                    Col = GetComponent<CapsuleCollider>();
+                    var a = Col.bounds.center;
+                    a.y = Col.bounds.min.y;
 
-                Gizmos.color = Color.blue;
-                Gizmos.DrawLine(a, a + Vector3.down * rideHeight);
-                Gizmos.color = Color.red;
-                Gizmos.DrawLine(a + Vector3.down * rideHeight, a + Vector3.down * rideHeight * 1.5f);
+                    Gizmos.color = Color.blue;
+                    Gizmos.DrawLine(a, a + Vector3.down * rideHeight);
+                    Gizmos.color = Color.red;
+                    Gizmos.DrawLine(a + Vector3.down * rideHeight, a + Vector3.down * rideHeight * 1.5f);
 
-                Gizmos.color = Color.magenta;
-                Gizmos.DrawSphere(_hitPosition, 0.5f);
-            }
+                    Gizmos.color = Color.magenta;
+                    Gizmos.DrawSphere(_hitPosition, 0.5f);
+                }
 
-            */
-}
+                */
+} 

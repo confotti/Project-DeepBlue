@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 7795389899039953711}
   - component: {fileID: 8696610882210192663}
   - component: {fileID: 1580530828636642601}
-  m_Layer: 12
+  m_Layer: 0
   m_Name: Back Particles
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4965,99 +4965,6 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!1 &939447253259131743
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 7470821922749009020}
-  - component: {fileID: 2656452469576047189}
-  - component: {fileID: 6479038054604851621}
-  m_Layer: 12
-  m_Name: CameraShake
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &7470821922749009020
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 939447253259131743}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 3496365618742776278}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2656452469576047189
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 939447253259131743}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f9dfa5b682dcd46bda6128250e975f58, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Priority:
-    Enabled: 1
-    m_Value: 1
-  OutputChannel: 1
-  StandbyUpdate: 2
-  m_StreamingVersion: 20241001
-  m_LegacyPriority: 0
-  Target:
-    TrackingTarget: {fileID: 0}
-    LookAtTarget: {fileID: 0}
-    CustomLookAtTarget: 0
-  Lens:
-    FieldOfView: 60.000004
-    OrthographicSize: 5
-    NearClipPlane: 0.01
-    FarClipPlane: 1000
-    Dutch: 0
-    ModeOverride: 0
-    PhysicalProperties:
-      GateFit: 2
-      SensorSize: {x: 21.946, y: 16.002}
-      LensShift: {x: 0, y: 0}
-      FocusDistance: 10
-      Iso: 200
-      ShutterSpeed: 0.005
-      Aperture: 16
-      BladeCount: 5
-      Curvature: {x: 2, y: 11}
-      BarrelClipping: 0.25
-      Anamorphism: 0
-  BlendHint: 0
---- !u!114 &6479038054604851621
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 939447253259131743}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 68bb026fafb42b14791938953eaace77, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  NoiseProfile: {fileID: 11400000, guid: 69ce8388f6785dd4c8c39915efece2f4, type: 2}
-  PivotOffset: {x: 0, y: 0, z: 0}
-  AmplitudeGain: 6
-  FrequencyGain: 0.1
-  m_NoiseOffsets: {x: 927.9158, y: 783.8352, z: -197.0409}
 --- !u!1 &1082780494053195899
 GameObject:
   m_ObjectHideFlags: 0
@@ -5438,7 +5345,7 @@ GameObject:
   - component: {fileID: 7454937273733113724}
   - component: {fileID: 8512263881197956972}
   - component: {fileID: 2595904486693639963}
-  m_Layer: 12
+  m_Layer: 0
   m_Name: AirBubbles
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -10332,7 +10239,7 @@ GameObject:
   - component: {fileID: 292514261661011126}
   - component: {fileID: 6128415899391017587}
   - component: {fileID: 1350343050371723460}
-  m_Layer: 12
+  m_Layer: 0
   m_Name: Particles
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -15274,7 +15181,7 @@ GameObject:
   - component: {fileID: 9137874040745142067}
   - component: {fileID: 6476269930226690048}
   - component: {fileID: 1864636149459443064}
-  m_Layer: 12
+  m_Layer: 0
   m_Name: Front Particles
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -20194,7 +20101,7 @@ GameObject:
   - component: {fileID: 3371912879205240688}
   - component: {fileID: 4907131273787017816}
   - component: {fileID: 2119564806496540454}
-  m_Layer: 12
+  m_Layer: 0
   m_Name: Back Particles (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -25063,8 +24970,8 @@ Light:
   serializedVersion: 12
   m_Type: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 46340.95
-  m_Range: 1000
+  m_Intensity: 11585.237
+  m_Range: 700
   m_SpotAngle: 100
   m_InnerSpotAngle: 21.80208
   m_CookieSize2D: {x: 10, y: 10}
@@ -25270,7 +25177,7 @@ GameObject:
   - component: {fileID: 1227921420522739003}
   - component: {fileID: 7664941397242521578}
   - component: {fileID: 4513733442371908117}
-  m_Layer: 12
+  m_Layer: 0
   m_Name: Front Particles (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -30115,6 +30022,7 @@ GameObject:
   - component: {fileID: 4363546466055748074}
   - component: {fileID: 8279320085652908750}
   - component: {fileID: 3146864349786084419}
+  - component: {fileID: 8296259817768798233}
   m_Layer: 12
   m_Name: Player
   m_TagString: Player
@@ -30176,12 +30084,12 @@ MonoBehaviour:
       serializedVersion: 2
       m_Bits: 49129
   SwimmingState:
-    _baseSwimSpeed: 24
-    _baseSwimmingFastSpeed: 35
+    _baseSwimSpeed: 26
+    _baseSwimmingFastSpeed: 26
     _accelaration: 0.1
   underwaterParticles: {fileID: 6462767427473286527}
-  _mouseSensitivity: 0.05
-  StartStanding: 0
+  _mouseSensitivity: 0.04
+  StartStanding: 1
   CameraHead: {fileID: 5577114592626121966}
   _animator: {fileID: 1689196221565018789}
   playerModel: {fileID: 515757157742261062}
@@ -30333,7 +30241,7 @@ Rigidbody:
   m_ImplicitTensor: 1
   m_UseGravity: 0
   m_IsKinematic: 0
-  m_Interpolate: 0
+  m_Interpolate: 1
   m_Constraints: 112
   m_CollisionDetection: 0
 --- !u!136 &3146864349786084419
@@ -30356,9 +30264,31 @@ CapsuleCollider:
   m_Enabled: 1
   serializedVersion: 2
   m_Radius: 2.5
-  m_Height: 13
+  m_Height: 10.943857
   m_Direction: 1
-  m_Center: {x: 0, y: -1.37, z: -0.11}
+  m_Center: {x: 0.000000017689013, y: -1.5864421, z: -0.10999989}
+--- !u!95 &8296259817768798233
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5083573799768335632}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 0}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &5157457886953256212
 GameObject:
   m_ObjectHideFlags: 0
@@ -30453,7 +30383,6 @@ Transform:
   - {fileID: 27664782594692169}
   - {fileID: 3383142995111473837}
   - {fileID: 3941384523152134198}
-  - {fileID: 7470821922749009020}
   - {fileID: 3171606257177908449}
   m_Father: {fileID: 4525852725061259153}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -30468,13 +30397,13 @@ GameObject:
   - component: {fileID: 27664782594692169}
   - component: {fileID: 8671260096267188789}
   - component: {fileID: 1419143424433072975}
-  m_Layer: 12
+  m_Layer: 0
   m_Name: Particles
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &27664782594692169
 Transform:
   m_ObjectHideFlags: 0
