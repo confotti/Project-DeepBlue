@@ -3,7 +3,6 @@ using UnityEngine.Events;
 
 public class SubLadderBehaviour : MonoBehaviour, IInteractable
 {
-
     [SerializeField] private string interactText = "";
     public string InteractText => interactText;
 
@@ -13,28 +12,36 @@ public class SubLadderBehaviour : MonoBehaviour, IInteractable
 
     public void EndInteraction()
     {
-        
     }
 
     public void Interact(PlayerInteract interactor)
     {
         PlayerMovement pm = interactor.GetComponent<PlayerMovement>();
-        if (!pm.IsSwimming) return;
+        if (pm == null || !pm.IsSwimming)
+            return;
 
-        interactor.transform.position = transform.position + teleportToLocation;
+        Rigidbody rb = pm.GetComponent<Rigidbody>();
+        if (rb == null)
+        {
+            Debug.LogError("PlayerMovement requires a Rigidbody!");
+            return;
+        }
+
+        Vector3 targetPosition = transform.position + teleportToLocation;
+
+        rb.linearVelocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+
+        RigidbodyInterpolation previousInterpolation = rb.interpolation;
+        rb.interpolation = RigidbodyInterpolation.None;
+
+        rb.position = targetPosition;
+
+        Physics.SyncTransforms();
+
+        rb.interpolation = previousInterpolation;
+
         pm.StateMachine.ChangeState(pm.StandingState);
-    }
-
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 
     private void OnDrawGizmosSelected()
@@ -42,4 +49,4 @@ public class SubLadderBehaviour : MonoBehaviour, IInteractable
         Gizmos.color = Color.green;
         Gizmos.DrawSphere(transform.position + teleportToLocation, 0.5f);
     }
-}
+} 
