@@ -38,7 +38,7 @@ public class CameraBobbing : MonoBehaviour
 
         bool moving = movement.magnitude > 0.1f;
 
-        if (!moving)
+        if (playerMovement.StateMachine.CurrentState != playerMovement.StandingState)
         {
             bobTimer = 0;
 
@@ -49,6 +49,19 @@ public class CameraBobbing : MonoBehaviour
             );
 
             return;
+        }
+
+        if (!moving)
+        {
+            bobTimer = 0;
+
+            cameraHead.localPosition = Vector3.Lerp(
+                cameraHead.localPosition,
+                startPosition,
+                Time.deltaTime * smoothness
+            );
+
+            return; 
         }
 
 
