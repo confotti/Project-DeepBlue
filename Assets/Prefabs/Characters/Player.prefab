@@ -30111,7 +30111,7 @@ MonoBehaviour:
   cameraHead: {fileID: 3496365618742776278}
   walkBobAmount: 0.2
   walkBobSpeed: 8
-  runBobAmount: 0.4
+  runBobAmount: 0.3
   runBobSpeed: 12
   smoothness: 10
 --- !u!114 &903199630935089767
@@ -37069,6 +37069,10 @@ PrefabInstance:
     - target: {fileID: 4807625191522980381, guid: 2b62a07b9bc7015429afc59a8e15225a, type: 3}
       propertyPath: m_Name
       value: Sanity_Volume
+      objectReference: {fileID: 0}
+    - target: {fileID: 4807625191522980381, guid: 2b62a07b9bc7015429afc59a8e15225a, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5433241389987165141, guid: 2b62a07b9bc7015429afc59a8e15225a, type: 3}
       propertyPath: m_LocalPosition.x
