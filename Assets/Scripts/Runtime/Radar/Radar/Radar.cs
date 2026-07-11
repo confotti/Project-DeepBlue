@@ -8,9 +8,6 @@ namespace Ilumisoft.RadarSystem
     [DefaultExecutionOrder(-10)]
     public class Radar : MonoBehaviour
     {
-        /// <summary>
-        /// Dictionary allowing to access the icon of a locatable
-        /// </summary>
         readonly Dictionary<LocatableComponent, LocatableIconComponent> locatableIconDictionary = new();
 
         [SerializeField]
@@ -25,19 +22,10 @@ namespace Ilumisoft.RadarSystem
         [Tooltip("Whether the radar should apply the roation of the player")]
         private bool applyRotation = true;
 
-        /// <summary>
-        /// The detection range of the radar
-        /// </summary>
         public float Range { get => range; set => range = value; }
 
-        /// <summary>
-        /// Whether the radar rotates with the player or not
-        /// </summary>
         public bool ApplyRotation { get=> applyRotation; set => applyRotation = value; }
 
-        /// <summary>
-        /// Reference to the player
-        /// </summary>
         public GameObject Player;
 
         private void OnEnable()
@@ -52,10 +40,6 @@ namespace Ilumisoft.RadarSystem
             LocatableManager.OnLocatableRemoved -= OnLocatableRemoved;
         }
 
-        /// <summary>
-        /// Callback invoked when a locatable has been added
-        /// </summary>
-        /// <param name="locatable"></param>
         private void OnLocatableAdded(LocatableComponent locatable)
         {
             // Create the icon for the locatable and add a new entry to the dictionary
@@ -69,10 +53,6 @@ namespace Ilumisoft.RadarSystem
             }
         }
 
-        /// <summary>
-        /// Callback invoked when a locatable has been removed
-        /// </summary>
-        /// <param name="locatable"></param>
         private void OnLocatableRemoved(LocatableComponent locatable)
         {
             // Remove the locatable from the dictionary and destroy the icon
@@ -92,9 +72,6 @@ namespace Ilumisoft.RadarSystem
             }
         }
 
-        /// <summary>
-        /// Updates the position of all icons
-        /// </summary>
         private void UpdateLocatableIcons()
         {
             // Run through all locatables in the dictionary
@@ -119,12 +96,6 @@ namespace Ilumisoft.RadarSystem
             }
         }
 
-        /// <summary>
-        /// Computes the location of the icon on the radar. Returns true if the icon is visible, false otherwise
-        /// </summary>
-        /// <param name="locatable"></param>
-        /// <param name="iconLocation"></param>
-        /// <returns></returns>
         private bool TryGetIconLocation(LocatableComponent locatable, out Vector2 iconLocation)
         {
             iconLocation = GetDistanceToPlayer(locatable);
@@ -167,20 +138,11 @@ namespace Ilumisoft.RadarSystem
             return false;
         }
 
-        /// <summary>
-        /// Gets the size of the radar UI
-        /// </summary>
-        /// <returns></returns>
         private float GetRadarUISize()
         {
             return iconContainer.rect.width / 2;
         }
 
-        /// <summary>
-        /// Returns the distance to the player on the x,z plane
-        /// </summary>
-        /// <param name="locatable"></param>
-        /// <returns></returns>
         private Vector2 GetDistanceToPlayer(LocatableComponent locatable)
         {
             Vector3 distanceToPlayer = locatable.transform.position - Player.transform.position;
