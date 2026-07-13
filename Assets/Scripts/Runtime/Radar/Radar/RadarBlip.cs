@@ -11,6 +11,7 @@ public class RadarBlip : MonoBehaviour
     [Header("Radar Pulse")]
     [SerializeField] private float _revealDuration = 2f;
     [SerializeField] private float _fadeDuration = 1f;
+    [SerializeField] private ParticleSystem radarPulse; 
 
     [Header("Sound")]
     [SerializeField] private AudioSource _audioSource;
@@ -42,6 +43,8 @@ public class RadarBlip : MonoBehaviour
             _revealTimer = _revealDuration;
 
             _radar.ShowEnemyBlips = true;
+            _audioSource.PlayOneShot(_blipSound);
+            radarPulse.Play(); 
         } 
 
         if (_sonarActive)
@@ -111,7 +114,6 @@ public class RadarBlip : MonoBehaviour
         return closest;
     }
 
-
     private void SetTaggedIconsVisible(bool visible)
     {
         var locatables = FindObjectsByType<LocatableComponent>(
@@ -131,7 +133,6 @@ public class RadarBlip : MonoBehaviour
             }
         }
     } 
-
 
     private void PlayBlipSound(float distance)
     {
