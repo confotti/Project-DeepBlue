@@ -13,10 +13,6 @@ public class StalkerBehaviour : MonoBehaviour
 
     public float TimeSinceLastAttack = 100;
 
-    [SerializeField] private bool _debugState = true;
-
-    private string _lastState; 
-
     [SerializeField] private float _fearDistance = 400f;
     [SerializeField] private float _attackDistance = 150f;
 
@@ -27,21 +23,25 @@ public class StalkerBehaviour : MonoBehaviour
         DistanceToPlayer > _attackDistance;
 
     public bool PlayerIsAggressiveRange =>
-        DistanceToPlayer <= _attackDistance; 
+        DistanceToPlayer <= _attackDistance;
 
-    public StateMachine<StalkerBehaviour> StateMachine = new();
+    public StateMachine<StalkerBehaviour> StateMachine = new ();
 
 #if UNITY_EDITOR
     [Header("Green Gizmos"), SerializeField] private bool _showWanderGizmos = true;
 #endif
-    public StalkerWanderState WanderState = new();
+    public StalkerWanderState WanderState = new ();
 
 #if UNITY_EDITOR
     [Header("Red Gizmos"), SerializeField] private bool _showPursuitGizmos = true;
 #endif
-    public StalkerPursuitState PursuitState = new();
-    public StalkerStalkState StalkState = new();
-    public StalkerScaredState ScaredState = new();
+    public StalkerPursuitState PursuitState = new ();
+    public StalkerStalkState StalkState = new ();
+    public StalkerScaredState ScaredState = new ();
+
+    [SerializeField] private bool _debugState = true;
+    private string _lastState;
+
 
     private void OnValidate()
     {
@@ -51,6 +51,7 @@ public class StalkerBehaviour : MonoBehaviour
     private void Awake()
     {
         Rb = GetComponent<Rigidbody>();
+
         WanderState.Init(this, StateMachine);
         PursuitState.Init(this, StateMachine);
         StalkState.Init(this, StateMachine);
@@ -61,33 +62,35 @@ public class StalkerBehaviour : MonoBehaviour
         _fovThreshhold = Mathf.Cos(_fieldOfViewInspector * Mathf.Deg2Rad * 0.5f);
     }
 
-    void Update()
+    private void Update()
     {
         TimeSinceLastAttack += Time.deltaTime;
 
         StateMachine.CurrentState.LogicUpdate();
 
         if (_debugState)
-        {
             DebugState();
-        }
+    }
 
-        Debug.Log(StateMachine.CurrentState.GetType().Name); 
-    } 
-
-    void FixedUpdate()
+    private void FixedUpdate()
     {
         StateMachine.CurrentState.PhysicsUpdate();
     }
 
-    public float DistanceToPlayer => Vector3.Distance(transform.position, PlayerMovement.Instance.transform.position);
+    public float DistanceToPlayer =>
+        Vector3.Distance(transform.position, PlayerMovement.Instance.transform.position);
 
-    public bool PlayerInPursuitRange => DistanceToPlayer < PursuitState.PursuitDetectionRange;
+    public bool PlayerInPursuitRange =>
+        DistanceToPlayer < PursuitState.PursuitDetectionRange;
 
     public bool PlayerInLineOfSight()
     {
         if (PlayerInFOV() &&
-        Physics.Raycast(transform.position, PlayerMovement.Instance.transform.position - transform.position, out RaycastHit hit, _lineOfSightMask))
+            Physics.Raycast(
+                transform.position,
+                PlayerMovement.Instance.transform.position - transform.position,
+                out RaycastHit hit,
+                _lineOfSightMask))
         {
             if (hit.collider.CompareTag("Player")) return true;
         }
@@ -97,7 +100,10 @@ public class StalkerBehaviour : MonoBehaviour
 
     public bool PlayerInFOV()
     {
-        return Vector3.Dot(transform.forward, (PlayerMovement.Instance.transform.position - transform.position).normalized) >= _fovThreshhold;
+        return Vector3.Dot(
+            transform.forward,
+            (PlayerMovement.Instance.transform.position - transform.position).normalized
+        ) >= _fovThreshhold;
     }
 
     public bool IsObservedByPlayer()
@@ -117,7 +123,11 @@ public class StalkerBehaviour : MonoBehaviour
                 return false;
             }
         */
-        return (_renderer.isVisible && Vector3.Dot(PlayerMovement.Instance.CameraHead.transform.forward, transform.position - PlayerMovement.Instance.transform.position) > 0.5f); //0.5 is 60 degrees. 
+        return (_renderer.isVisible &&
+            Vector3.Dot(
+                PlayerMovement.Instance.CameraHead.transform.forward,
+                transform.position - PlayerMovement.Instance.transform.position
+            ) > 0.5f);
     }
 
     private void DebugState()
@@ -129,7 +139,7 @@ public class StalkerBehaviour : MonoBehaviour
             Debug.Log("Stalker changed state: " + currentState);
             _lastState = currentState;
         }
-    } 
+    }
 
 
 #if UNITY_EDITOR
@@ -141,6 +151,7 @@ public class StalkerBehaviour : MonoBehaviour
         {
             Gizmos.color = new Color(0.5f, 1f, 0.1f);
             Gizmos.DrawWireSphere(t.position + t.forward * WanderState.WanderCircleDistance, WanderState.WanderCircleRadius);
+
             Gizmos.color = new Color(0.1f, 1f, 0.5f);
             Gizmos.DrawLine(t.position, t.position + t.forward * WanderState.AvoidDistance);
 
@@ -150,30 +161,18 @@ public class StalkerBehaviour : MonoBehaviour
 
         if (_showPursuitGizmos)
         {
-            //Field of view gizmo
             Gizmos.color = Color.red;
 
-            // Half FOV
             float halfFOV = _fieldOfViewInspector * 0.5f;
 
-            // Boundary directions
             Vector3 leftDir = Quaternion.AngleAxis(-halfFOV, Vector3.up) * t.forward;
             Vector3 rightDir = Quaternion.AngleAxis(halfFOV, Vector3.up) * t.forward;
-            Vector3 upDir = Quaternion.AngleAxis(-halfFOV, Vector3.right) * t.forward;
-            Vector3 downDir = Quaternion.AngleAxis(halfFOV, Vector3.right) * t.forward;
 
             Gizmos.DrawLine(t.position, t.position + leftDir * PursuitState.PursuitDetectionRange);
             Gizmos.DrawLine(t.position, t.position + rightDir * PursuitState.PursuitDetectionRange);
-            Gizmos.DrawLine(t.position, t.position + upDir * PursuitState.PursuitDetectionRange);
-            Gizmos.DrawLine(t.position, t.position + downDir * PursuitState.PursuitDetectionRange);
 
-            // Optional arc visualization
             DrawArc(t.position, t.forward, Vector3.up, _fieldOfViewInspector, PursuitState.PursuitDetectionRange);
-            DrawArc(t.position, t.forward, t.right, _fieldOfViewInspector, PursuitState.PursuitDetectionRange);
-            DrawArc(t.position + t.rotation * new Vector3(0, 0, Mathf.Cos(_fieldOfViewInspector * 0.5f * Mathf.Deg2Rad) * PursuitState.PursuitDetectionRange),
-            t.up, t.forward, 360, PursuitState.PursuitDetectionRange * Mathf.Sin(_fieldOfViewInspector * 0.5f * Mathf.Deg2Rad));
         }
-        
     }
 
     void DrawArc(Vector3 center, Vector3 forward, Vector3 axis, float angle, float radius)
@@ -193,4 +192,4 @@ public class StalkerBehaviour : MonoBehaviour
         }
     }
 #endif
-}
+} 

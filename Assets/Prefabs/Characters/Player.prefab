@@ -35087,7 +35087,7 @@ Transform:
   m_GameObject: {fileID: 6279245156197328241}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0, y: 3.9100056, z: 0.9200006}
+  m_LocalPosition: {x: -0.95, y: 3.91, z: 0.92}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -35107,8 +35107,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FlashlightMovement
   _camera: {fileID: 3496365618742776278}
-  _yawSmoothness: 5
-  _pitchSmoothness: 7
+  _yawSmoothness: 6
+  _pitchSmoothness: 8
   _yawLagAmount: 0.5
 --- !u!1 &6462767427473286527
 GameObject:
@@ -42210,7 +42210,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1145865712636185203, guid: 603e67c48e2d77b49a917150571435b0, type: 3}
       propertyPath: range
-      value: 375
+      value: 200
       objectReference: {fileID: 0}
     - target: {fileID: 1145865712636185203, guid: 603e67c48e2d77b49a917150571435b0, type: 3}
       propertyPath: Player

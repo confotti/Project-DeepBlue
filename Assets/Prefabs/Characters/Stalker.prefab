@@ -11,6 +11,8 @@ GameObject:
   - component: {fileID: 5730096199682882063}
   - component: {fileID: 2379482067963875444}
   - component: {fileID: 875878894850468161}
+  - component: {fileID: 4154806682175085209}
+  - component: {fileID: 6401118587527976698}
   m_Layer: 0
   m_Name: Stalker
   m_TagString: Untagged
@@ -29,7 +31,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -90.0867, y: 86.19665, z: -42.24117}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 415781893618082047}
   - {fileID: 8291110624590305647}
@@ -42,10 +44,10 @@ Rigidbody:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3160997475734532769}
-  serializedVersion: 4
+  serializedVersion: 5
   m_Mass: 1
-  m_Drag: 0
-  m_AngularDrag: 0.05
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
@@ -81,9 +83,11 @@ MonoBehaviour:
   LookAtPoint: {fileID: 8291110624590305647}
   _renderer: {fileID: 3412992132805471757}
   TimeSinceLastAttack: 45
+  _fearDistance: 350
+  _attackDistance: 100
   _showWanderGizmos: 1
   WanderState:
-    _wanderSpeed: 15
+    _wanderSpeed: 25
     _turnSpeed: 0.03
     _wanderCircleDistance: 20
     _wanderCircleRadius: 10
@@ -91,25 +95,62 @@ MonoBehaviour:
     _avoidDistance: 35
   _showPursuitGizmos: 1
   PursuitState:
-    _pursuitSpeed: 35
-    PursuitDetectionRange: 80
+    _pursuitSpeed: 65
+    PursuitDetectionRange: 150
     _attackRange: 5
     _attackDamage: 50
   StalkState:
     _getToPositionSpeed: 50
-    _stalkSwimSpeed: 10
+    _stalkSwimSpeed: 30
     _gainStalkRate: 0.1
     _loseStalkOutsideStalkStateRate: 0.01
-    _rangeToEnterPursuit: 30
-    _stalkPositionDistance: 100
+    _rangeToEnterPursuit: 100
+    _stalkPositionDistance: 250
   ScaredState:
-    _wanderSpeed: 15
+    _wanderSpeed: 45
     _turnSpeed: 0.03
     _wanderCircleDistance: 20
     _wanderCircleRadius: 7
     _wanderJitter: 1
     _avoidDistance: 35
     _timeInScaredState: 5
+  _debugState: 1
+--- !u!114 &4154806682175085209
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3160997475734532769}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a35fd54ac079a8b47aa6549789157333, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  iconPrefab: {fileID: 4922837886278913688, guid: 64491c38b1af452409456a53259a0f43, type: 3}
+  clampOnRadar: 0
+--- !u!95 &6401118587527976698
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3160997475734532769}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 0}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &4633504233531729596
 GameObject:
   m_ObjectHideFlags: 0
