@@ -13,6 +13,21 @@ public class StalkerBehaviour : MonoBehaviour
 
     public float TimeSinceLastAttack = 100;
 
+    [SerializeField] private bool _debugState = true;
+
+    private string _lastState; 
+
+    [SerializeField] private float _fearDistance = 400f;
+    [SerializeField] private float _attackDistance = 150f;
+
+    public bool PlayerIsTooFarToCare => DistanceToPlayer > _fearDistance;
+
+    public bool PlayerCanScareCreature =>
+        DistanceToPlayer <= _fearDistance &&
+        DistanceToPlayer > _attackDistance;
+
+    public bool PlayerIsAggressiveRange =>
+        DistanceToPlayer <= _attackDistance; 
 
     public StateMachine<StalkerBehaviour> StateMachine = new();
 
@@ -27,9 +42,6 @@ public class StalkerBehaviour : MonoBehaviour
     public StalkerPursuitState PursuitState = new();
     public StalkerStalkState StalkState = new();
     public StalkerScaredState ScaredState = new();
-
-
-
 
     private void OnValidate()
     {
@@ -47,14 +59,21 @@ public class StalkerBehaviour : MonoBehaviour
         StateMachine.Initialize(StalkState);
 
         _fovThreshhold = Mathf.Cos(_fieldOfViewInspector * Mathf.Deg2Rad * 0.5f);
-
     }
 
     void Update()
     {
         TimeSinceLastAttack += Time.deltaTime;
+
         StateMachine.CurrentState.LogicUpdate();
-    }
+
+        if (_debugState)
+        {
+            DebugState();
+        }
+
+        Debug.Log(StateMachine.CurrentState.GetType().Name); 
+    } 
 
     void FixedUpdate()
     {
@@ -101,6 +120,17 @@ public class StalkerBehaviour : MonoBehaviour
         return (_renderer.isVisible && Vector3.Dot(PlayerMovement.Instance.CameraHead.transform.forward, transform.position - PlayerMovement.Instance.transform.position) > 0.5f); //0.5 is 60 degrees. 
     }
 
+    private void DebugState()
+    {
+        string currentState = StateMachine.CurrentState.GetType().Name;
+
+        if (currentState != _lastState)
+        {
+            Debug.Log("Stalker changed state: " + currentState);
+            _lastState = currentState;
+        }
+    } 
+
 
 #if UNITY_EDITOR
     private void OnDrawGizmosSelected()
@@ -145,7 +175,6 @@ public class StalkerBehaviour : MonoBehaviour
         }
         
     }
-
 
     void DrawArc(Vector3 center, Vector3 forward, Vector3 axis, float angle, float radius)
     {

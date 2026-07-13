@@ -5176,7 +5176,7 @@ Light:
   m_CullingMask:
     serializedVersion: 2
     m_Bits: 2064
-  m_RenderingLayerMask: 4294967295
+  m_RenderingLayerMask: 127
   m_Lightmapping: 4
   m_LightShadowCasterMode: 2
   m_AreaSize: {x: 0.5, y: 0.5}
@@ -5269,7 +5269,7 @@ MonoBehaviour:
   m_EvsmLightLeakBias: 0
   m_EvsmVarianceBias: 0.00001
   m_EvsmBlurPasses: 0
-  m_LightlayersMask: -1
+  m_LightlayersMask: 127
   m_LinkShadowLayers: 1
   m_ShadowNearPlane: 0.1
   m_BlockerSampleCount: 24
@@ -42210,7 +42210,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1145865712636185203, guid: 603e67c48e2d77b49a917150571435b0, type: 3}
       propertyPath: range
-      value: 425
+      value: 375
       objectReference: {fileID: 0}
     - target: {fileID: 1145865712636185203, guid: 603e67c48e2d77b49a917150571435b0, type: 3}
       propertyPath: Player

@@ -53,11 +53,17 @@ public class StalkerStalkState : State<StalkerBehaviour>
 
     public override void LogicUpdate()
     {
-        if (obj.IsObservedByPlayer())
+        if (obj.PlayerCanScareCreature && obj.IsObservedByPlayer())
         {
             obj.StateMachine.ChangeState(obj.ScaredState);
             return;
         }
+
+        if (obj.PlayerIsAggressiveRange)
+        {
+            obj.StateMachine.ChangeState(obj.PursuitState);
+            return;
+        } 
         if (!PlayerMovement.Instance.IsSwimming)
         {
             obj.StateMachine.ChangeState(obj.WanderState);

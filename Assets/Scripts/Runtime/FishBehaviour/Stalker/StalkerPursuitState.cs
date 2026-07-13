@@ -5,7 +5,7 @@ using UnityEngine;
 public class StalkerPursuitState : State<StalkerBehaviour>
 {
     [SerializeField] private float _pursuitSpeed = 25f;
-    public float PursuitDetectionRange = 70f;
+    public float PursuitDetectionRange = 50f;
     [SerializeField] private float _attackRange = 5f;
     [SerializeField] private int _attackDamage = 20;
 
@@ -20,7 +20,7 @@ public class StalkerPursuitState : State<StalkerBehaviour>
         {
             PlayerMovement.Instance.GetComponent<PlayerStats>().ChangeHealth(-_attackDamage);
             obj.TimeSinceLastAttack = 0;
-            obj.StateMachine.ChangeState(obj.WanderState);
+            obj.StateMachine.ChangeState(obj.StalkState); 
         }
     }
 
@@ -28,13 +28,24 @@ public class StalkerPursuitState : State<StalkerBehaviour>
     {
         base.LogicUpdate();
 
-        //TODO: Probably create a state where it goes to player last seen position here instead. 
-        if (!obj.PlayerInPursuitRange || !obj.PlayerInLineOfSight() || !PlayerMovement.Instance.IsSwimming)
+        if (!PlayerMovement.Instance.IsSwimming)
         {
             obj.StateMachine.ChangeState(obj.WanderState);
             return;
         }
 
+        if (!obj.PlayerInPursuitRange)
+        {
+            obj.StateMachine.ChangeState(obj.StalkState);
+            return;
+        }
+
+        if (!obj.PlayerInLineOfSight())
+        {
+            obj.StateMachine.ChangeState(obj.StalkState);
+            return;
+        }
+
         obj.LookAtPoint.position = PlayerMovement.Instance.CameraHead.transform.position;
-    }
+    } 
 }

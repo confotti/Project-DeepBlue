@@ -197,18 +197,6 @@ PrefabInstance:
       propertyPath: _middlePointImage
       value: 
       objectReference: {fileID: 1512274977}
-    - target: {fileID: 2583169968160075770, guid: cbc1e87d3d2a2f4448067cbbd6e3cb4b, type: 3}
-      propertyPath: m_Enabled
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2583169968160075770, guid: cbc1e87d3d2a2f4448067cbbd6e3cb4b, type: 3}
-      propertyPath: m_Intensity
-      value: 2546.479
-      objectReference: {fileID: 0}
-    - target: {fileID: 2583169968160075770, guid: cbc1e87d3d2a2f4448067cbbd6e3cb4b, type: 3}
-      propertyPath: m_RenderingLayerMask
-      value: 127
-      objectReference: {fileID: 0}
     - target: {fileID: 4363546466055748074, guid: cbc1e87d3d2a2f4448067cbbd6e3cb4b, type: 3}
       propertyPath: mouseInventoryItem
       value: 
@@ -269,29 +257,9 @@ PrefabInstance:
       propertyPath: m_Camera
       value: 
       objectReference: {fileID: 1464839647}
-    - target: {fileID: 7681451465254758812, guid: cbc1e87d3d2a2f4448067cbbd6e3cb4b, type: 3}
-      propertyPath: useVolumetric
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7681451465254758812, guid: cbc1e87d3d2a2f4448067cbbd6e3cb4b, type: 3}
-      propertyPath: m_LightlayersMask
-      value: 127
-      objectReference: {fileID: 0}
-    - target: {fileID: 7681451465254758812, guid: cbc1e87d3d2a2f4448067cbbd6e3cb4b, type: 3}
-      propertyPath: m_ApplyRangeAttenuation
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7681451465254758812, guid: cbc1e87d3d2a2f4448067cbbd6e3cb4b, type: 3}
-      propertyPath: m_DisplayAreaLightEmissiveMesh
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8518811362769284092, guid: cbc1e87d3d2a2f4448067cbbd6e3cb4b, type: 3}
-      propertyPath: sonarLight
-      value: 
-      objectReference: {fileID: 501178232}
-    - target: {fileID: 8518811362769284092, guid: cbc1e87d3d2a2f4448067cbbd6e3cb4b, type: 3}
-      propertyPath: boostedIntensity
-      value: 15000
+    - target: {fileID: 7404799896636599249, guid: cbc1e87d3d2a2f4448067cbbd6e3cb4b, type: 3}
+      propertyPath: range
+      value: 400
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1804,11 +1772,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.42224938, y: 2.682685, z: 1.9377528}
   m_Center: {x: 0.0014576399, y: 1.3413575, z: -0.23400263}
---- !u!108 &501178232 stripped
-Light:
-  m_CorrespondingSourceObject: {fileID: 2583169968160075770, guid: cbc1e87d3d2a2f4448067cbbd6e3cb4b, type: 3}
-  m_PrefabInstance: {fileID: 61206567}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &525082862
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4284,12 +4247,32 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 875878894850468161, guid: 0e5cd90d879f17e4aa7e93759d8c7698, type: 3}
+      propertyPath: _fearDistance
+      value: 350
+      objectReference: {fileID: 0}
+    - target: {fileID: 875878894850468161, guid: 0e5cd90d879f17e4aa7e93759d8c7698, type: 3}
+      propertyPath: _attackDistance
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 875878894850468161, guid: 0e5cd90d879f17e4aa7e93759d8c7698, type: 3}
       propertyPath: ScaredState._wanderSpeed
-      value: 25
+      value: 40
       objectReference: {fileID: 0}
     - target: {fileID: 875878894850468161, guid: 0e5cd90d879f17e4aa7e93759d8c7698, type: 3}
       propertyPath: StalkState._stalkSwimSpeed
       value: 25
+      objectReference: {fileID: 0}
+    - target: {fileID: 875878894850468161, guid: 0e5cd90d879f17e4aa7e93759d8c7698, type: 3}
+      propertyPath: StalkState._rangeToEnterPursuit
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 875878894850468161, guid: 0e5cd90d879f17e4aa7e93759d8c7698, type: 3}
+      propertyPath: StalkState._stalkPositionDistance
+      value: 250
+      objectReference: {fileID: 0}
+    - target: {fileID: 875878894850468161, guid: 0e5cd90d879f17e4aa7e93759d8c7698, type: 3}
+      propertyPath: PursuitState.PursuitDetectionRange
+      value: 150
       objectReference: {fileID: 0}
     - target: {fileID: 943442481635740240, guid: 0e5cd90d879f17e4aa7e93759d8c7698, type: 3}
       propertyPath: m_Layer
