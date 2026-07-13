@@ -27,6 +27,7 @@ namespace Ilumisoft.RadarSystem
         public bool ApplyRotation { get=> applyRotation; set => applyRotation = value; }
 
         public GameObject Player;
+        public bool ShowEnemyBlips = false; 
 
         private void OnEnable()
         {
@@ -82,12 +83,19 @@ namespace Ilumisoft.RadarSystem
                 {
                     if (TryGetIconLocation(locatable, out var iconLocation))
                     {
-                        icon.SetVisible(true);
+                        if (locatable.CompareTag("Enemy"))
+                        {
+                            icon.SetVisible(ShowEnemyBlips);
+                        }
+                        else
+                        {
+                            icon.SetVisible(true);
+                        }
 
                         var rectTransform = icon.GetComponent<RectTransform>();
 
                         rectTransform.anchoredPosition = iconLocation;
-                    }
+                    } 
                     else
                     {
                         icon.SetVisible(false);
@@ -112,10 +120,8 @@ namespace Ilumisoft.RadarSystem
                 // Get the forward vector of the player projected on the xz plane
                 var playerForwardDirectionXZ = Vector3.ProjectOnPlane(Player.transform.forward, Vector3.up);
 
-                // Create a roation from the direction
                 var rotation = Quaternion.LookRotation(playerForwardDirectionXZ);
 
-                // Mirror y rotation
                 var euler = rotation.eulerAngles;
                 euler.y = -euler.y;
                 rotation.eulerAngles = euler;
