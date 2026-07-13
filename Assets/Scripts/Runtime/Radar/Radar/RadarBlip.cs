@@ -11,7 +11,10 @@ public class RadarBlip : MonoBehaviour
     [Header("Radar Pulse")]
     [SerializeField] private float _revealDuration = 2f;
     [SerializeField] private float _fadeDuration = 1f;
-    [SerializeField] private ParticleSystem radarPulse; 
+    [SerializeField] private ParticleSystem radarPulse;
+    [SerializeField] private float _sonarCooldown = 5f;
+
+    private float _nextSonarTime; 
 
     [Header("Sound")]
     [SerializeField] private AudioSource _audioSource;
@@ -37,14 +40,16 @@ public class RadarBlip : MonoBehaviour
         if (_radar.Player == null)
             return;
 
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0) && Time.time >= _nextSonarTime)
         {
+            _nextSonarTime = Time.time + _sonarCooldown;
+
             _sonarActive = true;
             _revealTimer = _revealDuration;
 
             _radar.ShowEnemyBlips = true;
             _audioSource.PlayOneShot(_blipSound);
-            radarPulse.Play(); 
+            radarPulse.Play();
         } 
 
         if (_sonarActive)
