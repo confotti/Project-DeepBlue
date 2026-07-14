@@ -77,45 +77,49 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 687a8c3a884563a4aab79ad3fe9efe11, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  LookAtPoint: {fileID: 8291110624590305647}
+  _renderer: {fileID: 3412992132805471757}
   _lineOfSightMask:
     serializedVersion: 2
     m_Bits: 49097
+  _obstacleMask:
+    serializedVersion: 2
+    m_Bits: 36745
   _fieldOfViewInspector: 270
-  LookAtPoint: {fileID: 8291110624590305647}
-  _renderer: {fileID: 3412992132805471757}
-  TimeSinceLastAttack: 0
-  _fearDistance: 350
-  _attackDistance: 100
-  _showWanderGizmos: 1
+  _fearDistance: 170
+  _attackDistance: 80
+  _rotationSpeed: 5
   WanderState:
-    _wanderSpeed: 25
+    _wanderSpeed: 45
     _turnSpeed: 0.03
     _wanderCircleDistance: 20
     _wanderCircleRadius: 10
     _wanderJitter: 1
     _avoidDistance: 35
-  _showPursuitGizmos: 1
   PursuitState:
     _pursuitSpeed: 55
     PursuitDetectionRange: 150
     _attackRange: 5
     _attackDamage: 100
   StalkState:
-    _getToPositionSpeed: 50
-    _stalkSwimSpeed: 30
+    _getToPositionSpeed: 55
+    _stalkSwimSpeed: 50
     _gainStalkRate: 0.1
     _loseStalkOutsideStalkStateRate: 0.01
     _rangeToEnterPursuit: 100
     _stalkPositionDistance: 250
   ScaredState:
-    _wanderSpeed: 40
+    _wanderSpeed: 45
     _turnSpeed: 0.03
     _wanderCircleDistance: 20
     _wanderCircleRadius: 7
     _wanderJitter: 1
     _avoidDistance: 35
     _timeInScaredState: 5
+  _showWanderGizmos: 1
+  _showPursuitGizmos: 1
   _debugState: 1
+  TimeSinceLastAttack: 0
 --- !u!114 &4154806682175085209
 MonoBehaviour:
   m_ObjectHideFlags: 0

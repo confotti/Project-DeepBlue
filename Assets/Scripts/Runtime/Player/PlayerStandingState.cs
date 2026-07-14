@@ -30,6 +30,8 @@ public class PlayerStandingState : State<PlayerMovement>
 
         obj.InputHandler.OnJump += OnJump;
         obj.Animator.SetBool("IsStanding", true);
+
+        obj.Col.height = 13.5f;
     }
 
     public override void Exit()

@@ -2,57 +2,50 @@ using UnityEngine;
 
 public class StalkerBehaviour : MonoBehaviour
 {
-    [SerializeField] private LayerMask _lineOfSightMask;
-    [SerializeField] private LayerMask _obstacleMask; 
-    [SerializeField, Range(45, 360)] private float _fieldOfViewInspector;
-    private float _fovThreshhold;
-
     [SerializeField] public Transform LookAtPoint;
     [SerializeField] private Renderer _renderer;
 
     public Rigidbody Rb { get; private set; }
 
-    public float TimeSinceLastAttack = 100;
-    private Vector3 _lastPosition;
-    private float _stuckTimer;
-    [SerializeField] private float _rotationSpeed = 5f;
+    [SerializeField] private LayerMask _lineOfSightMask;
+    [SerializeField] private LayerMask _obstacleMask;
+    [SerializeField, Range(45, 360)] private float _fieldOfViewInspector;
 
-    private Vector3 _currentAvoidance; 
+    private float _fovThreshold;
 
     [SerializeField] private float _fearDistance = 400f;
     [SerializeField] private float _attackDistance = 150f;
 
+    public float DistanceToPlayer => Vector3.Distance(transform.position, PlayerMovement.Instance.transform.position);
     public bool PlayerIsTooFarToCare => DistanceToPlayer > _fearDistance;
+    public bool PlayerCanScareCreature => DistanceToPlayer <= _fearDistance && DistanceToPlayer > _attackDistance;
+    public bool PlayerIsAggressiveRange => DistanceToPlayer <= _attackDistance;
+    public bool PlayerInPursuitRange => DistanceToPlayer < PursuitState.PursuitDetectionRange; 
 
-    public bool PlayerCanScareCreature =>
-        DistanceToPlayer <= _fearDistance &&
-        DistanceToPlayer > _attackDistance;
+    [SerializeField] private float _rotationSpeed = 5f;
 
-    public bool PlayerIsAggressiveRange =>
-        DistanceToPlayer <= _attackDistance;
+    private Vector3 _lastPosition;
+    private Vector3 _currentAvoidance;
+
+    private float _stuckTimer;
 
     public StateMachine<StalkerBehaviour> StateMachine = new ();
 
-#if UNITY_EDITOR
-    [Header("Green Gizmos"), SerializeField] private bool _showWanderGizmos = true;
-#endif
     public StalkerWanderState WanderState = new ();
-
-#if UNITY_EDITOR
-    [Header("Red Gizmos"), SerializeField] private bool _showPursuitGizmos = true;
-#endif
     public StalkerPursuitState PursuitState = new ();
     public StalkerStalkState StalkState = new ();
     public StalkerScaredState ScaredState = new ();
 
+#if UNITY_EDITOR
+    [Header("Green Gizmos"), SerializeField] private bool _showWanderGizmos = true;
+    [Header("Red Gizmos"), SerializeField] private bool _showPursuitGizmos = true;
+#endif
+
     [SerializeField] private bool _debugState = true;
+
     private string _lastState;
 
-
-    private void OnValidate()
-    {
-        _fovThreshhold = Mathf.Cos(_fieldOfViewInspector * Mathf.Deg2Rad * 0.5f);
-    }
+    public float TimeSinceLastAttack = 100f; 
 
     private void Awake()
     {
@@ -65,8 +58,10 @@ public class StalkerBehaviour : MonoBehaviour
 
         StateMachine.Initialize(StalkState);
 
-        _fovThreshhold = Mathf.Cos(_fieldOfViewInspector * Mathf.Deg2Rad * 0.5f);
+        UpdateFOV();
     }
+    
+    private void OnValidate() => UpdateFOV();
 
     private void Update()
     {
@@ -78,52 +73,35 @@ public class StalkerBehaviour : MonoBehaviour
             DebugState();
     }
 
-    private void FixedUpdate()
-    {
-        StateMachine.CurrentState.PhysicsUpdate();
-    }
+    private void FixedUpdate() => StateMachine.CurrentState.PhysicsUpdate();
 
-    public float DistanceToPlayer =>
-        Vector3.Distance(transform.position, PlayerMovement.Instance.transform.position);
-
-    public bool PlayerInPursuitRange =>
-        DistanceToPlayer < PursuitState.PursuitDetectionRange;
+    private void UpdateFOV() => _fovThreshold = Mathf.Cos(_fieldOfViewInspector * Mathf.Deg2Rad * 0.5f);
 
     public bool PlayerInLineOfSight()
     {
-        if (PlayerInFOV() &&
-            Physics.Raycast(
-                transform.position,
-                PlayerMovement.Instance.transform.position - transform.position,
-                out RaycastHit hit,
-                _lineOfSightMask))
-        {
-            if (hit.collider.CompareTag("Player")) return true;
-        }
+        if (!PlayerInFOV())
+            return false;
 
-        return false;
+        Vector3 direction = PlayerMovement.Instance.transform.position - transform.position;
+
+        return Physics.Raycast(transform.position, direction, out RaycastHit hit, _lineOfSightMask) && hit.collider.CompareTag("Player");
+    }
+
+    public bool PlayerInFOV()
+    {
+        return Vector3.Dot(transform.forward, (PlayerMovement.Instance.transform.position - transform.position).normalized) >= _fovThreshold;
     }
 
     public bool IsStuck()
     {
-        float distanceMoved =
-            Vector3.Distance(transform.position, _lastPosition);
+        float distanceMoved = Vector3.Distance(transform.position, _lastPosition);
 
-        if (distanceMoved < 0.5f)
-        {
-            _stuckTimer += Time.deltaTime;
-        }
-        else
-        {
-            _stuckTimer = 0;
-        }
-
+        _stuckTimer = distanceMoved < 0.5f ? _stuckTimer + Time.deltaTime : 0;
 
         _lastPosition = transform.position;
 
-
         return _stuckTimer > 2f;
-    } 
+    }
 
     public Vector3 GetSteeredDirection(Vector3 targetDirection, float avoidanceStrength = 3f)
     {
@@ -132,107 +110,44 @@ public class StalkerBehaviour : MonoBehaviour
         Vector3[] rayDirections =
         {
             transform.forward,
-
             Quaternion.Euler(0, 60, 0) * transform.forward,
             Quaternion.Euler(0, -60, 0) * transform.forward,
-
             Quaternion.Euler(45, 0, 0) * transform.forward,
             Quaternion.Euler(-45, 0, 0) * transform.forward,
-
             Quaternion.Euler(0, 120, 0) * transform.forward,
             Quaternion.Euler(0, -120, 0) * transform.forward
-        }; 
-
+        };
 
         foreach (Vector3 direction in rayDirections)
         {
-            if (Physics.Raycast(
-            transform.position,
-            direction,
-            out RaycastHit hit,
-            35f,
-            _obstacleMask)) 
-            {
+            if (Physics.Raycast(transform.position, direction, out RaycastHit hit, 35f, _obstacleMask))
                 avoidance += hit.normal;
-            }
         }
 
+        _currentAvoidance = Vector3.Lerp(_currentAvoidance, avoidance, Time.fixedDeltaTime * 3f);
 
-        _currentAvoidance = Vector3.Lerp(
-            _currentAvoidance,
-            avoidance,
-            Time.fixedDeltaTime * 3f 
-        );
-
-
-        Vector3 finalDirection =
-            (targetDirection + _currentAvoidance * avoidanceStrength).normalized;
-
-
-        return finalDirection;
+        return (targetDirection + _currentAvoidance * avoidanceStrength).normalized;
     }
-
 
     public void MoveCreature(Vector3 direction, float speed)
     {
         if (direction == Vector3.zero)
             return;
 
-
         if (IsStuck())
         {
-            direction = -transform.forward + Random.insideUnitSphere;
-            direction.Normalize();
-
+            direction = (-transform.forward + Random.insideUnitSphere).normalized;
             speed *= 1.5f;
         }
 
-
-        Quaternion targetRotation =
-            Quaternion.LookRotation(direction);
-
-
-        transform.rotation =
-        Quaternion.Slerp(
-            transform.rotation,
-            targetRotation,
-            _rotationSpeed * Time.fixedDeltaTime
-        ); 
-
+        transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(direction), _rotationSpeed * Time.fixedDeltaTime);
 
         Rb.linearVelocity = direction * speed;
-    } 
-
-    public bool PlayerInFOV()
-    {
-        return Vector3.Dot(
-            transform.forward,
-            (PlayerMovement.Instance.transform.position - transform.position).normalized
-        ) >= _fovThreshhold;
     }
 
     public bool IsObservedByPlayer()
     {
-        /*TODO: Probably make this include raycasts and shit: example (from chatgpt, not looked through)
-        
-            bool IsTrulyVisible(Camera cam, Renderer rend)
-            {
-                if (!GeometryUtility.TestPlanesAABB(
-                    GeometryUtility.CalculateFrustumPlanes(cam), rend.bounds))
-                    return false;
-
-                Vector3 direction = rend.bounds.center - cam.transform.position;
-                if (Physics.Raycast(cam.transform.position, direction, out RaycastHit hit))
-                    return hit.transform == rend.transform;
-
-                return false;
-            }
-        */
-        return (_renderer.isVisible &&
-            Vector3.Dot(
-                PlayerMovement.Instance.CameraHead.transform.forward,
-                transform.position - PlayerMovement.Instance.transform.position
-            ) > 0.5f);
+        return _renderer.isVisible && Vector3.Dot(PlayerMovement.Instance.CameraHead.transform.forward, transform.position - PlayerMovement.Instance.transform.position) > 0.5f;
     }
 
     private void DebugState()
@@ -246,8 +161,8 @@ public class StalkerBehaviour : MonoBehaviour
         }
     }
 
-
 #if UNITY_EDITOR
+
     private void OnDrawGizmosSelected()
     {
         Transform t = transform;
@@ -261,7 +176,7 @@ public class StalkerBehaviour : MonoBehaviour
             Gizmos.DrawLine(t.position, t.position + t.forward * WanderState.AvoidDistance);
 
             Gizmos.color = Color.green;
-            Gizmos.DrawSphere(LookAtPoint.transform.position, 0.5f);
+            Gizmos.DrawSphere(LookAtPoint.position, 0.5f);
         }
 
         if (_showPursuitGizmos)
@@ -280,21 +195,23 @@ public class StalkerBehaviour : MonoBehaviour
         }
     }
 
-    void DrawArc(Vector3 center, Vector3 forward, Vector3 axis, float angle, float radius)
+    private void DrawArc(Vector3 center, Vector3 forward, Vector3 axis, float angle, float radius)
     {
         int segments = 32;
         float step = angle / segments;
 
-        Vector3 prevPoint = center + Quaternion.AngleAxis(-angle / 2f, axis) * forward * radius;
+        Vector3 previous = center + Quaternion.AngleAxis(-angle / 2f, axis) * forward * radius;
 
         for (int i = 1; i <= segments; i++)
         {
             float currentAngle = -angle / 2f + step * i;
-            Vector3 nextPoint = center + Quaternion.AngleAxis(currentAngle, axis) * forward * radius;
+            Vector3 next = center + Quaternion.AngleAxis(currentAngle, axis) * forward * radius;
 
-            Gizmos.DrawLine(prevPoint, nextPoint);
-            prevPoint = nextPoint;
+            Gizmos.DrawLine(previous, next);
+
+            previous = next;
         }
     }
+
 #endif
 } 
