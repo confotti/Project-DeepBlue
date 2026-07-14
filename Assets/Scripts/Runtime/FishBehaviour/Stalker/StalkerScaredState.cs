@@ -42,8 +42,10 @@ public class StalkerScaredState : StalkerWanderState
         {
             AvoidPlayer();
         }
-        AvoidObstacles();
 
-        obj.Rb.linearVelocity = obj.transform.forward * _wanderSpeed;
+        obj.MoveCreature(
+            obj.transform.forward,
+            _wanderSpeed 
+        );
     }
 }

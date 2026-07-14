@@ -3,6 +3,7 @@ using UnityEngine;
 public class StalkerBehaviour : MonoBehaviour
 {
     [SerializeField] private LayerMask _lineOfSightMask;
+    [SerializeField] private LayerMask _obstacleMask; 
     [SerializeField, Range(45, 360)] private float _fieldOfViewInspector;
     private float _fovThreshhold;
 
@@ -12,6 +13,11 @@ public class StalkerBehaviour : MonoBehaviour
     public Rigidbody Rb { get; private set; }
 
     public float TimeSinceLastAttack = 100;
+    private Vector3 _lastPosition;
+    private float _stuckTimer;
+    [SerializeField] private float _rotationSpeed = 5f;
+
+    private Vector3 _currentAvoidance; 
 
     [SerializeField] private float _fearDistance = 400f;
     [SerializeField] private float _attackDistance = 150f;
@@ -97,6 +103,105 @@ public class StalkerBehaviour : MonoBehaviour
 
         return false;
     }
+
+    public bool IsStuck()
+    {
+        float distanceMoved =
+            Vector3.Distance(transform.position, _lastPosition);
+
+        if (distanceMoved < 0.5f)
+        {
+            _stuckTimer += Time.deltaTime;
+        }
+        else
+        {
+            _stuckTimer = 0;
+        }
+
+
+        _lastPosition = transform.position;
+
+
+        return _stuckTimer > 2f;
+    } 
+
+    public Vector3 GetSteeredDirection(Vector3 targetDirection, float avoidanceStrength = 3f)
+    {
+        Vector3 avoidance = Vector3.zero;
+
+        Vector3[] rayDirections =
+        {
+            transform.forward,
+
+            Quaternion.Euler(0, 60, 0) * transform.forward,
+            Quaternion.Euler(0, -60, 0) * transform.forward,
+
+            Quaternion.Euler(45, 0, 0) * transform.forward,
+            Quaternion.Euler(-45, 0, 0) * transform.forward,
+
+            Quaternion.Euler(0, 120, 0) * transform.forward,
+            Quaternion.Euler(0, -120, 0) * transform.forward
+        }; 
+
+
+        foreach (Vector3 direction in rayDirections)
+        {
+            if (Physics.Raycast(
+            transform.position,
+            direction,
+            out RaycastHit hit,
+            35f,
+            _obstacleMask)) 
+            {
+                avoidance += hit.normal;
+            }
+        }
+
+
+        _currentAvoidance = Vector3.Lerp(
+            _currentAvoidance,
+            avoidance,
+            Time.fixedDeltaTime * 3f 
+        );
+
+
+        Vector3 finalDirection =
+            (targetDirection + _currentAvoidance * avoidanceStrength).normalized;
+
+
+        return finalDirection;
+    }
+
+
+    public void MoveCreature(Vector3 direction, float speed)
+    {
+        if (direction == Vector3.zero)
+            return;
+
+
+        if (IsStuck())
+        {
+            direction = -transform.forward + Random.insideUnitSphere;
+            direction.Normalize();
+
+            speed *= 1.5f;
+        }
+
+
+        Quaternion targetRotation =
+            Quaternion.LookRotation(direction);
+
+
+        transform.rotation =
+        Quaternion.Slerp(
+            transform.rotation,
+            targetRotation,
+            _rotationSpeed * Time.fixedDeltaTime
+        ); 
+
+
+        Rb.linearVelocity = direction * speed;
+    } 
 
     public bool PlayerInFOV()
     {

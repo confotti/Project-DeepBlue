@@ -13,8 +13,19 @@ public class StalkerPursuitState : State<StalkerBehaviour>
     {
         base.PhysicsUpdate();
 
-        obj.Rb.linearVelocity = (PlayerMovement.Instance.transform.position - obj.transform.position).normalized * _pursuitSpeed;
-        obj.transform.LookAt(PlayerMovement.Instance.transform);
+        Vector3 direction =
+        (PlayerMovement.Instance.transform.position
+        - obj.transform.position).normalized; 
+
+
+        Vector3 steeredDirection =
+        obj.GetSteeredDirection(direction, 10f);
+
+
+        obj.MoveCreature(
+            steeredDirection,
+            _pursuitSpeed
+        );
 
         if (obj.DistanceToPlayer < _attackRange)
         {

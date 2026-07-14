@@ -35,18 +35,32 @@ public class StalkerWanderState : State<StalkerBehaviour>
 
     public override void PhysicsUpdate()
     {
-        base.PhysicsUpdate();
-
-        //Movement thingys here
         Wander();
-        if(obj.TimeSinceLastAttack < 15 && obj.DistanceToPlayer < obj.PursuitState.PursuitDetectionRange &&
-            Vector3.Dot(obj.transform.forward, (PlayerMovement.Instance.transform.position - obj.transform.position).normalized) > -0.18f) AvoidPlayer();
-        AvoidObstacles();
 
-        obj.Rb.linearVelocity = obj.transform.forward * _wanderSpeed;
-        obj.LookAtPoint.position = Vector3.Lerp(obj.LookAtPoint.position, obj.transform.position + obj.transform.forward * _wanderCircleDistance + _wanderTarget, 0.1f);
 
-    }
+        Vector3 direction =
+            obj.transform.forward;
+
+
+        Vector3 steeredDirection =
+            obj.GetSteeredDirection(direction, 5f);
+
+
+        obj.MoveCreature(
+            steeredDirection,
+            _wanderSpeed
+        );
+
+
+        obj.LookAtPoint.position =
+            Vector3.Lerp(
+                obj.LookAtPoint.position,
+                obj.transform.position +
+                obj.transform.forward * _wanderCircleDistance +
+                _wanderTarget,
+                0.1f
+            );
+    } 
 
     protected void Wander()
     {
@@ -91,22 +105,6 @@ public class StalkerWanderState : State<StalkerBehaviour>
         }
     }
     */
-
-    protected void AvoidObstacles()
-    {
-        if (Physics.Raycast(obj.transform.position, obj.transform.forward, out RaycastHit hit, _avoidDistance))
-        {
-            Vector3 avoidDir = Vector3.Reflect(obj.transform.forward, hit.normal);
-            _wanderTarget += avoidDir * 0.2f;
-            Quaternion avoidRot = Quaternion.LookRotation(avoidDir);
-
-            obj.transform.rotation = Quaternion.Slerp(
-                obj.transform.rotation,
-                avoidRot,
-                _turnSpeed
-            );
-        }
-    }
 
     protected void AvoidPlayer()
     {

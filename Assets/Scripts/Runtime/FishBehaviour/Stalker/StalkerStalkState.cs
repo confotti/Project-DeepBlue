@@ -32,23 +32,35 @@ public class StalkerStalkState : State<StalkerBehaviour>
 
     public override void PhysicsUpdate()
     {
-        if(Vector3.Distance(obj.transform.position, _targetPos) > 5) //Getting into stalkposition
+        if (Vector3.Distance(obj.transform.position, _targetPos) > 5)
         {
-            obj.Rb.linearVelocity = (_targetPos - obj.transform.position).normalized * _getToPositionSpeed;
-            obj.transform.LookAt(_targetPos);
-        }
-        else //Stalking
-        {
-            _currentStalk = Mathf.Min(_currentStalk + _gainStalkRate * Time.fixedDeltaTime, 1);
-            obj.Rb.linearVelocity = (_targetPos - obj.transform.position).normalized * _stalkSwimSpeed;
-            obj.transform.LookAt(_targetPos);
+            Vector3 direction = (_targetPos - obj.transform.position).normalized;
 
-            if (Vector3.Distance(obj.transform.position, PlayerMovement.Instance.transform.position) < _rangeToEnterPursuit)
-            {
-                obj.StateMachine.ChangeState(obj.PursuitState);
-                _currentStalk = 0;
-            }
+            Vector3 steeredDirection =
+                obj.GetSteeredDirection(direction, 8f);
+
+            obj.MoveCreature(
+                steeredDirection,
+                _getToPositionSpeed
+            );
         }
+        else
+        {
+            _currentStalk = Mathf.Min(
+                _currentStalk + _gainStalkRate * Time.fixedDeltaTime,
+                1
+            );
+
+            Vector3 direction = (_targetPos - obj.transform.position).normalized;
+
+            Vector3 steeredDirection =
+                obj.GetSteeredDirection(direction, 8f);
+
+            obj.MoveCreature(
+                steeredDirection,
+                _stalkSwimSpeed
+            );
+        } 
     }
 
     public override void LogicUpdate()
