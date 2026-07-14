@@ -34832,7 +34832,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _submarine: {fileID: 0}
-  _respawnPositionOffset: {x: -53, y: 33, z: 0}
+  _respawnPositionOffset: {x: -52, y: 33, z: -0.7}
   _baseMaxOxygen: 60
   _currentMaxOxygen: 0
   _oxygenGainPerSecond: 50
@@ -34840,8 +34840,6 @@ MonoBehaviour:
   _drownReduction: 2.5
   _maxHealth: 100
   _uiPort: {fileID: 11400000, guid: 547b33ac66c9a604da2cbf09be2a3c4d, type: 2}
-  lowOxygenWarning: {fileID: 0}
-  criticalOxygenText: {fileID: 0}
 --- !u!114 &8873633855441487216
 MonoBehaviour:
   m_ObjectHideFlags: 0

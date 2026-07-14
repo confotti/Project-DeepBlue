@@ -1,9 +1,10 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class EnableObjectOnTrigger : MonoBehaviour
 {
-    [SerializeField] private GameObject _objectToEnable;
+    [SerializeField] private List<GameObject> _objectsToEnable = new ();
     [SerializeField] private float _duration = 5f;
 
     private bool _hasTriggered;
@@ -21,10 +22,18 @@ public class EnableObjectOnTrigger : MonoBehaviour
 
     private IEnumerator EnableTemporary()
     {
-        _objectToEnable.SetActive(true);
+        foreach (GameObject obj in _objectsToEnable)
+        {
+            if (obj != null)
+                obj.SetActive(true);
+        }
 
         yield return new WaitForSeconds(_duration);
 
-        _objectToEnable.SetActive(false);
+        foreach (GameObject obj in _objectsToEnable)
+        {
+            if (obj != null)
+                obj.SetActive(false);
+        }
     }
 } 

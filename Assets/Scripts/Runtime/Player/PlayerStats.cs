@@ -32,10 +32,6 @@ public class PlayerStats : MonoBehaviour
     private float _currentDrownTime;
     private int _currentHealth;
 
-    [Header("Warnings")]
-    [SerializeField] private TextMeshProUGUI lowOxygenWarning;
-    [SerializeField] private TextMeshProUGUI criticalOxygenText;
-
     private Coroutine _lowWarningRoutine;
     private Coroutine _criticalWarningRoutine;
 
@@ -55,8 +51,7 @@ public class PlayerStats : MonoBehaviour
 
     private void Update()
     {
-        HandleOxygen();
-        HandleUI();
+        //*HandleOxygen();
     }
 
     private void InitializeStats()
@@ -67,15 +62,9 @@ public class PlayerStats : MonoBehaviour
         _currentHealth = _maxHealth;
 
         _uiPort.OnSetMaxOxygen?.Invoke(_currentMaxOxygen);
-
-        if (lowOxygenWarning)
-            lowOxygenWarning.gameObject.SetActive(false);
-
-        if (criticalOxygenText)
-            criticalOxygenText.gameObject.SetActive(false);
     }
 
-    private void HandleOxygen()
+    /*private void HandleOxygen()
     {
         if (!_playerMovement.IsSwimming)
             ChangeOxygen(_oxygenGainPerSecond * Time.deltaTime);
@@ -85,65 +74,7 @@ public class PlayerStats : MonoBehaviour
         ChangeDrownTime(_currentOxygen == 0
             ? Time.deltaTime
             : -Time.deltaTime * _drownReduction);
-    }
-
-    private void HandleUI()
-    {
-        _uiPort.UpdateOxygenUI?.Invoke(_currentOxygen);
-        HandleOxygenWarnings();
-    }
-
-    private void HandleOxygenWarnings()
-    {
-        bool swimming = _playerMovement.IsSwimming;
-
-        if (_previousOxygen > 30f && _currentOxygen <= 30f && swimming)
-        {
-            if (_lowWarningRoutine != null)
-                StopCoroutine(_lowWarningRoutine);
-
-            _lowWarningRoutine = StartCoroutine(ShowLowOxygenWarning());
-        }
-
-        if (_previousOxygen > 15f && _currentOxygen <= 15f && swimming)
-        {
-            if (_criticalWarningRoutine != null)
-                StopCoroutine(_criticalWarningRoutine);
-
-            _criticalWarningRoutine = StartCoroutine(ShowCriticalOxygenWarning());
-        }
-
-        _previousOxygen = _currentOxygen;
-    }
-
-    private IEnumerator ShowLowOxygenWarning()
-    {
-        if (!lowOxygenWarning) yield break;
-
-        lowOxygenWarning.gameObject.SetActive(true);
-        yield return new WaitForSeconds(4f);
-        lowOxygenWarning.gameObject.SetActive(false);
-    }
-
-    private IEnumerator ShowCriticalOxygenWarning()
-    {
-        if (!criticalOxygenText) yield break;
-
-        criticalOxygenText.gameObject.SetActive(true);
-
-        float timer = 0f;
-
-        while (timer < 4f)
-        {
-            Color color = Color.Lerp(Color.red, Color.black, Mathf.PingPong(Time.time * 6f, 1f));
-            criticalOxygenText.color = color;
-
-            timer += Time.deltaTime;
-            yield return null;
-        }
-
-        criticalOxygenText.gameObject.SetActive(false);
-    }
+    } */
 
     public void ChangeHealth(int amount)
     {
@@ -198,7 +129,7 @@ public class PlayerStats : MonoBehaviour
         _sanityManager.SetDead(true);
 
         OnDeath?.Invoke();
-        _uiPort.StartScreenFade(true, 2, DeathFadeOutDone);
+        _uiPort.StartScreenFade(true, 0.2f, DeathFadeOutDone);
     }
 
     private void DeathFadeOutDone()
