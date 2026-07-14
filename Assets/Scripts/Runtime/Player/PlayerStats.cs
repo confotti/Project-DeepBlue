@@ -11,9 +11,7 @@ public class PlayerStats : MonoBehaviour
     private SanityManager _sanityManager;
 
     [Header("Respawn")]
-    [SerializeField] private GameObject _submarine;
-    [SerializeField] private Vector3 _respawnPositionOffset;
-    private Vector3 RespawnPoint => _submarine.transform.position + _respawnPositionOffset;
+    [SerializeField] private Transform _respawnPoint; 
 
     [Header("Stats")]
     [SerializeField] private int _baseMaxOxygen = 60;
@@ -146,7 +144,15 @@ public class PlayerStats : MonoBehaviour
 
     private void Respawn()
     {
-        transform.position = RespawnPoint;
+        if (_respawnPoint != null)
+        {
+            transform.position = _respawnPoint.position;
+            transform.rotation = _respawnPoint.rotation; // Optional
+        }
+        else
+        {
+            Debug.LogWarning("No respawn point assigned!");
+        } 
         _dead = false;
 
         _sanityManager.SetDead(false);
