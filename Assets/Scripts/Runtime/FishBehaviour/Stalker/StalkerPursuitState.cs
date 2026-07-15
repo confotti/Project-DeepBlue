@@ -22,10 +22,7 @@ public class StalkerPursuitState : State<StalkerBehaviour>
         obj.GetSteeredDirection(direction, 10f);
 
 
-        obj.MoveCreature(
-            steeredDirection,
-            _pursuitSpeed
-        );
+        obj.MoveCreature(steeredDirection, _pursuitSpeed);
 
         if (obj.DistanceToPlayer < _attackRange)
         {

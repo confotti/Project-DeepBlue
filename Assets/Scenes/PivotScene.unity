@@ -197,14 +197,6 @@ PrefabInstance:
       propertyPath: _middlePointImage
       value: 
       objectReference: {fileID: 1512274977}
-    - target: {fileID: 1874358550758973700, guid: cbc1e87d3d2a2f4448067cbbd6e3cb4b, type: 3}
-      propertyPath: m_Range
-      value: 850
-      objectReference: {fileID: 0}
-    - target: {fileID: 1874358550758973700, guid: cbc1e87d3d2a2f4448067cbbd6e3cb4b, type: 3}
-      propertyPath: m_Enabled
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 4363546466055748074, guid: cbc1e87d3d2a2f4448067cbbd6e3cb4b, type: 3}
       propertyPath: mouseInventoryItem
       value: 
@@ -257,10 +249,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
-    - target: {fileID: 5731344407342504892, guid: cbc1e87d3d2a2f4448067cbbd6e3cb4b, type: 3}
-      propertyPath: _submarine
-      value: 
-      objectReference: {fileID: 210241627}
     - target: {fileID: 5731344407342504892, guid: cbc1e87d3d2a2f4448067cbbd6e3cb4b, type: 3}
       propertyPath: _respawnPoint
       value: 
@@ -778,22 +766,9 @@ PrefabInstance:
       objectReference: {fileID: 846595984}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects:
-    - targetCorrespondingSourceObject: {fileID: 6466119974449829610, guid: 43915dbeb68fc7847a3c95af6ef59296, type: 3}
-      insertIndex: 0
-      addedObject: {fileID: 482551939}
+    m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 43915dbeb68fc7847a3c95af6ef59296, type: 3}
---- !u!1 &210241627 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 4377979952157272621, guid: 43915dbeb68fc7847a3c95af6ef59296, type: 3}
-  m_PrefabInstance: {fileID: 207875408}
-  m_PrefabAsset: {fileID: 0}
---- !u!4 &210241628 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 6466119974449829610, guid: 43915dbeb68fc7847a3c95af6ef59296, type: 3}
-  m_PrefabInstance: {fileID: 207875408}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &242225961
 GameObject:
   m_ObjectHideFlags: 0
@@ -1777,37 +1752,11 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.42224938, y: 2.682685, z: 1.9377528}
   m_Center: {x: 0.0014576399, y: 1.3413575, z: -0.23400263}
---- !u!1 &482551938
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 482551939}
-  m_Layer: 0
-  m_Name: RespawnPoint
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &482551939
+--- !u!4 &482551939 stripped
 Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 8779651722628817404, guid: 43915dbeb68fc7847a3c95af6ef59296, type: 3}
+  m_PrefabInstance: {fileID: 207875408}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 482551938}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: -56.01976, y: 33.813675, z: -2.3118792}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 210241628}
-  m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
 --- !u!1001 &525082862
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2074,7 +2023,7 @@ GameObject:
   m_Component:
   - component: {fileID: 597613922}
   - component: {fileID: 597613923}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Volume
   m_TagString: Untagged
   m_Icon: {fileID: 0}

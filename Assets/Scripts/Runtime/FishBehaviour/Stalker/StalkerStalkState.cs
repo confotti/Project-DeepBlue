@@ -15,6 +15,7 @@ public class StalkerStalkState : State<StalkerBehaviour>
     private float _currentStalk;
 
     private float _timeWhenLeftStalk;
+    private float _targetUpdateTimer;
 
     public override void Enter()
     {
@@ -32,7 +33,7 @@ public class StalkerStalkState : State<StalkerBehaviour>
 
     public override void PhysicsUpdate()
     {
-        if (Vector3.Distance(obj.transform.position, _targetPos) > 5)
+        if (Vector3.Distance(obj.transform.position, _targetPos) > 15)
         {
             Vector3 direction = (_targetPos - obj.transform.position).normalized;
 
@@ -48,17 +49,15 @@ public class StalkerStalkState : State<StalkerBehaviour>
         {
             _currentStalk = Mathf.Min(
                 _currentStalk + _gainStalkRate * Time.fixedDeltaTime,
-                1
+                0.8f 
             );
 
-            Vector3 direction = (_targetPos - obj.transform.position).normalized;
-
-            Vector3 steeredDirection =
-                obj.GetSteeredDirection(direction, 8f);
+            Vector3 direction = (_targetPos - obj.transform.position).normalized; 
 
             obj.MoveCreature(
-                steeredDirection,
-                _stalkSwimSpeed
+                direction,
+                Mathf.Lerp(2f, _stalkSwimSpeed,
+                Vector3.Distance(obj.transform.position, _targetPos) / 20f) 
             );
         } 
     }
@@ -82,8 +81,9 @@ public class StalkerStalkState : State<StalkerBehaviour>
             return;
         }
 
-        _targetPos = GetTargetPosition();
-        obj.LookAtPoint.transform.position = PlayerMovement.Instance.transform.position;
+        _targetPos = GetTargetPosition(); 
+
+        obj.LookAtPoint.transform.position = PlayerMovement.Instance.transform.position; 
     }
 
     private Vector3 GetTargetPosition()

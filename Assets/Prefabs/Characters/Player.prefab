@@ -34831,8 +34831,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8898d704939e4e14eb4b6bd0f98cf833, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _submarine: {fileID: 0}
-  _respawnPositionOffset: {x: -52, y: 33, z: -0.7}
+  _respawnPoint: {fileID: 0}
   _baseMaxOxygen: 60
   _currentMaxOxygen: 0
   _oxygenGainPerSecond: 50
@@ -39995,7 +39994,7 @@ Light:
   m_Type: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_Intensity: 11585.237
-  m_Range: 700
+  m_Range: 850
   m_SpotAngle: 100
   m_InnerSpotAngle: 21.80208
   m_CookieSize2D: {x: 10, y: 10}
