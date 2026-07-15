@@ -40,7 +40,8 @@ public class PlayerSwimmingState : State<PlayerMovement>
         PlayerMovement.Instance.SetUnderwaterParticlesActive(true); 
         obj.Animator.SetBool("IsSwimming", true);
 
-        obj.Col.height = 10f; 
+        obj.Col.height = 10f;
+        obj.Col.center = new Vector3(0, 0.6f, 0);
     }
 
     public override void Exit()

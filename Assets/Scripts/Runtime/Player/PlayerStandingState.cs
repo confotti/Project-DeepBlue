@@ -32,6 +32,7 @@ public class PlayerStandingState : State<PlayerMovement>
         obj.Animator.SetBool("IsStanding", true);
 
         obj.Col.height = 13.5f;
+        obj.Col.center = new Vector3(0, -1.8f, 0);
     }
 
     public override void Exit()
