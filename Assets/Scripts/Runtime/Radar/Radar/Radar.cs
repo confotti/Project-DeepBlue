@@ -27,13 +27,22 @@ namespace Ilumisoft.RadarSystem
         public bool ApplyRotation { get=> applyRotation; set => applyRotation = value; }
 
         public GameObject Player;
-        public bool ShowEnemyBlips = false; 
+        public bool ShowEnemyBlips = false;
 
         private void OnEnable()
         {
             LocatableManager.OnLocatableAdded += OnLocatableAdded;
             LocatableManager.OnLocatableRemoved += OnLocatableRemoved;
-        }
+
+            var existingLocatables = FindObjectsByType<LocatableComponent>(
+                FindObjectsSortMode.None
+            );
+
+            foreach (var locatable in existingLocatables)
+            {
+                OnLocatableAdded(locatable);
+            }
+        } 
 
         private void OnDisable()
         {
