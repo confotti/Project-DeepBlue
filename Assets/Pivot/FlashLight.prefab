@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4729708429478038936}
-  - component: {fileID: 5833987566237058356}
+  - component: {fileID: 6147666711991129034}
   - component: {fileID: 5081616199442139911}
   m_Layer: 0
   m_Name: FlashLight
@@ -35,7 +35,7 @@ Transform:
   - {fileID: 4407935914642460785}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: -83.018, y: -93.5, z: 90}
---- !u!114 &5833987566237058356
+--- !u!114 &6147666711991129034
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -44,12 +44,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 1384198310767483825}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 17b992fdd6f175a42b15c4e7213c9a0e, type: 3}
+  m_Script: {fileID: 11500000, guid: ef373db631fbb9444909c2fd69e1f7a1, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier: Assembly-CSharp::QuestItemPickUp
   itemData: {fileID: 11400000, guid: a42c09bf4b0fb504091f9884a65b08c6, type: 2}
   amountOfItem: 1
   interactText: 
+  _objectToActivate: {fileID: 0}
 --- !u!65 &5081616199442139911
 BoxCollider:
   m_ObjectHideFlags: 0
