@@ -87,7 +87,7 @@ MonoBehaviour:
     m_Bits: 36745
   _fieldOfViewInspector: 270
   _fearDistance: 170
-  _attackDistance: 80
+  _attackDistance: 120
   _rotationSpeed: 5
   WanderState:
     _wanderSpeed: 45
@@ -98,7 +98,7 @@ MonoBehaviour:
     _avoidDistance: 35
   PursuitState:
     _pursuitSpeed: 55
-    PursuitDetectionRange: 150
+    PursuitDetectionRange: 185
     _attackRange: 5
     _attackDamage: 100
   StalkState:
@@ -106,7 +106,7 @@ MonoBehaviour:
     _stalkSwimSpeed: 50
     _gainStalkRate: 0.1
     _loseStalkOutsideStalkStateRate: 0.01
-    _rangeToEnterPursuit: 100
+    _rangeToEnterPursuit: 150
     _stalkPositionDistance: 250
   ScaredState:
     _wanderSpeed: 45
