@@ -115,12 +115,11 @@ public class StalkerBehaviour : MonoBehaviour
             Quaternion.Euler(45, 0, 0) * transform.forward,
             Quaternion.Euler(-45, 0, 0) * transform.forward,
             Quaternion.Euler(0, 120, 0) * transform.forward,
-            Quaternion.Euler(0, -120, 0) * transform.forward
-        };
+            Quaternion.Euler(0, -120, 0) * transform.forward}; 
 
         foreach (Vector3 direction in rayDirections)
         {
-            if (Physics.Raycast(transform.position, direction, out RaycastHit hit, 35f, _obstacleMask))
+            if (Physics.Raycast(transform.position, direction, out RaycastHit hit, 8f, _obstacleMask))
                 avoidance += hit.normal;
         }
 
