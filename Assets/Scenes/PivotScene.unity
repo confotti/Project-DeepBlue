@@ -438,6 +438,10 @@ PrefabInstance:
       propertyPath: _middlePointImage
       value: 
       objectReference: {fileID: 1512274977}
+    - target: {fileID: 3062203535830868644, guid: cbc1e87d3d2a2f4448067cbbd6e3cb4b, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4363546466055748074, guid: cbc1e87d3d2a2f4448067cbbd6e3cb4b, type: 3}
       propertyPath: mouseInventoryItem
       value: 
@@ -490,6 +494,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
+    - target: {fileID: 5393421553564144883, guid: cbc1e87d3d2a2f4448067cbbd6e3cb4b, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5731344407342504892, guid: cbc1e87d3d2a2f4448067cbbd6e3cb4b, type: 3}
       propertyPath: _respawnPoint
       value: 
@@ -498,8 +506,19 @@ PrefabInstance:
       propertyPath: m_Camera
       value: 
       objectReference: {fileID: 1464839647}
+    - target: {fileID: 7782188521933406574, guid: cbc1e87d3d2a2f4448067cbbd6e3cb4b, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8313458453605343207, guid: cbc1e87d3d2a2f4448067cbbd6e3cb4b, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
-    m_RemovedGameObjects: []
+    m_RemovedGameObjects:
+    - {fileID: 8205573665828281434, guid: cbc1e87d3d2a2f4448067cbbd6e3cb4b, type: 3}
+    - {fileID: 2154983478546246244, guid: cbc1e87d3d2a2f4448067cbbd6e3cb4b, type: 3}
+    - {fileID: 8224003340741421687, guid: cbc1e87d3d2a2f4448067cbbd6e3cb4b, type: 3}
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: cbc1e87d3d2a2f4448067cbbd6e3cb4b, type: 3}
@@ -677,10 +696,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 479170646}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -2.619995}
-  m_SizeDelta: {x: 1280, y: 730}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 10, y: 10}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &144530513
 MonoBehaviour:
@@ -7789,10 +7808,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 479170646}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -2.619995}
-  m_SizeDelta: {x: 1280, y: 730}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 10, y: 10}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1329298585
 MonoBehaviour:
@@ -16475,6 +16494,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 27ad90cb35ba64d44a993959faa3f4d1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PhotoCapture
+  sizeMultiplier: 1.6
+  SaveAsFile: 1
+  path: Test/test_image_save.png
   photoDisplayArea: {fileID: 144530513}
   photoFrame: {fileID: 1970369616}
   cameraUI: {fileID: 475832809}
