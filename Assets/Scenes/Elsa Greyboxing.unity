@@ -184,6 +184,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: StickLight (3)
       objectReference: {fileID: 0}
+    - target: {fileID: 3688934627691510915, guid: 87bdda98b12a0584381dab5026d1c505, type: 3}
+      propertyPath: m_TagString
+      value: Lightsource
+      objectReference: {fileID: 0}
     - target: {fileID: 4535822387890914016, guid: 87bdda98b12a0584381dab5026d1c505, type: 3}
       propertyPath: m_ShapeRadius
       value: 0.3
@@ -553,19 +557,19 @@ PrefabInstance:
       objectReference: {fileID: 1512274976}
     - target: {fileID: 4525852725061259153, guid: cbc1e87d3d2a2f4448067cbbd6e3cb4b, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -448.36
+      value: -335.1
       objectReference: {fileID: 0}
     - target: {fileID: 4525852725061259153, guid: cbc1e87d3d2a2f4448067cbbd6e3cb4b, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 390.71
+      value: 56.9
       objectReference: {fileID: 0}
     - target: {fileID: 4525852725061259153, guid: cbc1e87d3d2a2f4448067cbbd6e3cb4b, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 17.86
+      value: -127.4
       objectReference: {fileID: 0}
     - target: {fileID: 4525852725061259153, guid: cbc1e87d3d2a2f4448067cbbd6e3cb4b, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.3706948
+      value: 0.13494885
       objectReference: {fileID: 0}
     - target: {fileID: 4525852725061259153, guid: cbc1e87d3d2a2f4448067cbbd6e3cb4b, type: 3}
       propertyPath: m_LocalRotation.x
@@ -573,7 +577,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4525852725061259153, guid: cbc1e87d3d2a2f4448067cbbd6e3cb4b, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0.9287548
+      value: 0.99085253
       objectReference: {fileID: 0}
     - target: {fileID: 4525852725061259153, guid: cbc1e87d3d2a2f4448067cbbd6e3cb4b, type: 3}
       propertyPath: m_LocalRotation.z
@@ -585,7 +589,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4525852725061259153, guid: cbc1e87d3d2a2f4448067cbbd6e3cb4b, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: 136.483
+      value: 164.489
       objectReference: {fileID: 0}
     - target: {fileID: 4525852725061259153, guid: cbc1e87d3d2a2f4448067cbbd6e3cb4b, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
@@ -629,7 +633,16 @@ PrefabInstance:
     - {fileID: 2154983478546246244, guid: cbc1e87d3d2a2f4448067cbbd6e3cb4b, type: 3}
     - {fileID: 8224003340741421687, guid: cbc1e87d3d2a2f4448067cbbd6e3cb4b, type: 3}
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 5083573799768335632, guid: cbc1e87d3d2a2f4448067cbbd6e3cb4b, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1069116769}
+    - targetCorrespondingSourceObject: {fileID: 5083573799768335632, guid: cbc1e87d3d2a2f4448067cbbd6e3cb4b, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1069116768}
+    - targetCorrespondingSourceObject: {fileID: 8389713915796772057, guid: cbc1e87d3d2a2f4448067cbbd6e3cb4b, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1506663210}
   m_SourcePrefab: {fileID: 100100000, guid: cbc1e87d3d2a2f4448067cbbd6e3cb4b, type: 3}
 --- !u!114 &61206568 stripped
 MonoBehaviour:
@@ -1198,6 +1211,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: StickLight (8)
       objectReference: {fileID: 0}
+    - target: {fileID: 3688934627691510915, guid: 87bdda98b12a0584381dab5026d1c505, type: 3}
+      propertyPath: m_TagString
+      value: Lightsource
+      objectReference: {fileID: 0}
     - target: {fileID: 4535822387890914016, guid: 87bdda98b12a0584381dab5026d1c505, type: 3}
       propertyPath: m_ShapeRadius
       value: 0.3
@@ -1418,6 +1435,10 @@ PrefabInstance:
     - target: {fileID: 3688934627691510915, guid: 87bdda98b12a0584381dab5026d1c505, type: 3}
       propertyPath: m_Name
       value: StickLight (5)
+      objectReference: {fileID: 0}
+    - target: {fileID: 3688934627691510915, guid: 87bdda98b12a0584381dab5026d1c505, type: 3}
+      propertyPath: m_TagString
+      value: Lightsource
       objectReference: {fileID: 0}
     - target: {fileID: 4535822387890914016, guid: 87bdda98b12a0584381dab5026d1c505, type: 3}
       propertyPath: m_ShapeRadius
@@ -1743,7 +1764,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: The sub finally gave up... I need to find a spare part to fix it.
+  m_text: "There is supposed to be an old wreck with an important sample in this
+    area. \nLet's find it and bring it back."
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -2238,6 +2260,10 @@ PrefabInstance:
     - target: {fileID: 3688934627691510915, guid: 87bdda98b12a0584381dab5026d1c505, type: 3}
       propertyPath: m_Name
       value: StickLight (6)
+      objectReference: {fileID: 0}
+    - target: {fileID: 3688934627691510915, guid: 87bdda98b12a0584381dab5026d1c505, type: 3}
+      propertyPath: m_TagString
+      value: Lightsource
       objectReference: {fileID: 0}
     - target: {fileID: 4535822387890914016, guid: 87bdda98b12a0584381dab5026d1c505, type: 3}
       propertyPath: m_ShapeRadius
@@ -3825,7 +3851,7 @@ Transform:
   m_GameObject: {fileID: 1022126119}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: 0.38268343, z: -0, w: 0.92387956}
-  m_LocalPosition: {x: -121.23605, y: 1.4034119, z: 79.11349}
+  m_LocalPosition: {x: -52.34, y: 1.4034119, z: 76.9}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3910,6 +3936,62 @@ Animator:
   m_CorrespondingSourceObject: {fileID: 8296259817768798233, guid: cbc1e87d3d2a2f4448067cbbd6e3cb4b, type: 3}
   m_PrefabInstance: {fileID: 61206567}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1069116766 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5700871189913967699, guid: cbc1e87d3d2a2f4448067cbbd6e3cb4b, type: 3}
+  m_PrefabInstance: {fileID: 61206567}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1069116742}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2ad28bfab3c02a498f2854d197a4d8d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!135 &1069116768
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1069116742}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 50
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &1069116769
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1069116742}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 66c6f8bc6d0c0714e91a63fe3ba14b65, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Sanitytesting
+  _maxSanity: 100
+  sanityVolume: {fileID: 1333880254}
+  sanityEffectStart: 40
+  sanityLerpSpeed: 1.2
+  sanityDamagePerTick: 5
+  sanityDamageInterval: 2
+  sanityDrainPerSecond: 10
+  sanityRecoveryPerSecond: 20
+  sanityDetector: {fileID: 1069116768}
+  _currentSanity: 0
+  heartbeatSource: {fileID: 1122604338}
+  heartbeatLowSanity: 15
 --- !u!1 &1101171865
 GameObject:
   m_ObjectHideFlags: 0
@@ -3967,7 +4049,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: My only choice is to go, out there.
+  m_text: 'I''ll never get used to this...
+
+    Into the abyss.'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -4047,6 +4131,11 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1101171865}
   m_CullTransparentMesh: 1
+--- !u!82 &1122604338 stripped
+AudioSource:
+  m_CorrespondingSourceObject: {fileID: 2450339173156258624, guid: cbc1e87d3d2a2f4448067cbbd6e3cb4b, type: 3}
+  m_PrefabInstance: {fileID: 61206567}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1149730869
 GameObject:
   m_ObjectHideFlags: 0
@@ -5044,6 +5133,17 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1329298583}
   m_CullTransparentMesh: 1
+--- !u!114 &1333880254 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2783364521690125364, guid: cbc1e87d3d2a2f4448067cbbd6e3cb4b, type: 3}
+  m_PrefabInstance: {fileID: 61206567}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 172515602e62fb746b5d573b38a5fe58, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1338506904
 GameObject:
   m_ObjectHideFlags: 0
@@ -5298,6 +5398,35 @@ Transform:
   - {fileID: 1615600856}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1506663207 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8389713915796772057, guid: cbc1e87d3d2a2f4448067cbbd6e3cb4b, type: 3}
+  m_PrefabInstance: {fileID: 61206567}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &1506663208 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 3941384523152134198, guid: cbc1e87d3d2a2f4448067cbbd6e3cb4b, type: 3}
+  m_PrefabInstance: {fileID: 61206567}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1506663210
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1506663207}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6161af729f828f9408a331b46b4fca12, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CameraBobbing
+  playerMovement: {fileID: 1069116766}
+  cameraHead: {fileID: 1506663208}
+  walkBobAmount: 0.1
+  walkBobSpeed: 10
+  runBobAmount: 0.2
+  runBobSpeed: 12
+  smoothness: 10
 --- !u!1001 &1512274972
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5592,19 +5721,19 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2191089211714512147, guid: dace16d7f98730f44a5ba4bc2ed2a546, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -447.7265
+      value: -334.85397
       objectReference: {fileID: 0}
     - target: {fileID: 2191089211714512147, guid: dace16d7f98730f44a5ba4bc2ed2a546, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 394.62
+      value: 60.81
       objectReference: {fileID: 0}
     - target: {fileID: 2191089211714512147, guid: dace16d7f98730f44a5ba4bc2ed2a546, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 17.192842
+      value: -128.2865
       objectReference: {fileID: 0}
     - target: {fileID: 2191089211714512147, guid: dace16d7f98730f44a5ba4bc2ed2a546, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.3706948
+      value: 0.13494886
       objectReference: {fileID: 0}
     - target: {fileID: 2191089211714512147, guid: dace16d7f98730f44a5ba4bc2ed2a546, type: 3}
       propertyPath: m_LocalRotation.x
@@ -5612,7 +5741,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2191089211714512147, guid: dace16d7f98730f44a5ba4bc2ed2a546, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0.9287548
+      value: 0.9908526
       objectReference: {fileID: 0}
     - target: {fileID: 2191089211714512147, guid: dace16d7f98730f44a5ba4bc2ed2a546, type: 3}
       propertyPath: m_LocalRotation.z
@@ -6532,6 +6661,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: StickLight (7)
       objectReference: {fileID: 0}
+    - target: {fileID: 3688934627691510915, guid: 87bdda98b12a0584381dab5026d1c505, type: 3}
+      propertyPath: m_TagString
+      value: Lightsource
+      objectReference: {fileID: 0}
     - target: {fileID: 4535822387890914016, guid: 87bdda98b12a0584381dab5026d1c505, type: 3}
       propertyPath: m_ShapeRadius
       value: 0.3
@@ -6753,6 +6886,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: StickLight (4)
       objectReference: {fileID: 0}
+    - target: {fileID: 3688934627691510915, guid: 87bdda98b12a0584381dab5026d1c505, type: 3}
+      propertyPath: m_TagString
+      value: Lightsource
+      objectReference: {fileID: 0}
     - target: {fileID: 4535822387890914016, guid: 87bdda98b12a0584381dab5026d1c505, type: 3}
       propertyPath: m_ShapeRadius
       value: 0.3
@@ -6971,8 +7108,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "I need to stay close to light, \nwho knows what the darkness will do to
-    me at these depths..."
+  m_text: I need to stay close to light, it will keep me safe.
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
