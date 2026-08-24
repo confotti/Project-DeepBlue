@@ -7,13 +7,14 @@ public class EnableObjectOnTrigger : MonoBehaviour
     [SerializeField] private List<GameObject> _objectsToEnable = new ();
     [SerializeField] private float _duration = 5f;
 
+
     private bool _hasTriggered;
 
     private void OnTriggerEnter(Collider other)
     {
         if (_hasTriggered) return;
 
-        if (other.CompareTag("Player"))
+        if (other is CapsuleCollider && other.CompareTag("Player"))
         {
             _hasTriggered = true;
             StartCoroutine(EnableTemporary());

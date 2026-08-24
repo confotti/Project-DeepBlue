@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.HighDefinition;
 
-public class Sanitytesting: MonoBehaviour
+public class SanityLightDependent: MonoBehaviour
 {
     private PlayerStats _playerStats;
 
@@ -153,6 +153,12 @@ public class Sanitytesting: MonoBehaviour
     {
         if (other.CompareTag("Lightsource")) 
             isInLight = true;
+
+    }
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.CompareTag("Lightsource"))
+            isInLight = false;
 
     }
 } 
