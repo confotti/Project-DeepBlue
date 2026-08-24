@@ -10,6 +10,14 @@ public class PlayerSwimmingState : State<PlayerMovement>
     [SerializeField] private float _baseSwimmingFastSpeed = 40;
     [SerializeField, Range(0f, 1f)] private float _accelaration = 0.1f;
 
+    public override void Init(PlayerMovement obj, StateMachine<PlayerMovement> stateMachine)
+    {
+        base.Init(obj, stateMachine);
+
+        //TODO: This should probably be done in equipment setup, but the future of equipment is currently very unsure. 
+        SetSwimSpeedsModifiers(0);
+    }
+
     public override void PhysicsUpdate()
     {
         base.PhysicsUpdate();
@@ -17,6 +25,9 @@ public class PlayerSwimmingState : State<PlayerMovement>
         var targetVel = (new Vector3(0, obj.InputHandler.SwimUp - obj.InputHandler.SwimDown, 0) +
                     obj.CameraHead.transform.rotation * new Vector3(obj.InputHandler.Move.x, 0, obj.InputHandler.Move.y)).normalized *
                     (obj.InputHandler.Run ? _swimmingFastSpeed : _swimmingSpeed);
+
+        Debug.Log(_swimmingFastSpeed);
+        Debug.Log(_swimmingSpeed);
 
         obj.Rb.linearVelocity += (targetVel - obj.Rb.linearVelocity) * _accelaration;
 

@@ -11,7 +11,7 @@ public abstract class State<T1> where T1 : MonoBehaviour
     protected readonly string animBoolName;
     */
 
-    public void Init(T1 obj, StateMachine<T1> stateMachine)
+    public virtual void Init(T1 obj, StateMachine<T1> stateMachine)
     {
         this.obj = obj;
         this.stateMachine = stateMachine;
