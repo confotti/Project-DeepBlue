@@ -20,6 +20,8 @@ public class PlayerMovement : MonoBehaviour
     private const float _lookYMax = 80;
 
     public bool IsSwimming => StateMachine.CurrentState == SwimmingState;
+    public bool IsMoving => InputHandler.Move.magnitude > 0.1f;
+    public bool IsSprinting => IsMoving && Input.GetKey(KeyCode.LeftShift); 
 
     //References
     public PlayerInputHandler InputHandler { get; private set; }

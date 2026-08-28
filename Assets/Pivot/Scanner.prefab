@@ -562,10 +562,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Ilumisoft.RadarSystem::RadarBlip
   _trackedTag: Enemy
-  _blipIntervalClose: 0.1
-  _blipIntervalFar: 1.5
-  _closeDistance: 5
-  _farDistance: 500
+  _revealDuration: 2
+  _fadeDuration: 1
+  radarPulse: {fileID: 0}
+  _sonarCooldown: 5
   _audioSource: {fileID: 2837427343983181688}
   _blipSound: {fileID: 8300000, guid: 5389d0e96953e8a48824bcba53335124, type: 3}
 --- !u!82 &2837427343983181688
