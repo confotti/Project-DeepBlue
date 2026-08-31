@@ -10,9 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 5173158416249862277}
   - component: {fileID: 8881518355732885702}
-  - component: {fileID: 8271897585674092747}
-  - component: {fileID: 7843802552534630976}
-  - component: {fileID: 3403919587811781024}
   m_Layer: 0
   m_Name: Locker2
   m_TagString: Untagged
@@ -58,48 +55,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 4.3612356, y: 19.510971, z: 5.7148285}
   m_Center: {x: -0.000009655952, y: 9.755486, z: -0.014459491}
---- !u!114 &8271897585674092747
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1006059528101061271}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6bbd1ab5ab7a259469ebd48e8967a353, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  id: e50f3552-661f-42c6-b475-fad0e6192aee
---- !u!114 &7843802552534630976
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1006059528101061271}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 970ea816cb71cd84d96fce3a964486ca, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  inventorySize: 8
-  inventorySystem:
-    inventorySlots: []
-  interactText: 
---- !u!114 &3403919587811781024
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1006059528101061271}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 21fa2e69a8416d949a8a5add9c5f30fe, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Col: {fileID: 8881518355732885702}
 --- !u!1 &2964854190995563339
 GameObject:
   m_ObjectHideFlags: 0
@@ -161,6 +116,8 @@ MeshRenderer:
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
   m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -182,9 +139,11 @@ MeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &4049910561469371057
 GameObject:
@@ -197,6 +156,8 @@ GameObject:
   - component: {fileID: 1556490753084439285}
   - component: {fileID: 8686264196679508857}
   - component: {fileID: 514674361562365721}
+  - component: {fileID: 2611070741138789904}
+  - component: {fileID: 4224467355983755594}
   m_Layer: 0
   m_Name: LockerDoor2_low
   m_TagString: Untagged
@@ -247,6 +208,8 @@ MeshRenderer:
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
   m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -268,7 +231,46 @@ MeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &2611070741138789904
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4049910561469371057}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d1bc42f450cda9542be13c2289f696be, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Openable
+  interactText: Open
+  movingPart: {fileID: 1556490753084439285}
+  openRotation: {x: 0, y: -60, z: 0}
+  openDuration: 0.5
+--- !u!65 &4224467355983755594
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4049910561469371057}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 3.4677691, y: 17.617577, z: 0.6234687}
+  m_Center: {x: -1.73387, y: 1.6117196, z: 0.21395235}

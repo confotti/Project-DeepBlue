@@ -11,6 +11,8 @@ GameObject:
   - component: {fileID: 4718911537341354911}
   - component: {fileID: 3645476685263698219}
   - component: {fileID: 2940337374513899118}
+  - component: {fileID: 439571493073679256}
+  - component: {fileID: 235868096922382631}
   m_Layer: 0
   m_Name: LockerDoor3_low
   m_TagString: Untagged
@@ -26,13 +28,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 893240559762240975}
   serializedVersion: 2
-  m_LocalRotation: {x: 6.1232336e-17, y: 1, z: 6.1232336e-17, w: 0.00000004371139}
+  m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
   m_LocalPosition: {x: -1.7673922, y: 8.766685, z: -2.8120658}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 3116581558509289732}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
 --- !u!33 &3645476685263698219
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -61,6 +63,8 @@ MeshRenderer:
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
   m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -82,10 +86,49 @@ MeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &439571493073679256
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 893240559762240975}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d1bc42f450cda9542be13c2289f696be, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Openable
+  interactText: Open
+  movingPart: {fileID: 4718911537341354911}
+  openRotation: {x: 0, y: -66, z: 0}
+  openDuration: 0.5
+--- !u!65 &235868096922382631
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 893240559762240975}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 3.4683414, y: 17.617577, z: 0.6328741}
+  m_Center: {x: -1.7545152, y: 1.6117196, z: 0.20551684}
 --- !u!1 &3811044066721774033
 GameObject:
   m_ObjectHideFlags: 0
@@ -96,9 +139,6 @@ GameObject:
   m_Component:
   - component: {fileID: 3116581558509289732}
   - component: {fileID: 7805544631476842518}
-  - component: {fileID: 3807990068383590324}
-  - component: {fileID: 6700150297401446011}
-  - component: {fileID: 2587573183293587031}
   m_Layer: 0
   m_Name: Locker3
   m_TagString: Untagged
@@ -144,48 +184,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 4.3612356, y: 19.510971, z: 5.7148285}
   m_Center: {x: -0.000009655952, y: 9.755486, z: -0.014459491}
---- !u!114 &3807990068383590324
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3811044066721774033}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6bbd1ab5ab7a259469ebd48e8967a353, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  id: 57256a6c-6139-470d-a701-7e6e17a38c53
---- !u!114 &6700150297401446011
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3811044066721774033}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 970ea816cb71cd84d96fce3a964486ca, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  inventorySize: 8
-  inventorySystem:
-    inventorySlots: []
-  interactText: 
---- !u!114 &2587573183293587031
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3811044066721774033}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 21fa2e69a8416d949a8a5add9c5f30fe, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Col: {fileID: 7805544631476842518}
 --- !u!1 &5028554664464198023
 GameObject:
   m_ObjectHideFlags: 0
@@ -247,6 +245,8 @@ MeshRenderer:
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
   m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -268,7 +268,9 @@ MeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}

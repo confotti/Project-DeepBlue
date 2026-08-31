@@ -11,6 +11,8 @@ GameObject:
   - component: {fileID: 2664467264417909648}
   - component: {fileID: 8965932597977274370}
   - component: {fileID: 5386153390252995316}
+  - component: {fileID: 9167201104319991141}
+  - component: {fileID: 7766842147490101004}
   m_Layer: 0
   m_Name: LockerDoor1_low
   m_TagString: Untagged
@@ -61,6 +63,8 @@ MeshRenderer:
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
   m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -82,10 +86,49 @@ MeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &9167201104319991141
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 971459282106426293}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d1bc42f450cda9542be13c2289f696be, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Openable
+  interactText: Open
+  movingPart: {fileID: 2664467264417909648}
+  openRotation: {x: 0, y: -72, z: 0}
+  openDuration: 0.5
+--- !u!65 &7766842147490101004
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 971459282106426293}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 3.4730318, y: 17.617577, z: 0.8322702}
+  m_Center: {x: -1.7506062, y: 1.6117196, z: 0.25983185}
 --- !u!1 &2377589209053285621
 GameObject:
   m_ObjectHideFlags: 0
@@ -96,9 +139,6 @@ GameObject:
   m_Component:
   - component: {fileID: 5167855999677873218}
   - component: {fileID: 6927907055393979863}
-  - component: {fileID: 1813827625186980950}
-  - component: {fileID: 3862793511762634202}
-  - component: {fileID: 6668251068518826247}
   m_Layer: 0
   m_Name: Locker1
   m_TagString: Untagged
@@ -144,48 +184,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 4.3612356, y: 19.510971, z: 5.7148285}
   m_Center: {x: -0.000009655952, y: 9.755486, z: -0.014459491}
---- !u!114 &1813827625186980950
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2377589209053285621}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6bbd1ab5ab7a259469ebd48e8967a353, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  id: adcf8fd1-3b8e-457d-893b-301a85e17572
---- !u!114 &3862793511762634202
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2377589209053285621}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 970ea816cb71cd84d96fce3a964486ca, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  inventorySize: 8
-  inventorySystem:
-    inventorySlots: []
-  interactText: 
---- !u!114 &6668251068518826247
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2377589209053285621}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 21fa2e69a8416d949a8a5add9c5f30fe, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Col: {fileID: 6927907055393979863}
 --- !u!1 &4209492392756517093
 GameObject:
   m_ObjectHideFlags: 0
@@ -247,6 +245,8 @@ MeshRenderer:
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
   m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -268,7 +268,9 @@ MeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
