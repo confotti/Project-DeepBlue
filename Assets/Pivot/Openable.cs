@@ -60,11 +60,7 @@ public class Openable : MonoBehaviour, IInteractable
             float t = elapsed / openDuration;
             t = Mathf.SmoothStep(0f, 1f, t);
 
-            movingPart.localRotation = Quaternion.Slerp(
-                startRotation,
-                openedRotation,
-                t
-            );
+            movingPart.localRotation = Quaternion.Slerp(startRotation,openedRotation,t);
 
             yield return null;
         }
@@ -89,11 +85,7 @@ public class Openable : MonoBehaviour, IInteractable
             float t = elapsed / openDuration;
             t = Mathf.SmoothStep(0f, 1f, t);
 
-            movingPart.localRotation = Quaternion.Slerp(
-                startRotation,
-                closedRotation,
-                t
-            );
+            movingPart.localRotation = Quaternion.Slerp(startRotation,closedRotation,t);
 
             yield return null;
         }
@@ -106,5 +98,6 @@ public class Openable : MonoBehaviour, IInteractable
 
     public void EndInteraction()
     {
+
     }
 }
