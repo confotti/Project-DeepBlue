@@ -24,7 +24,7 @@ MonoBehaviour:
     m_Value: {x: 0.5, y: 0.5}
   intensity:
     m_OverrideState: 1
-    m_Value: 0.25
+    m_Value: 0.35
   smoothness:
     m_OverrideState: 1
     m_Value: 0.4
@@ -332,6 +332,7 @@ MonoBehaviour:
   - {fileID: -6458532670530887915}
   - {fileID: -3560766536841488995}
   - {fileID: 3465668933903231230}
+  - {fileID: 4247720983899947555}
 --- !u!114 &3465668933903231230
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -426,7 +427,7 @@ MonoBehaviour:
     m_Value: 2500
   meanFreePath:
     m_OverrideState: 1
-    m_Value: 70
+    m_Value: 50
   enableVolumetricFog:
     m_OverrideState: 1
     m_Value: 1
@@ -469,6 +470,31 @@ MonoBehaviour:
   directionalLightsOnly:
     m_OverrideState: 0
     m_Value: 0
+--- !u!114 &4247720983899947555
+MonoBehaviour:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a6b00fcf518bb94a90b408492e07b44, type: 3}
+  m_Name: FilmGrain
+  m_EditorClassIdentifier: Unity.RenderPipelines.HighDefinition.Runtime::UnityEngine.Rendering.HighDefinition.FilmGrain
+  active: 1
+  type:
+    m_OverrideState: 1
+    m_Value: 2
+  intensity:
+    m_OverrideState: 1
+    m_Value: 0.45
+  response:
+    m_OverrideState: 1
+    m_Value: 0.712
+  texture:
+    m_OverrideState: 0
+    m_Value: {fileID: 0}
 --- !u!114 &7855610605396111098
 MonoBehaviour:
   m_ObjectHideFlags: 3

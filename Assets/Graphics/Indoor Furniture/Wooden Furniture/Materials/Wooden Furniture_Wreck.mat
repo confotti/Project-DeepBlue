@@ -8,11 +8,12 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Wooden Furniture_Wreck
-  m_Shader: {fileID: -6465566751694194690, guid: 1b700f17ed7bc0a4d88ef9d10b75dce6, type: 3}
+  m_Shader: {fileID: -6465566751694194690, guid: fb7fee5346e4d66468c4a3a82ac2e407, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
   - LOD0
+  - _COLORPROJECTION
   - _DISABLE_SSR_TRANSPARENT
   - _MICRODETAIL
   - _MOSS
@@ -183,7 +184,7 @@ Material:
     - _AlphaSrcBlend: 1
     - _Anisotropy: 0
     - _BlendMode: 0
-    - _COLORPROJECTION: 0
+    - _COLORPROJECTION: 1
     - _CoatMask: 0
     - _ConservativeDepthOffsetEnable: 0
     - _CullMode: 2
