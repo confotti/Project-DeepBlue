@@ -8,6 +8,7 @@ public class Rotate : MonoBehaviour
 
     private bool coroutineAllowed;
     private int numberShown;
+    public int CurrentNumber => numberShown; 
 
     [Header("Rotation")]
     [SerializeField] private float rotationAmount = 40f;
@@ -17,7 +18,12 @@ public class Rotate : MonoBehaviour
     private void Start()
     {
         coroutineAllowed = true;
-        numberShown = 1;
+
+        numberShown = UnityEngine.Random.Range(1, 10);
+        int stepsFromOne = numberShown - 1;
+
+        transform.Rotate(stepsFromOne * rotationAmount,0f,0f);
+        Rotated(this, numberShown);
     }
 
     public void RotateUp()
@@ -44,18 +50,12 @@ public class Rotate : MonoBehaviour
 
         for (int i = 0; i < rotationSteps; i++)
         {
-            transform.Rotate(
-                rotationPerStep * direction,
-                0f,
-                0f
-            );
-
+            transform.Rotate(rotationPerStep * direction,0f,0f);
             yield return new WaitForSeconds(rotationDelay);
         }
 
         numberShown += direction;
 
-        // Numbers are 1-9 only
         if (numberShown > 9)
         {
             numberShown = 1;
@@ -66,8 +66,6 @@ public class Rotate : MonoBehaviour
         }
 
         coroutineAllowed = true;
-
-        // Tell LockControl which wheel moved
         Rotated(this, numberShown);
     }
 }

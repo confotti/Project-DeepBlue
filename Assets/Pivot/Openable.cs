@@ -8,6 +8,8 @@ public class Openable : MonoBehaviour, IInteractable
 
     public string InteractText => interactText;
 
+    [SerializeField] private LockControl requiredLock;
+
     [Header("Object To Animate")]
     [SerializeField] private Transform movingPart;
 
@@ -43,6 +45,12 @@ public class Openable : MonoBehaviour, IInteractable
         if (isAnimating)
             return;
 
+        if (requiredLock != null && !requiredLock.IsSolved)
+        {
+            Debug.Log("This container is locked.");
+            return;
+        }
+
         if (!isOpen)
         {
             StartCoroutine(AnimateOpen());
@@ -69,17 +77,8 @@ public class Openable : MonoBehaviour, IInteractable
             float t = elapsed / openDuration;
             t = Mathf.SmoothStep(0f, 1f, t);
 
-            movingPart.localRotation = Quaternion.Slerp(
-                startRotation,
-                openedRotation,
-                t
-            );
-
-            movingPart.localPosition = Vector3.Lerp(
-                startPosition,
-                openedPosition,
-                t
-            );
+            movingPart.localRotation = Quaternion.Slerp(startRotation,openedRotation,t);
+            movingPart.localPosition = Vector3.Lerp(startPosition,openedPosition,t);
 
             yield return null;
         }
@@ -108,7 +107,6 @@ public class Openable : MonoBehaviour, IInteractable
             t = Mathf.SmoothStep(0f, 1f, t);
 
             movingPart.localRotation = Quaternion.Slerp(startRotation,closedRotation,t);
-
             movingPart.localPosition = Vector3.Lerp(startPosition,closedPosition,t);
 
             yield return null;
@@ -125,4 +123,4 @@ public class Openable : MonoBehaviour, IInteractable
     {
 
     }
-} 
+}
