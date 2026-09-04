@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using Unity.Cinemachine;
 
 public class LockControl : MonoBehaviour
 {
@@ -9,21 +10,16 @@ public class LockControl : MonoBehaviour
     [SerializeField] private Rotate[] wheels;
     [SerializeField] private GameObject[] wheelHighlights;
 
-    [Header("Camera")]
-    [SerializeField] private Transform cameraTransform;
-    [SerializeField] private Transform lockCameraPosition;
-    [SerializeField] private float cameraTransitionTime = 0.2f;
+    [Header("Cinemachine Camera")]
+    [SerializeField] private CinemachineCamera mainCamera;
+    [SerializeField] private CinemachineCamera lockCamera;
 
     [Header("Camera Control")]
     [SerializeField] private MonoBehaviour[] playerMovement;
 
     public bool IsSolved => combinationSolved;
 
-    private Vector3 originalCameraLocalPosition;
-    private Quaternion originalCameraLocalRotation;
-
     private bool lockActive;
-    private bool cameraMoving;
     private bool combinationSolved;
 
     private int selectedWheel;
@@ -40,17 +36,15 @@ public class LockControl : MonoBehaviour
 
         Rotate.Rotated += CheckResults;
 
-        if (cameraTransform == null)
-        {
-            cameraTransform = Camera.main.transform;
-        }
+        mainCamera.Priority = 10;
+        lockCamera.Priority = 0;
 
         DisableAllHighlights();
     }
 
     private void Update()
     {
-        if (!lockActive || cameraMoving || combinationSolved)
+        if (!lockActive || combinationSolved)
         {
             return;
         }
@@ -75,17 +69,14 @@ public class LockControl : MonoBehaviour
     private void EnterLock()
     {
         lockActive = true;
-        cameraMoving = true;
 
         selectedWheel = 0;
         UpdateWheelHighlight();
 
-        originalCameraLocalPosition = cameraTransform.localPosition;
-        originalCameraLocalRotation = cameraTransform.localRotation;
+        mainCamera.Priority = 0;
+        lockCamera.Priority = 10;
 
         SetPlayerScripts(false);
-
-        StartCoroutine(MoveCameraToLock());
     }
 
     private void SetPlayerScripts(bool enabled)
@@ -111,7 +102,7 @@ public class LockControl : MonoBehaviour
             SelectNextWheel();
         }
 
-        if (Input.GetKeyDown(KeyCode.A)) 
+        if (Input.GetKeyDown(KeyCode.A))
         {
             SelectPreviousWheel();
         }
@@ -186,82 +177,21 @@ public class LockControl : MonoBehaviour
         }
     }
 
-    private IEnumerator MoveCameraToLock()
-    {
-        Vector3 startPosition = cameraTransform.position;
-        Quaternion startRotation = cameraTransform.rotation;
-
-        float elapsedTime = 0f;
-
-        while (elapsedTime < cameraTransitionTime)
-        {
-            elapsedTime += Time.deltaTime;
-
-            float t = elapsedTime / cameraTransitionTime;
-            t = Mathf.SmoothStep(0f, 1f, t);
-
-            cameraTransform.position = Vector3.Lerp(startPosition,lockCameraPosition.position,t);
-            cameraTransform.rotation = Quaternion.Slerp(startRotation,lockCameraPosition.rotation,t);
-
-            yield return null;
-        }
-
-        cameraTransform.position = lockCameraPosition.position;
-        cameraTransform.rotation = lockCameraPosition.rotation;
-
-        cameraMoving = false;
-    }
-
     private void ExitLock()
     {
-        if (!lockActive || cameraMoving)
+        if (!lockActive)
         {
             return;
         }
 
-        cameraMoving = true;
+        lockActive = false;
+
         DisableAllHighlights();
 
-        StartCoroutine(MoveCameraBack(false));
-    }
-
-    private IEnumerator MoveCameraBack(bool solved)
-    {
-        Vector3 startPosition = cameraTransform.position;
-        Quaternion startRotation = cameraTransform.rotation;
-
-        Vector3 targetPosition = cameraTransform.parent.TransformPoint(originalCameraLocalPosition);
-        Quaternion targetRotation =cameraTransform.parent.rotation *originalCameraLocalRotation;
-
-        float elapsedTime = 0f;
-
-        while (elapsedTime < cameraTransitionTime)
-        {
-            elapsedTime += Time.deltaTime;
-
-            float t = elapsedTime / cameraTransitionTime;
-            t = Mathf.SmoothStep(0f, 1f, t);
-
-            cameraTransform.position = Vector3.Lerp(startPosition,targetPosition,t);
-            cameraTransform.rotation = Quaternion.Slerp(startRotation,targetRotation,t);
-
-            yield return null;
-        }
-
-        cameraTransform.localPosition = originalCameraLocalPosition;
-        cameraTransform.localRotation = originalCameraLocalRotation;
-
-        lockActive = false;
-        cameraMoving = false;
+        lockCamera.Priority = 0;
+        mainCamera.Priority = 10;
 
         SetPlayerScripts(true);
-
-        if (solved)
-        {
-            combinationSolved = true;
-
-            gameObject.SetActive(false);
-        }
     }
 
     private void CheckResults(Rotate wheel, int number)
@@ -281,9 +211,14 @@ public class LockControl : MonoBehaviour
             result[3] == correctCombination[3])
         {
             combinationSolved = true;
+
             DisableAllHighlights();
-            cameraMoving = true;
-            StartCoroutine(MoveCameraBack(true)); 
+
+            lockCamera.Priority = 0;
+            mainCamera.Priority = 10;
+
+            SetPlayerScripts(true);
+            gameObject.SetActive(false);
         }
     }
 
@@ -291,4 +226,4 @@ public class LockControl : MonoBehaviour
     {
         Rotate.Rotated -= CheckResults;
     }
-}
+} 
