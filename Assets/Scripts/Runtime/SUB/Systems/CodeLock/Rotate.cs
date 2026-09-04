@@ -4,7 +4,7 @@ using System;
 
 public class Rotate : MonoBehaviour
 {
-    public static event Action<string, int> Rotated = delegate { };
+    public static event Action<Rotate, int> Rotated = delegate { };
 
     private bool coroutineAllowed;
     private int numberShown;
@@ -20,15 +20,23 @@ public class Rotate : MonoBehaviour
         numberShown = 1;
     }
 
-    private void OnMouseDown()
+    public void RotateUp()
     {
         if (coroutineAllowed)
         {
-            StartCoroutine(RotateWheel());
+            StartCoroutine(RotateWheel(1));
         }
     }
 
-    private IEnumerator RotateWheel()
+    public void RotateDown()
+    {
+        if (coroutineAllowed)
+        {
+            StartCoroutine(RotateWheel(-1));
+        }
+    }
+
+    private IEnumerator RotateWheel(int direction)
     {
         coroutineAllowed = false;
 
@@ -36,19 +44,30 @@ public class Rotate : MonoBehaviour
 
         for (int i = 0; i < rotationSteps; i++)
         {
-            transform.Rotate(rotationPerStep, 0f, 0f);
+            transform.Rotate(
+                rotationPerStep * direction,
+                0f,
+                0f
+            );
+
             yield return new WaitForSeconds(rotationDelay);
+        }
+
+        numberShown += direction;
+
+        // Numbers are 1-9 only
+        if (numberShown > 9)
+        {
+            numberShown = 1;
+        }
+        else if (numberShown < 1)
+        {
+            numberShown = 9;
         }
 
         coroutineAllowed = true;
 
-        numberShown += 1;
-
-        if (numberShown > 9)
-        {
-            numberShown = 0;
-        }
-
-        Rotated(name, numberShown);
+        // Tell LockControl which wheel moved
+        Rotated(this, numberShown);
     }
-} 
+}

@@ -6,6 +6,9 @@ public class LockControl : MonoBehaviour
     private int[] result;
     private int[] correctCombination;
 
+    [SerializeField] private Rotate[] wheels;
+    [SerializeField] private GameObject[] wheelHighlights;
+
     [Header("Camera")]
     [SerializeField] private Transform cameraTransform;
     [SerializeField] private Transform lockCameraPosition;
@@ -19,10 +22,13 @@ public class LockControl : MonoBehaviour
 
     private bool lockActive;
     private bool cameraMoving;
+    private bool combinationSolved;
+
+    private int selectedWheel;
 
     private void Start()
     {
-        result = new int[] { 5, 5, 5, 5 };
+        result = new int[] { 1, 1, 1, 1 };
         correctCombination = new int[] { 3, 7, 9, 1 };
 
         Rotate.Rotated += CheckResults;
@@ -31,11 +37,21 @@ public class LockControl : MonoBehaviour
         {
             cameraTransform = Camera.main.transform;
         }
+
+        DisableAllHighlights();
     }
 
     private void Update()
     {
-        if (lockActive && !cameraMoving && Input.GetMouseButtonDown(1))
+        if (!lockActive || cameraMoving || combinationSolved)
+        {
+            return;
+        }
+
+        HandleWheelSelection();
+        HandleWheelRotation();
+
+        if (Input.GetMouseButtonDown(1))
         {
             ExitLock();
         }
@@ -43,7 +59,7 @@ public class LockControl : MonoBehaviour
 
     private void OnMouseDown()
     {
-        if (!lockActive)
+        if (!lockActive && !combinationSolved)
         {
             EnterLock();
         }
@@ -54,6 +70,10 @@ public class LockControl : MonoBehaviour
         lockActive = true;
         cameraMoving = true;
 
+        selectedWheel = 0;
+
+        UpdateWheelHighlight();
+
         originalCameraLocalPosition = cameraTransform.localPosition;
         originalCameraLocalRotation = cameraTransform.localRotation;
 
@@ -63,6 +83,96 @@ public class LockControl : MonoBehaviour
         }
 
         StartCoroutine(MoveCameraToLock());
+    }
+
+    private void HandleWheelSelection()
+    {
+        if (Input.GetKeyDown(KeyCode.D) ||
+            Input.GetKeyDown(KeyCode.RightArrow))
+        {
+            SelectNextWheel();
+        }
+
+        if (Input.GetKeyDown(KeyCode.A) ||
+            Input.GetKeyDown(KeyCode.LeftArrow))
+        {
+            SelectPreviousWheel();
+        }
+    }
+
+    private void SelectNextWheel()
+    {
+        selectedWheel++;
+
+        if (selectedWheel >= wheels.Length)
+        {
+            selectedWheel = 0;
+        }
+
+        UpdateWheelHighlight();
+
+        Debug.Log("Selected wheel: " + (selectedWheel + 1));
+    }
+
+    private void SelectPreviousWheel()
+    {
+        selectedWheel--;
+
+        if (selectedWheel < 0)
+        {
+            selectedWheel = wheels.Length - 1;
+        }
+
+        UpdateWheelHighlight();
+
+        Debug.Log("Selected wheel: " + (selectedWheel + 1));
+    }
+
+    private void HandleWheelRotation()
+    {
+        if (Input.GetKeyDown(KeyCode.W) ||
+            Input.GetKeyDown(KeyCode.UpArrow))
+        {
+            wheels[selectedWheel].RotateUp();
+        }
+
+        if (Input.GetKeyDown(KeyCode.S) ||
+            Input.GetKeyDown(KeyCode.DownArrow))
+        {
+            wheels[selectedWheel].RotateDown();
+        }
+    }
+
+    private void UpdateWheelHighlight()
+    {
+        if (wheelHighlights == null || wheelHighlights.Length == 0)
+        {
+            return;
+        }
+
+        for (int i = 0; i < wheelHighlights.Length; i++)
+        {
+            if (wheelHighlights[i] != null)
+            {
+                wheelHighlights[i].SetActive(i == selectedWheel);
+            }
+        }
+    }
+
+    private void DisableAllHighlights()
+    {
+        if (wheelHighlights == null)
+        {
+            return;
+        }
+
+        foreach (GameObject highlight in wheelHighlights)
+        {
+            if (highlight != null)
+            {
+                highlight.SetActive(false);
+            }
+        }
     }
 
     private IEnumerator MoveCameraToLock()
@@ -77,8 +187,6 @@ public class LockControl : MonoBehaviour
             elapsedTime += Time.deltaTime;
 
             float t = elapsedTime / cameraTransitionTime;
-
-            // Smooth transition
             t = Mathf.SmoothStep(0f, 1f, t);
 
             cameraTransform.position = Vector3.Lerp(
@@ -104,12 +212,19 @@ public class LockControl : MonoBehaviour
 
     private void ExitLock()
     {
+        if (!lockActive || cameraMoving)
+        {
+            return;
+        }
+
         cameraMoving = true;
 
-        StartCoroutine(MoveCameraBack());
+        DisableAllHighlights();
+
+        StartCoroutine(MoveCameraBack(false));
     }
 
-    private IEnumerator MoveCameraBack()
+    private IEnumerator MoveCameraBack(bool solved)
     {
         Vector3 startPosition = cameraTransform.position;
         Quaternion startRotation = cameraTransform.rotation;
@@ -118,8 +233,9 @@ public class LockControl : MonoBehaviour
             originalCameraLocalPosition
         );
 
-        Quaternion targetRotation = cameraTransform.parent.rotation *
-                                    originalCameraLocalRotation;
+        Quaternion targetRotation =
+            cameraTransform.parent.rotation *
+            originalCameraLocalRotation;
 
         float elapsedTime = 0f;
 
@@ -128,8 +244,6 @@ public class LockControl : MonoBehaviour
             elapsedTime += Time.deltaTime;
 
             float t = elapsedTime / cameraTransitionTime;
-
-            // Smooth transition
             t = Mathf.SmoothStep(0f, 1f, t);
 
             cameraTransform.position = Vector3.Lerp(
@@ -157,35 +271,49 @@ public class LockControl : MonoBehaviour
         {
             playerMovement.enabled = true;
         }
+
+        if (solved)
+        {
+            combinationSolved = true;
+
+            gameObject.SetActive(false);
+        }
     }
 
-    private void CheckResults(string wheelName, int number)
+    private void CheckResults(Rotate wheel, int number)
     {
-        switch (wheelName)
+        // Find which wheel in the Inspector array was rotated
+        for (int i = 0; i < wheels.Length; i++)
         {
-            case "wheel1":
-                result[0] = number;
+            if (wheels[i] == wheel)
+            {
+                result[i] = number;
                 break;
-
-            case "wheel2":
-                result[1] = number;
-                break;
-
-            case "wheel3":
-                result[2] = number;
-                break;
-
-            case "wheel4":
-                result[3] = number;
-                break;
+            }
         }
+
+        Debug.Log(
+            "Current combination: " +
+            result[0] + " - " +
+            result[1] + " - " +
+            result[2] + " - " +
+            result[3]
+        );
 
         if (result[0] == correctCombination[0] &&
             result[1] == correctCombination[1] &&
             result[2] == correctCombination[2] &&
             result[3] == correctCombination[3])
         {
-            Debug.Log("Opened");
+            Debug.Log("COMBINATION CORRECT!");
+
+            combinationSolved = true;
+
+            DisableAllHighlights();
+
+            cameraMoving = true;
+
+            StartCoroutine(MoveCameraBack(true));
         }
     }
 
@@ -193,4 +321,4 @@ public class LockControl : MonoBehaviour
     {
         Rotate.Rotated -= CheckResults;
     }
-} 
+}
