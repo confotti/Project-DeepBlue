@@ -7,6 +7,9 @@ public class SignalUI : MonoBehaviour
 
     [SerializeField] private SonarClamps sonarClampsPrefab;
 
+    [SerializeField] private Color weakSignalColor = Color.white;
+    [SerializeField] private Color fullSignalColor = Color.green;
+
     private List<SonarClamps> sonarClampsList = new();
 
     private void OnEnable()
@@ -31,7 +34,11 @@ public class SignalUI : MonoBehaviour
         {
             var clamps = ObjectPoolManager.SpawnObject(sonarClampsPrefab, transform);
             sonarClampsList.Add(clamps);
-            clamps.SetOffset(Mathf.Lerp(10, 500, 1-signal)); //Kan inte bara sätta till 20, måste räknas ut med strengths. 
+
+            clamps.SetOffset(Mathf.Lerp(800, 20, signal));
+
+            if (signal >= 1) clamps.SetColor(fullSignalColor);
+            else clamps.SetColor(weakSignalColor);
         }
     }
 }

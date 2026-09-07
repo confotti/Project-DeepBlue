@@ -93,7 +93,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &7312896022466917039
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1146,6 +1146,7 @@ GameObject:
   - component: {fileID: 4177386799190806092}
   - component: {fileID: 7468438014460302825}
   - component: {fileID: 1125844219716074507}
+  - component: {fileID: 1788229338893312553}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -1210,10 +1211,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.CanvasScaler
-  m_UiScaleMode: 0
+  m_UiScaleMode: 1
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
-  m_ReferenceResolution: {x: 800, y: 600}
+  m_ReferenceResolution: {x: 1920, y: 1080}
   m_ScreenMatchMode: 0
   m_MatchWidthOrHeight: 0
   m_PhysicalUnit: 3
@@ -1238,6 +1239,22 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
+--- !u!114 &1788229338893312553
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9115322663579626767}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 606ff0b9ec53fe949afb395938c0b78a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SignalUI
+  signalPort: {fileID: 11400000, guid: 4a8d0f4586b041246b0ef410418ae1e1, type: 2}
+  sonarClampsPrefab: {fileID: 5424795537803342583, guid: b19b6088fc952014593d94619c874e09, type: 3}
+  weakSignalColor: {r: 1, g: 1, b: 1, a: 1}
+  fullSignalColor: {r: 0, g: 1, b: 0, a: 1}
 --- !u!1001 &6319714696750598349
 PrefabInstance:
   m_ObjectHideFlags: 0

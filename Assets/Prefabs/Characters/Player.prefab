@@ -30335,6 +30335,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3496365618742776278}
+  - component: {fileID: 6680979653989007168}
   m_Layer: 12
   m_Name: CameraHeadThingy
   m_TagString: Untagged
@@ -30360,6 +30361,21 @@ Transform:
   - {fileID: 3171606257177908449}
   m_Father: {fileID: 4525852725061259153}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6680979653989007168
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5577114592626121966}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c31993aea097d0845b8f77b772460919, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SignalReceiver
+  signalPort: {fileID: 11400000, guid: 4a8d0f4586b041246b0ef410418ae1e1, type: 2}
+  maxDetectionAngle: 20
+  fullStrengthCutoff: 0.9
 --- !u!1 &6279245156197328241
 GameObject:
   m_ObjectHideFlags: 0

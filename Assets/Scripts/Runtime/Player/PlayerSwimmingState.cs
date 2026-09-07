@@ -26,9 +26,6 @@ public class PlayerSwimmingState : State<PlayerMovement>
                     obj.CameraHead.transform.rotation * new Vector3(obj.InputHandler.Move.x, 0, obj.InputHandler.Move.y)).normalized *
                     (obj.InputHandler.Run ? _swimmingFastSpeed : _swimmingSpeed);
 
-        Debug.Log(_swimmingFastSpeed);
-        Debug.Log(_swimmingSpeed);
-
         obj.Rb.linearVelocity += (targetVel - obj.Rb.linearVelocity) * _accelaration;
 
         /*

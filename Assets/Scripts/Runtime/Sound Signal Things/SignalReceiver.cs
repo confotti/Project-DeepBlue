@@ -1,6 +1,6 @@
-using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using UnityEngine;
 
 public class SignalReceiver : MonoBehaviour
@@ -9,6 +9,10 @@ public class SignalReceiver : MonoBehaviour
 
     [Header("Detection")]
     [SerializeField] private float maxDetectionAngle = 20f;
+
+    [SerializeField, Range(0.0f, 1.0f), Description("The percantage from max detection angle where the signal will be at it's strongest. " +
+        "For example if at 0.9 it will be a full strength signal when you are within the closest 10% of max detection angle. At 0 it will always be max strength signal")] 
+    private float fullStrengthCutoff = 0.9f;
 
     private float minDot;
 
@@ -62,7 +66,7 @@ public class SignalReceiver : MonoBehaviour
 
             if (dot < minDot) continue;
 
-            float signalStrength = Mathf.InverseLerp(minDot, 1f, dot);
+            float signalStrength = Mathf.InverseLerp(minDot, Mathf.Lerp(minDot, 1, fullStrengthCutoff), dot);
             signalStrengths.Add(signalStrength);
 
             if (signalStrength > bestStrength)

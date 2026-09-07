@@ -1,18 +1,20 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 public class SonarClamps : MonoBehaviour
 {
-    public RectTransform left;
-    public RectTransform right;
+    public Image left;
+    public Image right;
 
     public void SetOffset(float offset)
     {
-        left.position = new Vector3(-offset, 0, 0);
-        right.position = new Vector3(offset, 0, 0);
+        left.transform.localPosition = new Vector3(-offset, 0, 0);
+        right.transform.localPosition = new Vector3(offset, 0, 0);
+    }
 
-        Debug.Log(left.position);
-        Debug.Log(right.position);
-
-        //Fixa skiten imorgon :(
+    public void SetColor(Color c)
+    {
+        left.color = c;
+        right.color = c;
     }
 }

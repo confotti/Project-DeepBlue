@@ -26,15 +26,15 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1831879773114961413}
   m_LocalRotation: {x: -0, y: -0.000000029802326, z: 0.0000000074505815, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -0.00020408627}
-  m_LocalScale: {x: -0.30000007, y: 0.3, z: 0.30000007}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: -0.6, y: 0.6, z: 0.6}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1287379569229063082}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 10, y: 0}
+  m_AnchoredPosition: {x: 20, y: 0}
   m_SizeDelta: {x: 63, y: 121}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &668077321639364163
@@ -125,8 +125,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 402258c3a0ae6ad43b366ae2ddc19c5f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SonarClamps
-  left: {fileID: 1863224520218858358}
-  right: {fileID: 1995522563747782048}
+  left: {fileID: 7866577858789615314}
+  right: {fileID: 6467330405822275512}
 --- !u!1 &2371967249377218070
 GameObject:
   m_ObjectHideFlags: 0
@@ -153,15 +153,15 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2371967249377218070}
   m_LocalRotation: {x: -0, y: -0.000000029802326, z: 0.0000000074505815, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -0.00012111662}
-  m_LocalScale: {x: 0.3000001, y: 0.3, z: 0.30000007}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0.6, y: 0.6, z: 0.6}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 1287379569229063082}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -10, y: -0.00003051757}
+  m_AnchoredPosition: {x: -20, y: 0}
   m_SizeDelta: {x: 63, y: 121}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2824088048884730384
