@@ -10,6 +10,9 @@ public class SignalWaveform : MaskableGraphic
     [SerializeField, Range(32, 1024)]
     private int audioSamples = 256;
 
+    [SerializeField]
+    private bool averageStereoChannels = true;
+
     [Header("Waveform")]
     [SerializeField, Range(32, 1024)]
     private int waveformPoints = 256;
@@ -40,22 +43,39 @@ public class SignalWaveform : MaskableGraphic
     [SerializeField]
     private float testHarmonic = 0.25f;
 
-    private float[] audioBuffer;
+    private float[] audioBufferChannelA;
+    private float[] audioBufferChannelB;
     private float[] waveformBuffer;
     private float[] smoothedBuffer;
+
+    // Cached mesh scratch buffers - reused every frame to avoid GC allocations.
+    private Vector2[] meshPoints;
+    private Vector2[] meshNormals;
 
     private float animationOffset;
 
     protected override void Awake()
     {
         base.Awake();
-
         InitializeBuffers();
+    }
+
+    private void OnValidate()
+    {
+        // AudioSource.GetOutputData requires a power-of-two sample count.
+        audioSamples = Mathf.NextPowerOfTwo(Mathf.Clamp(audioSamples, 32, 1024));
+        waveformPoints = Mathf.Clamp(waveformPoints, 32, 1024);
+
+        // Only touch buffers once Awake has actually run, so we don't
+        // allocate mid-construction or stomp on a null reference in the editor.
+        if (waveformBuffer != null)
+            InitializeBuffers();
     }
 
     private void InitializeBuffers()
     {
-        audioBuffer = new float[audioSamples];
+        audioBufferChannelA = new float[audioSamples];
+        audioBufferChannelB = new float[audioSamples];
         waveformBuffer = new float[waveformPoints];
         smoothedBuffer = new float[waveformPoints];
     }
@@ -63,10 +83,7 @@ public class SignalWaveform : MaskableGraphic
     private void Update()
     {
         if (animate)
-        {
-            animationOffset +=
-                Time.deltaTime * scrollSpeed;
-        }
+            animationOffset += Time.deltaTime * scrollSpeed;
 
         if (useTestWaveform)
             GenerateTestWaveform();
@@ -84,26 +101,10 @@ public class SignalWaveform : MaskableGraphic
     {
         for (int i = 0; i < waveformPoints; i++)
         {
-            float x =
-                (float)i / (waveformPoints - 1);
+            float x = (float)i / (waveformPoints - 1);
 
-            // Fixed waveform.
-            float wave =
-                Mathf.Sin(
-                    x *
-                    Mathf.PI *
-                    2f *
-                    testFrequency
-                );
-
-            wave +=
-                Mathf.Sin(
-                    x *
-                    Mathf.PI *
-                    2f *
-                    testFrequency *
-                    2.7f
-                ) * testHarmonic;
+            float wave = Mathf.Sin(x * Mathf.PI * 2f * testFrequency);
+            wave += Mathf.Sin(x * Mathf.PI * 2f * testFrequency * 2.7f) * testHarmonic;
 
             waveformBuffer[i] = wave;
         }
@@ -113,32 +114,29 @@ public class SignalWaveform : MaskableGraphic
 
     private void UpdateAudioWaveform()
     {
-        if (audioSource == null ||
-            !audioSource.isPlaying)
+        if (audioSource == null || !audioSource.isPlaying)
         {
             FadeWaveform();
             return;
         }
 
-        audioSource.GetOutputData(
-            audioBuffer,
-            0
-        );
+        audioSource.GetOutputData(audioBufferChannelA, 0);
+
+        // Blend in the right channel too, so a stereo clip doesn't just show its left side.
+        if (averageStereoChannels && audioSource.clip != null && audioSource.clip.channels > 1)
+        {
+            audioSource.GetOutputData(audioBufferChannelB, 1);
+
+            for (int i = 0; i < audioSamples; i++)
+                audioBufferChannelA[i] = (audioBufferChannelA[i] + audioBufferChannelB[i]) * 0.5f;
+        }
 
         for (int i = 0; i < waveformPoints; i++)
         {
-            float normalized =
-                (float)i /
-                (waveformPoints - 1);
+            float normalized = (float)i / (waveformPoints - 1);
+            int sample = Mathf.FloorToInt(normalized * (audioSamples - 1));
 
-            int sample =
-                Mathf.FloorToInt(
-                    normalized *
-                    (audioSamples - 1)
-                );
-
-            waveformBuffer[i] =
-                audioBuffer[sample];
+            waveformBuffer[i] = audioBufferChannelA[sample];
         }
 
         ScrollAndSmoothWaveform();
@@ -146,110 +144,70 @@ public class SignalWaveform : MaskableGraphic
 
     private void ScrollAndSmoothWaveform()
     {
-        float offset =
-            animationOffset *
-            (waveformPoints - 1);
+        float offset = animationOffset * (waveformPoints - 1);
+
+        // Framerate-independent smoothing: same perceived "settle time"
+        // whether the game runs at 30fps or 144fps.
+        float lerpFactor = 1f - Mathf.Pow(smoothing, Time.deltaTime * 60f);
 
         for (int i = 0; i < waveformPoints; i++)
         {
-            float samplePosition =
-                i + offset;
+            float samplePosition = i + offset;
+            samplePosition = Mathf.Repeat(samplePosition, waveformPoints);
 
-            samplePosition =
-                Mathf.Repeat(
-                    samplePosition,
-                    waveformPoints
-                );
+            int index0 = Mathf.FloorToInt(samplePosition);
+            int index1 = (index0 + 1) % waveformPoints;
+            float interpolation = samplePosition - index0;
 
-            int index0 =
-                Mathf.FloorToInt(samplePosition);
+            float value = Mathf.Lerp(waveformBuffer[index0], waveformBuffer[index1], interpolation);
 
-            int index1 =
-                (index0 + 1) %
-                waveformPoints;
-
-            float interpolation =
-                samplePosition - index0;
-
-            float value =
-                Mathf.Lerp(
-                    waveformBuffer[index0],
-                    waveformBuffer[index1],
-                    interpolation
-                );
-
-            smoothedBuffer[i] =
-                Mathf.Lerp(
-                    smoothedBuffer[i],
-                    value,
-                    1f - smoothing
-                );
+            smoothedBuffer[i] = Mathf.Lerp(smoothedBuffer[i], value, lerpFactor);
         }
     }
 
     private void FadeWaveform()
     {
+        float lerpFactor = Time.deltaTime * 5f;
+
         for (int i = 0; i < waveformPoints; i++)
-        {
-            smoothedBuffer[i] =
-                Mathf.Lerp(
-                    smoothedBuffer[i],
-                    0f,
-                    Time.deltaTime * 5f
-                );
-        }
+            smoothedBuffer[i] = Mathf.Lerp(smoothedBuffer[i], 0f, lerpFactor);
     }
 
     // =========================================================
     // MESH
     // =========================================================
 
-    protected override void OnPopulateMesh(
-    VertexHelper vh)
+    protected override void OnPopulateMesh(VertexHelper vh)
     {
         vh.Clear();
 
-        if (smoothedBuffer == null ||
-            smoothedBuffer.Length < 2)
+        if (smoothedBuffer == null || smoothedBuffer.Length < 2)
             return;
 
         Rect rect = rectTransform.rect;
-
         int count = smoothedBuffer.Length;
 
-        Vector2[] points =
-            new Vector2[count];
-
-        Vector2[] normals =
-            new Vector2[count];
+        if (meshPoints == null || meshPoints.Length != count)
+        {
+            meshPoints = new Vector2[count];
+            meshNormals = new Vector2[count];
+        }
 
         // ---------------------------------------------------------
-        // Create points
+        // Points
         // ---------------------------------------------------------
 
         for (int i = 0; i < count; i++)
         {
-            float t =
-                (float)i /
-                (count - 1);
+            float t = (float)i / (count - 1);
+            float x = Mathf.Lerp(rect.xMin, rect.xMax, t);
+            float y = smoothedBuffer[i] * amplitude;
 
-            float x =
-                Mathf.Lerp(
-                    rect.xMin,
-                    rect.xMax,
-                    t
-                );
-
-            float y =
-                smoothedBuffer[i] *
-                amplitude;
-
-            points[i] =
-                new Vector2(x, y);
+            meshPoints[i] = new Vector2(x, y);
         }
 
         // ---------------------------------------------------------
-        // Calculate normals
+        // Normals
         // ---------------------------------------------------------
 
         for (int i = 0; i < count; i++)
@@ -257,55 +215,28 @@ public class SignalWaveform : MaskableGraphic
             Vector2 tangent;
 
             if (i == 0)
-            {
-                tangent =
-                    points[1] -
-                    points[0];
-            }
+                tangent = meshPoints[1] - meshPoints[0];
             else if (i == count - 1)
-            {
-                tangent =
-                    points[i] -
-                    points[i - 1];
-            }
+                tangent = meshPoints[i] - meshPoints[i - 1];
             else
-            {
-                tangent =
-                    points[i + 1] -
-                    points[i - 1];
-            }
+                tangent = meshPoints[i + 1] - meshPoints[i - 1];
 
             tangent.Normalize();
-
-            normals[i] =
-                new Vector2(
-                    -tangent.y,
-                    tangent.x
-                );
+            meshNormals[i] = new Vector2(-tangent.y, tangent.x);
         }
 
         // ---------------------------------------------------------
         // Vertices
         // ---------------------------------------------------------
 
-        float halfThickness =
-            thickness * 0.5f;
+        float halfThickness = thickness * 0.5f;
 
         for (int i = 0; i < count; i++)
         {
-            Vector2 offset =
-                normals[i] *
-                halfThickness;
+            Vector2 offset = meshNormals[i] * halfThickness;
 
-            AddVertex(
-                vh,
-                points[i] + offset
-            );
-
-            AddVertex(
-                vh,
-                points[i] - offset
-            );
+            AddVertex(vh, meshPoints[i] + offset);
+            AddVertex(vh, meshPoints[i] - offset);
         }
 
         // ---------------------------------------------------------
@@ -314,73 +245,62 @@ public class SignalWaveform : MaskableGraphic
 
         for (int i = 0; i < count - 1; i++)
         {
-            int index =
-                i * 2;
+            int index = i * 2;
 
-            vh.AddTriangle(
-                index,
-                index + 1,
-                index + 2
-            );
-
-            vh.AddTriangle(
-                index + 2,
-                index + 1,
-                index + 3
-            );
+            vh.AddTriangle(index, index + 1, index + 2);
+            vh.AddTriangle(index + 2, index + 1, index + 3);
         }
     }
 
-    private void AddVertex(
-        VertexHelper vh,
-        Vector2 position)
+    private void AddVertex(VertexHelper vh, Vector2 position)
     {
-        UIVertex vertex =
-            UIVertex.simpleVert;
-
+        UIVertex vertex = UIVertex.simpleVert;
         vertex.color = color;
         vertex.position = position;
 
         vh.AddVert(vertex);
     }
 
-
     // =========================================================
     // PUBLIC API
     // =========================================================
 
-    public void SetAudioSource(
-        AudioSource source)
+    public void SetAudioSource(AudioSource source)
     {
         audioSource = source;
     }
 
-    public void SetSignalStrength(
-        float strength)
+    public void SetSignalStrength(float strength)
     {
-        strength =
-            Mathf.Clamp01(strength);
+        strength = Mathf.Clamp01(strength);
 
         Color c = color;
-
         c.a = strength;
-
         color = c;
 
         SetVerticesDirty();
     }
 
-    public void SetAmplitude(
-        float value)
+    public void SetAmplitude(float value)
     {
         amplitude = value;
-
         SetVerticesDirty();
     }
 
-    public void SetScrollSpeed(
-        float value)
+    public void SetScrollSpeed(float value)
     {
         scrollSpeed = value;
+    }
+
+    public void SetWaveformPoints(int points)
+    {
+        waveformPoints = Mathf.Clamp(points, 32, 1024);
+        InitializeBuffers();
+    }
+
+    public void SetAudioSamples(int samples)
+    {
+        audioSamples = Mathf.NextPowerOfTwo(Mathf.Clamp(samples, 32, 1024));
+        InitializeBuffers();
     }
 }

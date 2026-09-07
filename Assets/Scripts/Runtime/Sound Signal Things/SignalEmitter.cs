@@ -3,7 +3,7 @@ using UnityEngine;
 public class SignalEmitter : MonoBehaviour
 {
     public string signalName;
-    public AudioClip signalAudio;
+    public AudioSource signalAudio;
 
     private void OnEnable()
     {
