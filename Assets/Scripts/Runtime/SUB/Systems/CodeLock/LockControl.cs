@@ -15,7 +15,7 @@ public class LockControl : MonoBehaviour
     [SerializeField] private CinemachineCamera lockCamera;
 
     [Header("Camera Control")]
-    [SerializeField] private MonoBehaviour[] playerMovement;
+    [SerializeField] private GameObject[] player; 
 
     public bool IsSolved => combinationSolved;
 
@@ -81,16 +81,16 @@ public class LockControl : MonoBehaviour
 
     private void SetPlayerScripts(bool enabled)
     {
-        if (playerMovement == null)
+        if (player == null)
         {
             return;
         }
 
-        foreach (MonoBehaviour script in playerMovement)
+        foreach (GameObject script in player) 
         {
             if (script != null)
             {
-                script.enabled = enabled;
+                script.SetActive(enabled); 
             }
         }
     }
