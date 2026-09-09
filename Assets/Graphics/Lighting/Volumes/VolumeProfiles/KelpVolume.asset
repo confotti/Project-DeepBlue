@@ -24,10 +24,10 @@ MonoBehaviour:
     m_Value: {x: 0.5, y: 0.5}
   intensity:
     m_OverrideState: 1
-    m_Value: 0.35
+    m_Value: 0.392
   smoothness:
     m_OverrideState: 1
-    m_Value: 0.4
+    m_Value: 0.5
   roundness:
     m_OverrideState: 0
     m_Value: 1
@@ -73,10 +73,10 @@ MonoBehaviour:
     m_Value: 1
   farFocusStart:
     m_OverrideState: 1
-    m_Value: 200
+    m_Value: 50
   farFocusEnd:
     m_OverrideState: 1
-    m_Value: 800
+    m_Value: 200
   m_NearSampleCount:
     m_OverrideState: 0
     m_Value: 5
@@ -107,25 +107,6 @@ MonoBehaviour:
   coCStabilization:
     m_OverrideState: 0
     m_Value: 1
---- !u!114 &-6458532670530887915
-MonoBehaviour:
-  m_ObjectHideFlags: 3
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b51a78e223a2e504bb88a059b55229ea, type: 3}
-  m_Name: WhiteBalance
-  m_EditorClassIdentifier: 
-  active: 1
-  temperature:
-    m_OverrideState: 1
-    m_Value: 0
-  tint:
-    m_OverrideState: 0
-    m_Value: 0
 --- !u!114 &-3560766536841488995
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -141,13 +122,13 @@ MonoBehaviour:
   active: 1
   shadows:
     m_OverrideState: 1
-    m_Value: {x: 0.8, y: 0.9, z: 1, w: 0}
+    m_Value: {x: 0.8, y: 0.9, z: 1, w: -0.1}
   midtones:
     m_OverrideState: 1
-    m_Value: {x: 0.84000003, y: 0.92266667, z: 1, w: 0}
+    m_Value: {x: 0.84000003, y: 0.92266667, z: 1, w: 0.1}
   highlights:
     m_OverrideState: 1
-    m_Value: {x: 0.84000003, y: 0.94133335, z: 1, w: 0}
+    m_Value: {x: 0.84000003, y: 0.94133335, z: 1, w: 0.3}
   shadowsStart:
     m_OverrideState: 0
     m_Value: 0
@@ -184,10 +165,10 @@ MonoBehaviour:
     m_Value: 1
   fixedExposure:
     m_OverrideState: 1
-    m_Value: -1.5
+    m_Value: 0.7
   compensation:
-    m_OverrideState: 0
-    m_Value: 0
+    m_OverrideState: 1
+    m_Value: 1
   limitMin:
     m_OverrideState: 0
     m_Value: -1
@@ -329,7 +310,6 @@ MonoBehaviour:
   - {fileID: 7855610605396111098}
   - {fileID: 4109246637557346085}
   - {fileID: -638341615069223902}
-  - {fileID: -6458532670530887915}
   - {fileID: -3560766536841488995}
   - {fileID: 3465668933903231230}
   - {fileID: 4247720983899947555}
@@ -427,7 +407,7 @@ MonoBehaviour:
     m_Value: 2500
   meanFreePath:
     m_OverrideState: 1
-    m_Value: 50
+    m_Value: 35
   enableVolumetricFog:
     m_OverrideState: 1
     m_Value: 1
@@ -522,4 +502,4 @@ MonoBehaviour:
     m_Value: 0
   saturation:
     m_OverrideState: 1
-    m_Value: 30
+    m_Value: 0
